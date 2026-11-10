@@ -45,7 +45,7 @@ interface CategoriaReporte {
 }
 
 interface CanalReporte {
-  nombre: 'ONLINE' | 'PRESENCIAL';
+  nombre: 'ONLINE';
   cantidad: number;
   total: number;
   porcentaje: number;
@@ -129,10 +129,7 @@ export class Reportes implements OnInit {
       usuarios: this.usuarioService.listarTodos()
     }).subscribe({
       next: respuesta => {
-        this.ventas = (respuesta.ventas ?? []).filter(venta => {
-          const tipo = String(venta.tipoVenta ?? '').toUpperCase();
-          return tipo !== 'PRESENCIAL' && venta.idClientePresencial == null;
-        });
+        this.ventas = respuesta.ventas ?? [];
         this.productos = respuesta.productos ?? [];
         this.usuarios = respuesta.usuarios ?? [];
         this.cargarInformacionSecundaria();
@@ -258,11 +255,7 @@ export class Reportes implements OnInit {
     return resultado;
   }
 
-  private obtenerTipoVenta(venta: Venta): 'ONLINE' | 'PRESENCIAL' {
-    if (venta.tipoVenta === 'PRESENCIAL') return 'PRESENCIAL';
-    if (venta.tipoVenta === 'ONLINE') return 'ONLINE';
-    return venta.idClientePresencial ? 'PRESENCIAL' : 'ONLINE';
-  }
+  private obtenerTipoVenta(_venta: Venta): 'ONLINE' { return 'ONLINE'; }
 
   private idsVentasFiltradas(): Set<number> {
     return new Set(this.ventasFiltradas.map(venta => venta.idVenta));
@@ -338,7 +331,7 @@ export class Reportes implements OnInit {
   }
 
   private generarCanales(): void {
-    const mapa = new Map<'ONLINE' | 'PRESENCIAL', CanalReporte>();
+    const mapa = new Map<'ONLINE', CanalReporte>();
 
     for (const venta of this.ventasFiltradas) {
       const nombre = this.obtenerTipoVenta(venta);

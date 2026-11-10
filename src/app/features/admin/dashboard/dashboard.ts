@@ -66,7 +66,7 @@ export class Dashboard implements OnInit {
   // ACCIÓN DEL BOTÓN: + NUEVA VENTA
   // ==========================================
   irAPedidos(): void {
-    // Redirige al Punto de Venta / Registro de venta presencial
+    // Abre la administracion de pedidos de la tienda online
     this.router.navigate(['/admin/ventas']);
   }
 
