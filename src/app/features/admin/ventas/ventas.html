@@ -5,7 +5,7 @@
     <div class="header-titles">
       <span class="badge-subtitle">GESTIÓN COMERCIAL</span>
       <h1>Ventas y Pedidos</h1>
-      <p>Consulta, filtra y administra las transacciones online y presenciales de la tienda.</p>
+      <p>Consulta y administra los pedidos realizados en la tienda online.</p>
     </div>
   </header>
 
@@ -49,13 +49,8 @@
   <div class="channels-grid">
     <article class="channel-card">
       <span class="ch-label">WEB ONLINE</span>
-      <strong class="ch-val">{{ ventasOnline }}</strong>
+      <strong class="ch-val">{{ totalVentas }}</strong>
       <small>Pedidos por la tienda</small>
-    </article>
-    <article class="channel-card">
-      <span class="ch-label">POS PRESENCIAL</span>
-      <strong class="ch-val">{{ ventasPresenciales }}</strong>
-      <small>Ventas en local</small>
     </article>
     <article class="channel-card">
       <span class="ch-label">EFECTIVO</span>
@@ -70,7 +65,7 @@
     <article class="channel-card">
       <span class="ch-label">TARJETA</span>
       <strong class="ch-val">{{ ventasTarjeta }}</strong>
-      <small>POS / Tarjetas</small>
+      <small>Pagos con tarjeta</small>
     </article>
   </div>
 
@@ -91,12 +86,6 @@
             (ngModelChange)="aplicarFiltros()"
             placeholder="Buscar por ID, cliente, correo o documento...">
         </div>
-
-        <select [(ngModel)]="filtroTipoVenta" (ngModelChange)="aplicarFiltros()">
-          <option value="">Todos los canales</option>
-          <option value="ONLINE">Online (Web)</option>
-          <option value="PRESENCIAL">Presencial (POS)</option>
-        </select>
 
         <select [(ngModel)]="filtroPago" (ngModelChange)="aplicarFiltros()">
           <option value="">Todos los pagos</option>

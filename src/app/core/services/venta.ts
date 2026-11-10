@@ -2,7 +2,7 @@ import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CompraRequest, CompraResponse, VentaPosRequest, VentaPosResponse } from '../models/venta';
+import { CompraRequest, CompraResponse } from '../models/venta';
 import { Venta, DetalleCompraResponse, DetalleVenta } from '../models/venta-detalle';
 
 @Injectable({
@@ -67,16 +67,6 @@ export class VentaService {
   detalleVentaAdmin(idVenta: number): Observable<DetalleCompraResponse> {
     return this.http.get<DetalleCompraResponse>(
       `${this.apiUrl}/admin/${idVenta}/detalle`
-    );
-  }
-
-  // =========================================================
-  // ADMIN - VENTA PRESENCIAL / POS
-  // =========================================================
-  realizarVentaPos(request: VentaPosRequest): Observable<VentaPosResponse> {
-    return this.http.post<VentaPosResponse>(
-      `${this.apiUrl}/admin/pos`,
-      request
     );
   }
 }

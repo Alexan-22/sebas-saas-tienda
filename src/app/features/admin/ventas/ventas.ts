@@ -109,8 +109,11 @@ export class Ventas implements OnInit {
           ventas: Venta[]
         ) => {
 
-          this.ventas =
-            ventas ?? [];
+          this.ventas = (ventas ?? []).filter(venta => {
+            const tipo = String(venta.tipoVenta ?? '').toUpperCase();
+            return tipo !== 'PRESENCIAL' &&
+                   venta.idClientePresencial == null;
+          });
 
           this.ventas.sort(
             (

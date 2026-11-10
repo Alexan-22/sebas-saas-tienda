@@ -28,7 +28,6 @@ import { Dashboard } from './features/admin/dashboard/dashboard';
 import { Productos } from './features/admin/productos/productos';
 import { ProductoForm } from './features/admin/producto-form/producto-form';
 import { Stock } from './features/admin/stock/stock';
-import { Vender } from './features/admin/vender/vender';
 import { Ventas } from './features/admin/ventas/ventas';
 import { Usuarios } from './features/admin/usuarios/usuarios';
 import { Reportes } from './features/admin/reportes/reportes';
@@ -147,10 +146,6 @@ export const routes: Routes = [
       // -------------------------------------------------
       // NEGOCIO
       // -------------------------------------------------
-      {
-        path: 'vender',
-        component: Vender
-      },
       {
         path: 'ventas',
         component: Ventas

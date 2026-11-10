@@ -23,14 +23,6 @@
         </select>
       </div>
 
-      <div class="filter-control">
-        <label>CANAL</label>
-        <select [(ngModel)]="canal" (change)="aplicarCanal()">
-          <option value="TODOS">Todos los canales</option>
-          <option value="ONLINE">Online</option>
-          <option value="PRESENCIAL">Presencial</option>
-        </select>
-      </div>
 
       <div class="export-control">
         <label>EXPORTAR</label>
@@ -79,7 +71,7 @@
       [class.active]="pestanaActiva === 'canales'"
       class="tab-button">
       <span class="tab-icon">💳</span>
-      <span>Medios de Pago y Canales</span>
+      <span>Medios de Pago y E-commerce</span>
     </button>
 
     <button 
@@ -161,16 +153,6 @@
             <small>Compras realizadas desde la tienda web</small>
           </article>
 
-          <article class="channel-card">
-            <div class="channel-info">
-              <div class="channel-badge pos">PRESENCIAL</div>
-              <div>
-                <span>VENTAS EN TIENDA</span>
-                <strong>{{ ventasPresenciales }}</strong>
-              </div>
-            </div>
-            <small>Ventas registradas desde el punto de venta</small>
-          </article>
         </section>
         <section class="summary-grid reporte-ampliado">
           <article class="panel">
@@ -189,10 +171,9 @@
             </div>
           </article>
           <article class="panel">
-            <div class="panel-header"><h2>INGRESOS POR CANAL</h2><span class="panel-number">04</span></div>
+            <div class="panel-header"><h2>INGRESOS E-COMMERCE</h2><span class="panel-number">04</span></div>
             <div class="panel-content">
               <div class="reporte-linea"><strong>ONLINE</strong><span>S/ {{ ingresoOnline | number:'1.2-2' }}</span></div>
-              <div class="reporte-linea"><strong>PRESENCIAL</strong><span>S/ {{ ingresoPresencial | number:'1.2-2' }}</span></div>
               <p class="reporte-aclaracion">Se muestran importes registrados, no una conciliación bancaria.</p>
             </div>
           </article>
@@ -368,7 +349,7 @@
           <article class="stat-card purple"><p>VENTAS ANALIZADAS</p><strong>{{ totalVentas }}</strong><span>Con los filtros actuales</span></article>
           <article class="stat-card emerald"><p>MONTO REGISTRADO</p><strong>S/ {{ ingresosTotales | number:'1.2-2' }}</strong><span>No es saldo bancario conciliado</span></article>
           <article class="stat-card blue"><p>MEDIOS USADOS</p><strong>{{ mediosPago.length }}</strong><span>Medios de pago distintos</span></article>
-          <article class="stat-card amber"><p>CANALES</p><strong>{{ canales.length }}</strong><span>ONLINE / PRESENCIAL presentes</span></article>
+          <article class="stat-card amber"><p>PEDIDOS WEB</p><strong>{{ ventasOnline }}</strong><span>Pedidos e-commerce analizados</span></article>
         </section>
         <section class="summary-grid">
           
@@ -409,7 +390,7 @@
             <div class="panel-header">
               <div>
                 <p class="eyebrow">ORIGEN DE VENTAS</p>
-                <h2>VENTAS POR CANAL</h2>
+                <h2>PEDIDOS POR CANAL WEB</h2>
               </div>
               <span class="panel-number">02</span>
             </div>
@@ -449,7 +430,6 @@
           <article class="stat-card purple"><p>COMPRADORES IDENTIFICADOS</p><strong>{{ clientesCompradores }}</strong><span>Compradores del período y canal</span></article>
           <article class="stat-card emerald"><p>CLIENTES RECURRENTES</p><strong>{{ clientesRecurrentes }}</strong><span>Con dos o más ventas en el filtro</span></article>
           <article class="stat-card blue"><p>COMPRADORES ONLINE</p><strong>{{ compradoresOnline }}</strong><span>Usuarios con compras</span></article>
-          <article class="stat-card amber"><p>COMPRADORES POS</p><strong>{{ compradoresPresenciales }}</strong><span>Clientes presenciales con compras</span></article>
         </section>
         <section class="summary-grid">
           

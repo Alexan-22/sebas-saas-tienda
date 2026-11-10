@@ -65,9 +65,9 @@ export class Dashboard implements OnInit {
   // ==========================================
   // ACCIÓN DEL BOTÓN: + NUEVA VENTA
   // ==========================================
-  irANuevaVenta(): void {
+  irAPedidos(): void {
     // Redirige al Punto de Venta / Registro de venta presencial
-    this.router.navigate(['/admin/vender']);
+    this.router.navigate(['/admin/ventas']);
   }
 
   // ==========================================
