@@ -1,0 +1,28 @@
+<article class="product-card">
+  <a [routerLink]="['/producto', producto.idProducto]" class="product-link">
+    <div class="product-image-container">
+      @if (imagenUrl; as src) {
+        <img [src]="src" [alt]="producto.nombre" (error)="onImagenError()" class="product-image" loading="lazy" />
+      } @else {
+        <div class="product-placeholder"><span>Imagen no disponible</span></div>
+      }
+      <div class="badge-wrap">
+        @if (producto.nuevo) { <span class="badge-new">Nuevo</span> }
+        @if (tieneOferta) { <span class="badge-discount">-{{ porcentajeDescuento }}%</span> }
+      </div>
+      <div class="product-overlay">Ver prenda →</div>
+    </div>
+    <div class="product-info">
+      <p class="product-category">{{ producto.categoria?.nombreCategoria }} · {{ producto.genero?.nombreGenero }}</p>
+      <h3 class="product-name">{{ producto.nombre }}</h3>
+      <div class="product-price">
+        @if (tieneOferta) {
+          <strong class="current-price">S/ {{ producto.precioOferta | number:'1.2-2' }}</strong>
+          <span class="old-price">S/ {{ producto.precio | number:'1.2-2' }}</span>
+        } @else {
+          <strong class="current-price">S/ {{ producto.precio | number:'1.2-2' }}</strong>
+        }
+      </div>
+    </div>
+  </a>
+</article>

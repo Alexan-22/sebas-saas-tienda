@@ -1,0 +1,50 @@
+<section class="p-6 lg:p-10">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Pagos Yape por verificar</h1>
+      <p class="text-sm text-slate-600">Estos cobros son directos a tu cuenta. No son pagos SANDBOX.</p>
+    </div>
+    <button type="button" (click)="cargar()" [disabled]="cargando" class="rounded-lg bg-slate-900 px-5 py-3 text-white">Actualizar</button>
+  </div>
+  @if (error) { <p class="mt-4 rounded-lg bg-red-50 p-3 text-red-700" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="mt-4 rounded-lg bg-green-50 p-3 text-green-700">{{ mensaje }}</p> }
+  @if (cargando) { <p class="mt-5">Cargando pagos...</p> }
+  @if (!cargando && pagos.length === 0) { <p class="mt-5">No hay pedidos Yape registrados.</p> }
+  <div class="mt-6 grid gap-4">
+    @for (p of pagos; track p.idVenta) {
+      <article class="rounded-xl border bg-white p-5">
+        <div class="flex flex-wrap justify-between gap-3">
+          <div>
+            <h2 class="font-bold">Pedido #{{ p.idVenta }}</h2>
+            <p class="text-sm text-slate-600">Cliente: {{ p.correoCliente }}</p>
+            <p class="text-sm">Cuenta: {{ p.titularYape }} · {{ p.numeroYape }}</p>
+            <p class="text-sm text-slate-500">{{ p.creadoEn | date:'medium' }}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xl font-bold">S/ {{ p.importe | number:'1.2-2' }}</p>
+            <p class="text-sm font-semibold">{{ p.estado }}</p>
+          </div>
+        </div>
+        <button type="button" (click)="verAuditoria(p.idVenta)" class="mt-3 text-sm underline">Ver auditoria del pago</button>
+        <app-yape-comprobante-admin [idVenta]="p.idVenta"></app-yape-comprobante-admin>
+        @if (auditoriaVenta === p.idVenta) {
+          <ul class="mt-2 rounded-lg bg-slate-50 p-3 text-sm">
+            @for (e of eventos; track $index) {
+              <li class="mb-2">{{ e.ocurridoEn | date:'medium' }} · {{ e.evento }}: {{ e.estadoAnterior || 'SIN ESTADO' }} → {{ e.estadoNuevo }} · {{ e.actorCorreo }} @if (e.observacion) { ({{ e.observacion }}) }</li>
+            } @empty { <li>No hay eventos para mostrar.</li> }
+          </ul>
+        }
+        @if (p.estado === 'PENDIENTE') {
+          <p class="mt-3 text-sm text-amber-900">Comprueba personalmente el abono en tu cuenta antes de aprobar. El cliente no puede aprobarlo.</p>
+          <div class="mt-3 flex flex-wrap gap-3">
+            <button type="button" (click)="aprobar(p)" [disabled]="operando !== null" class="rounded-lg bg-green-700 px-4 py-2 text-white">Aprobar pago verificado</button>
+            <button type="button" (click)="rechazar(p)" [disabled]="operando !== null" class="rounded-lg border border-red-300 px-4 py-2 text-red-700">Rechazar</button>
+          </div>
+        } @else {
+          <p class="mt-3 text-sm text-slate-600">Verificado por {{ p.verificadoPor }} · {{ p.verificadoEn | date:'medium' }}</p>
+          @if (p.motivoRechazo) { <p class="mt-1 text-sm text-red-700">{{ p.motivoRechazo }}</p> }
+        }
+      </article>
+    }
+  </div>
+</section>

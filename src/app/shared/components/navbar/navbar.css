@@ -1,0 +1,24 @@
+:host{display:block;position:relative;z-index:100}
+.site-header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e9e7e3;z-index:100}
+.nav-inner{max-width:1440px;margin:auto;min-height:83px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;max-width:260px;min-width:140px;text-decoration:none;color:#151515}
+.brand-logo{height:58px;max-width:210px;object-fit:contain}
+.brand-word{font-family:Georgia,serif;text-transform:uppercase;letter-spacing:.12em;font-size:clamp(17px,2vw,26px);font-weight:600;line-height:1.1}
+.desktop-nav{display:flex;align-items:center;gap:28px}
+.nav-link{color:#202020;text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;padding:33px 0 30px;border-bottom:2px solid transparent}
+.nav-link:hover{border-color:#222}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.nav-actions>button,.nav-actions>.bag{background:transparent;border:0;color:#202020;width:39px;height:39px;display:grid;place-items:center;position:relative;cursor:pointer;text-decoration:none}
+.search{border-bottom:1px solid #c9c7c3;display:flex;align-items:center;margin-right:12px}
+.search input{border:0;outline:0;width:170px;padding:11px 2px;font-size:12px;background:transparent}
+.search button{font-size:25px;line-height:1;background:transparent;border:0;cursor:pointer}
+.bag-count{position:absolute;top:0;right:0;border-radius:50%;background:#171717;color:#fff;font-size:10px;min-width:17px;height:17px;display:grid;place-items:center}
+.menu-toggle{display:none!important;font-size:20px}
+.mobile-nav{display:none}
+@media(max-width:1060px){.desktop-nav{gap:16px}.nav-link{font-size:10px}.search input{width:110px}}
+@media(max-width:850px){.desktop-nav,.search{display:none}.menu-toggle{display:grid!important}.nav-inner{min-height:70px;padding:0 16px}.brand-logo{height:50px}.brand{min-width:0}.mobile-nav{display:flex;flex-direction:column;gap:0;padding:15px 20px 25px;border-top:1px solid #eee;box-shadow:0 15px 25px #0000000d;background:white}.mobile-nav>a,.mobile-nav>button{font-size:12px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;color:#161616;background:none;border:0;border-bottom:1px solid #eee;padding:15px 0;text-align:left;cursor:pointer}.mobile-nav form{display:flex;gap:8px;margin-bottom:8px}.mobile-nav input{min-width:0;flex:1;border:1px solid #ddd;padding:10px}.mobile-nav form button{border:0;background:#161616;color:#fff;padding:0 13px}}
+
+
+/* Separador de estilos */
+
+@media(prefers-reduced-motion:reduce){.nav-link,.brand-logo{transition:none}}

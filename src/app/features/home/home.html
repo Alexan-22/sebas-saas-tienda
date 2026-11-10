@@ -1,0 +1,113 @@
+<app-promo-bar></app-promo-bar>
+<app-navbar></app-navbar>
+<main>
+  <section class="hero" aria-label="Colecciones destacadas">
+    @if (cargandoBanners) {
+      <div class="hero-empty"><p>Cargando novedades...</p></div>
+    } @else if (obtenerBannerActual(); as banner) {
+      <div class="hero-slide">
+        @if (imagenBannerUrl(banner); as src) {
+          <img class="hero-image" [src]="src" [alt]="banner.titulo || 'Moda'" fetchpriority="high" />
+        }
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          @if (banner.etiqueta) { <span class="eyebrow">{{ banner.etiqueta }}</span> }
+          <h1>{{ banner.titulo }}</h1>
+          @if (banner.descripcion) { <p>{{ banner.descripcion }}</p> }
+          <a class="hero-button" [href]="enlaceBanner(banner)">{{ banner.textoBoton || 'Explorar colección' }}</a>
+        </div>
+        @if (banners.length > 1) {
+          <button class="arrow prev" type="button" aria-label="Banner anterior" (click)="bannerAnterior()">‹</button>
+          <button class="arrow next" type="button" aria-label="Siguiente banner" (click)="siguienteBanner()">›</button>
+          <div class="dots">
+            @for (item of banners; track item.idBanner; let i = $index) {
+              <button type="button" [class.selected]="i === bannerActual" [attr.aria-label]="'Ir al banner ' + (i + 1)" (click)="irABanner(i)"></button>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="hero-empty"><div class="hero-content">
+        <span class="eyebrow">Nueva temporada</span>
+        <h1>Tu estilo, tu esencia.</h1>
+        <p>Descubre prendas para mujer y hombre que acompañan cada momento.</p>
+        <a class="hero-button" routerLink="/tienda">Explorar tienda</a>
+      </div></div>
+    }
+  </section>
+
+  <section class="department-section section-wrap" aria-label="Explorar moda">
+    <div class="section-heading centered">
+      <span class="eyebrow dark">Encuentra tu estilo</span>
+      <h2>Moda para cada ocasión</h2>
+      <p>Dos universos, una misma esencia.</p>
+    </div>
+    <div class="department-grid">
+      <a class="department-tile mujer" routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }">
+        @if (coleccionMujer; as coleccion) {
+          @if (imagenColeccionUrl(coleccion); as src) { <img class="department-image" [src]="src" alt="Colección Mujer" loading="lazy" /> }
+        }
+        <div class="department-shade"></div>
+        <div class="department-copy"><span>Estilo y elegancia</span><h3>MUJER</h3><strong>Descubrir prendas <span aria-hidden="true">→</span></strong></div>
+      </a>
+      <a class="department-tile hombre" routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }">
+        @if (coleccionHombre; as coleccion) {
+          @if (imagenColeccionUrl(coleccion); as src) { <img class="department-image" [src]="src" alt="Colección Hombre" loading="lazy" /> }
+        }
+        <div class="department-shade"></div>
+        <div class="department-copy"><span>Esenciales modernos</span><h3>HOMBRE</h3><strong>Explorar colección <span aria-hidden="true">→</span></strong></div>
+      </a>
+    </div>
+  </section>
+
+  @if (!cargandoColecciones && colecciones.length > 0) {
+    <section class="section-wrap collection-section">
+      <div class="section-heading centered">
+        <span class="eyebrow dark">Seleccionados para ti</span>
+        <h2>Colecciones destacadas</h2>
+      </div>
+      <div class="collection-grid" [class.collection-grid-two]="colecciones.length === 2" [class.collection-grid-one]="colecciones.length === 1">
+        @for (coleccion of colecciones; track coleccion.idColeccion) {
+          <a class="collection-card" [href]="enlaceColeccion(coleccion)">
+            @if (imagenColeccionUrl(coleccion); as src) {
+              <img [src]="src" [alt]="coleccion.titulo || 'Colección'" loading="lazy" />
+            } @else {
+              <div class="collection-placeholder" aria-hidden="true">{{ tiendaService.tiendaActual()?.nombre || 'Colección' }}</div>
+            }
+            <div class="collection-info">
+              @if (coleccion.etiqueta) { <small>{{ coleccion.etiqueta }}</small> }
+              <h3>{{ coleccion.titulo }}</h3>
+              <span>{{ coleccion.textoBoton || 'Ver colección' }} →</span>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="product-section section-wrap" id="productos">
+    <div class="section-heading heading-row">
+      <div><span class="eyebrow dark">Nuestra selección</span><h2>Novedades que inspiran</h2></div>
+      <a routerLink="/tienda" class="view-all">Ver toda la tienda →</a>
+    </div>
+    @if (cargando) {
+      <div class="status">Cargando productos...</div>
+    } @else if (errorCarga) {
+      <div class="status"><p>No pudimos cargar los productos.</p><button (click)="cargarProductos()" type="button">Reintentar</button></div>
+    } @else if (productos.length === 0) {
+      <div class="status"><h3>Estamos preparando el catálogo</h3><p>Pronto encontrarás nuestras prendas aquí.</p></div>
+    } @else {
+      <div class="product-grid">
+        @for (producto of productosPortada; track producto.idProducto) {
+          <app-product-card [producto]="producto"></app-product-card>
+        }
+      </div>
+    }
+  </section>
+  <section class="closing-banner"><span>Moda para tu día a día</span><h2>Viste lo que eres.</h2><a routerLink="/tienda">Descubrir el catálogo →</a></section>
+  <section class="benefits section-wrap" aria-label="Ventajas"><p>Estilo para cada ocasión</p><p>Encuentra tu talla</p><p>Novedades de temporada</p></section>
+  @if (tiendaService.telefonoWhatsApp(); as numero) {
+    <a class="whatsapp" [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">WhatsApp</a>
+  }
+</main>
+<app-footer></app-footer>

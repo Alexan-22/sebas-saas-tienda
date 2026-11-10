@@ -1,0 +1,26 @@
+<section class="ops-panel">
+  <div class="ops-toolbar"><div><h2>{{ editandoId ? 'Editar cupón' : 'Crear cupón promocional' }}</h2><p class="ops-subtitle">Código por tienda, vigencia, valor y límites de uso.</p></div><span class="ops-pill">{{ cupones().length }} cupones</span></div>
+  <p *ngIf="mensaje" class="ops-feedback">{{ mensaje }}</p><p *ngIf="error" class="ops-feedback error">{{ error }}</p>
+  <form class="ops-form" (ngSubmit)="guardar()" #f="ngForm">
+    <div class="ops-field"><label for="codigo">Código promocional</label><input id="codigo" name="codigo" [(ngModel)]="form.codigo" required minlength="3" maxlength="24" placeholder="MODA10" /></div>
+    <div class="ops-field"><label for="tipo">Tipo de descuento</label><select id="tipo" name="tipo" [(ngModel)]="form.tipo"><option value="PORCENTAJE">Porcentaje (%)</option><option value="FIJO">Monto fijo (S/)</option></select></div>
+    <div class="ops-field"><label for="valor">{{ form.tipo === 'PORCENTAJE' ? 'Descuento (%)' : 'Descuento (S/)' }}</label><input id="valor" name="valor" [(ngModel)]="form.valor" type="number" min="0.01" step="0.01" required /></div>
+    <div class="ops-field"><label for="minimo">Compra mínima (S/)</label><input id="minimo" name="minimo" [(ngModel)]="form.compraMinima" type="number" min="0" step="0.01" required /></div>
+    <div class="ops-field"><label for="limite">Límite de usos</label><input id="limite" name="limite" [(ngModel)]="form.limiteUsos" type="number" min="1" step="1" required /></div>
+    <div class="ops-field"><label for="inicio">Desde</label><input id="inicio" name="inicio" [(ngModel)]="form.inicio" type="date" required /></div>
+    <div class="ops-field"><label for="fin">Hasta</label><input id="fin" name="fin" [(ngModel)]="form.fin" type="date" required /></div>
+    <label class="check-row span-all"><input name="activo" type="checkbox" [(ngModel)]="form.activo" /> Cupón activo</label>
+    <div class="ops-actions span-all"><button class="ops-btn" type="submit" [disabled]="f.invalid">{{ editandoId ? 'Guardar cambios' : 'Crear cupón DEMO' }}</button><button class="ops-btn secondary" type="button" (click)="nuevo()">Nuevo / cancelar</button></div>
+  </form>
+</section>
+<section class="ops-panel">
+  <h2>Probar un cupón (sin consumirlo)</h2>
+  <div class="ops-form"><div class="ops-field"><label for="prueba">Código</label><input id="prueba" [(ngModel)]="codigoPrueba" placeholder="MODA10" /></div><div class="ops-field"><label for="subtotal">Subtotal (S/)</label><input id="subtotal" type="number" min="0" step="0.01" [(ngModel)]="subtotalPrueba" /></div><div class="ops-actions"><button type="button" class="ops-btn secondary" (click)="probar()">Validar DEMO</button></div></div>
+  <p class="ops-feedback" *ngIf="resultadoPrueba">{{ resultadoPrueba }}</p>
+</section>
+<section class="ops-panel"><div class="ops-toolbar"><h2>Cupones registrados</h2><div class="ops-actions"><input aria-label="Buscar cupón" [(ngModel)]="filtro" placeholder="Buscar código" /><button class="ops-btn secondary" (click)="exportar()" [disabled]="!filas.length">Exportar CSV</button></div></div>
+<div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Código</th><th>Tipo</th><th>Valor</th><th>Compra mín.</th><th>Vigencia</th><th>Usos</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+<tr *ngFor="let c of filas"><td><strong>{{ c.codigo }}</strong></td><td>{{ c.tipo }}</td><td>{{ c.tipo === 'PORCENTAJE' ? c.valor + '%' : 'S/ ' + c.valor }}</td><td>S/ {{ c.compraMinima | number:'1.2-2' }}</td><td>{{ c.inicio }} a {{ c.fin }}</td><td>{{ c.usos }}/{{ c.limiteUsos }}</td><td><span class="ops-pill" [class.good]="c.activo">{{ c.activo ? 'ACTIVO' : 'INACTIVO' }}</span></td><td><div class="ops-actions"><button class="ops-btn secondary" (click)="editar(c)">Editar</button><button class="ops-btn secondary" (click)="cambiarEstado(c)">{{ c.activo ? 'Desactivar' : 'Activar' }}</button></div></td></tr>
+<tr *ngIf="!filas.length"><td colspan="8" class="ops-empty">Sin cupones.</td></tr></tbody></table></div>
+</section>
+<p class="ops-hint">Este validador NO consume cupones. En producción, descontar usos y confirmar el pedido deberán realizarse juntos en una transacción del backend.</p>

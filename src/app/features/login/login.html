@@ -1,0 +1,134 @@
+<main class="grid min-h-screen lg:grid-cols-2">
+
+  <!-- SECCIÓN IZQUIERDA (HERO BRANDING / GRADIENTES COLORIDOS) -->
+  <section class="relative hidden overflow-hidden bg-neutral-950 lg:flex lg:items-end p-14 xl:p-20">
+
+    <!-- Círculos de luz ambiental colorida -->
+    <div class="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-indigo-600/30 blur-[120px] pointer-events-none"></div>
+    <div class="absolute -left-20 -bottom-20 h-[400px] w-[400px] rounded-full bg-violet-600/20 blur-[100px] pointer-events-none"></div>
+
+    <div class="relative z-10">
+
+      <a
+        routerLink="/"
+        class="text-xs font-black uppercase tracking-[0.25em] text-indigo-400 transition hover:text-white">
+        Sebas Collection
+      </a>
+
+      <h1 class="mt-8 max-w-xl text-5xl font-black uppercase leading-[1.05] tracking-tight text-white xl:text-6xl">
+        Bienvenido
+        <br />
+        de nuevo.
+      </h1>
+
+      <p class="mt-6 max-w-md text-sm leading-relaxed text-neutral-400">
+        Inicia sesión para gestionar tus pedidos, hacer seguimiento a tus compras y disfrutar de una experiencia personalizada.
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- SECCIÓN DERECHA (FORMULARIO DE LOGIN) -->
+  <section class="flex items-center justify-center bg-white px-6 py-16">
+
+    <div class="login-card w-full max-w-[440px]">
+
+      <a
+        routerLink="/"
+        class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-neutral-500 transition hover:text-indigo-600 mb-8">
+        ← Volver a la tienda
+      </a>
+
+      <div>
+        <span class="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 mb-3">
+          Acceso Seguro
+        </span>
+        <h2 class="text-3xl font-black uppercase tracking-tight text-neutral-900 sm:text-4xl">
+          Iniciar Sesión
+        </h2>
+      </div>
+
+      @if (registroExitoso) {
+        <div class="mt-6 border border-emerald-200 bg-emerald-50/80 p-4 rounded-xl">
+          <p class="text-xs font-bold text-emerald-800">
+            ✓ Cuenta creada correctamente. Ya puedes iniciar sesión con tus credenciales.
+          </p>
+        </div>
+      }
+
+      <!-- FORMULARIO CORREO Y CONTRASEÑA -->
+      <form (ngSubmit)="iniciarSesion()" class="login-form mt-8">
+
+        <div class="form-group mb-5">
+          <label class="block mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-700">
+            Correo Electrónico
+          </label>
+          <input
+            type="email"
+            name="correo"
+            [(ngModel)]="correo"
+            autocomplete="email"
+            placeholder="ejemplo@correo.com"
+            class="custom-input" />
+        </div>
+
+        <div class="form-group mb-6">
+          <label class="block mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-neutral-700">
+            Contraseña
+          </label>
+          <div class="relative">
+            <input
+              name="password"
+              [(ngModel)]="password"
+              [type]="mostrarPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="custom-input pr-20" />
+
+            <button
+              type="button"
+              (click)="mostrarPassword = !mostrarPassword"
+              class="toggle-password-btn">
+              {{ mostrarPassword ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+        </div>
+
+        @if (error) {
+          <div class="mb-6 border border-rose-200 bg-rose-50/90 p-4 rounded-xl">
+            <p class="text-xs font-bold text-rose-700">
+              {{ error }}
+            </p>
+          </div>
+        }
+
+        <button
+          type="submit"
+          [disabled]="cargando"
+          class="submit-btn">
+          @if (cargando) {
+            <span>Ingresando al sistema...</span>
+          } @else {
+            <span>Iniciar Sesión</span>
+          }
+        </button>
+
+      </form>
+
+      <div class="mt-8 border-t border-neutral-100 pt-6 text-center">
+        <p class="text-xs text-neutral-500">
+          ¿Aún no tienes una cuenta en la plataforma?
+        </p>
+        <a
+          routerLink="/registro"
+          class="mt-2 inline-block text-xs font-black uppercase tracking-[0.15em] text-indigo-600 transition hover:text-indigo-800">
+          Crear una cuenta nueva →
+        </a>
+      </div>
+
+    </div>
+
+  </section>
+
+</main>

@@ -1,0 +1,31 @@
+:host { display:block; color:#0f172a; }
+.b2b-page{max-width:1200px;margin:0 auto;display:grid;gap:20px}
+.b2b-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.b2b-header h1{margin:4px 0 8px;font-size:clamp(23px,2vw,30px);letter-spacing:-.035em}
+.b2b-header p{margin:0;color:#64748b;font-size:12px;line-height:1.6}
+.eyebrow{color:#6366f1!important;letter-spacing:.15em;font-size:10px!important;font-weight:800}
+.panel{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(15,23,42,.035)}
+.panel-heading{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eef2f7;padding-bottom:14px;margin-bottom:20px}
+.panel-heading h2{margin:0;font-size:17px}.panel-heading span{font-size:11px;color:#94a3b8}
+.panel form{display:grid;gap:18px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+label{display:grid;gap:7px;font-size:12px;font-weight:700;color:#334155}
+label small{font-weight:400;color:#94a3b8}
+input:not([type=checkbox]),select{width:100%;min-height:43px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:10px 12px;color:#0f172a;font:inherit}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid #818cf8;outline-offset:2px}
+.switch{display:flex;align-items:center;gap:10px}
+.switch input{width:18px;height:18px;accent-color:#6366f1}
+.help{font-size:12px;color:#64748b;line-height:1.6}
+button{border:1px solid transparent;border-radius:9px;cursor:pointer;font-weight:800;font-size:12px;min-height:42px;padding:9px 16px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.primary{color:white;background:#4f46e5}.primary:hover:not(:disabled){background:#4338ca}
+.secondary{color:#334155;background:white;border-color:#cbd5e1}.secondary:hover{background:#f8fafc}
+.danger{color:#b91c1c;background:#fef2f2;border-color:#fecaca}
+.notice,.error,.ok{padding:15px 18px;border-radius:10px;font-size:12px;line-height:1.6}
+.notice{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+.error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.tier-head,.tier-row{display:grid;grid-template-columns:1fr 1fr 110px;gap:12px;align-items:center;margin-top:12px}
+.tier-head{font-size:11px;color:#64748b;font-weight:700}
+.actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:18px}
+@media(max-width:700px){.b2b-header{align-items:flex-start;flex-direction:column}.fields{grid-template-columns:1fr}.tier-head,.tier-row{grid-template-columns:1fr 1fr 80px;gap:6px}.panel{padding:16px}button{padding:8px}}

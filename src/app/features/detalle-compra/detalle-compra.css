@@ -1,0 +1,7 @@
+:host { display: block; }
+@media print {
+  .no-print { display: none !important; }
+  .boleta-page { background: #fff !important; padding: 0 !important; }
+  #boleta { border: none !important; box-shadow: none !important; padding: 0 !important; }
+  @page { size: A4; margin: 15mm; }
+}

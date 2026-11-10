@@ -1,0 +1,143 @@
+﻿<section class="kardex-page">
+
+  <header class="kardex-header">
+    <div>
+      <span class="eyebrow">CONTROL DE INVENTARIO</span>
+      <h1>Kárdex de Inventario</h1>
+      <p>Consulta las existencias actuales por producto y talla.</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-refresh"
+      (click)="cargarInventario()"
+      [disabled]="cargando">
+      {{ cargando ? 'Actualizando...' : 'Actualizar inventario' }}
+    </button>
+  </header>
+
+  <div class="notice">
+    <strong>Consulta de existencias reales</strong>
+    <p>
+      Esta sección consulta el stock desde la API.
+      El historial auditable de movimientos se integrará
+      después de verificar los endpoints del backend.
+    </p>
+  </div>
+
+  <div class="stats-grid">
+
+    <article class="stat-card">
+      <span>Variantes registradas</span>
+      <strong>{{ totalVariantes }}</strong>
+      <small>Combinaciones de producto y talla</small>
+    </article>
+
+    <article class="stat-card">
+      <span>Unidades disponibles</span>
+      <strong>{{ totalUnidades | number:'1.0-0' }}</strong>
+      <small>Stock total</small>
+    </article>
+
+    <article class="stat-card warning">
+      <span>Stock bajo</span>
+      <strong>{{ stockBajo }}</strong>
+      <small>Entre 1 y 5 unidades</small>
+    </article>
+
+    <article class="stat-card danger">
+      <span>Sin stock</span>
+      <strong>{{ sinStock }}</strong>
+      <small>Variantes agotadas</small>
+    </article>
+
+  </div>
+
+  <section class="kardex-panel">
+
+    <div class="panel-header">
+      <div>
+        <h2>Existencias por producto y talla</h2>
+        <p>Información consultada desde el backend</p>
+      </div>
+
+      <input
+        type="search"
+        name="busqueda"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar producto, categoría o talla"
+        aria-label="Buscar inventario"
+      />
+    </div>
+
+    <div *ngIf="cargando" class="state" role="status">
+      Cargando inventario...
+    </div>
+
+    <div *ngIf="error" class="state error" role="alert">
+      {{ error }}
+    </div>
+
+    <div
+      *ngIf="!cargando && !error && inventarioFiltrado.length === 0"
+      class="state">
+      No se encontraron existencias.
+    </div>
+
+    <div
+      *ngIf="!cargando && !error && inventarioFiltrado.length > 0"
+      class="table-scroll">
+
+      <table class="kardex-table">
+
+        <thead>
+          <tr>
+            <th>ID variante</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Talla</th>
+            <th>Stock actual</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of inventarioFiltrado">
+
+            <td>#{{ item.idProductoTalla }}</td>
+
+            <td>
+              <strong>{{ item.producto.nombre }}</strong>
+            </td>
+
+            <td>
+              {{ item.producto.categoria.nombreCategoria }}
+            </td>
+
+            <td>
+              <span class="size-tag">
+                {{ item.talla.nombreTalla }}
+              </span>
+            </td>
+
+            <td>
+              <strong>{{ item.stock }}</strong>
+            </td>
+
+            <td>
+              <span
+                class="status-pill"
+                [ngClass]="claseStock(item.stock)">
+                {{ estadoStock(item.stock) }}
+              </span>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+  </section>
+
+</section>

@@ -1,0 +1,92 @@
+<app-promo-bar></app-promo-bar>
+<app-navbar></app-navbar>
+<main class="catalogo">
+  <section class="catalogo-hero">
+    <div class="catalogo-container">
+      <p class="eyebrow">SEBAS COLLECTION · CATÁLOGO</p>
+      <h1>{{ tituloCatalogo }}</h1>
+      <p>Encuentra tus prendas favoritas, elige tu talla y descubre nuevas formas de vestir.</p>
+    </div>
+  </section>
+
+  <div class="catalogo-container">
+    <nav class="generos" aria-label="Colecciones por género">
+      <button type="button" [class.activo]="!generoSeleccionado && !generoNombreSeleccionado" (click)="seleccionarGenero(0)">Toda la tienda</button>
+      @for (genero of generos; track genero.idGenero) {
+        <button type="button" [class.activo]="generoSeleccionado === genero.idGenero || generoNombreSeleccionado.toLowerCase() === genero.nombreGenero.toLowerCase()" (click)="seleccionarGenero(genero.idGenero)">{{ genero.nombreGenero }}</button>
+      }
+    </nav>
+
+    <div class="toolbar">
+      <div>
+        <span class="eyebrow">SELECCIÓN DE TEMPORADA</span>
+        <h2>Todos los estilos</h2>
+        <span class="contador">{{ productosFiltrados.length }} prendas</span>
+      </div>
+      <div class="toolbar-controls">
+        <label class="sr-only" for="busqueda-catalogo">Buscar</label>
+        <input id="busqueda-catalogo" type="search" [(ngModel)]="busqueda" (ngModelChange)="aplicarFiltros()" placeholder="Buscar vestidos, camisas..." />
+        <label class="sr-only" for="orden-catalogo">Ordenar productos</label>
+        <select id="orden-catalogo" [(ngModel)]="ordenSeleccionado" (change)="aplicarFiltros()">
+          <option value="relevancia">Relevancia</option>
+          <option value="precio-asc">Precio: menor a mayor</option>
+          <option value="precio-desc">Precio: mayor a menor</option>
+          <option value="nombre">Nombre A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="catalogo-layout">
+      <aside class="filtros" aria-label="Filtrar productos">
+        <div class="filtros-top"><h3>Filtros</h3><button type="button" (click)="limpiarFiltros()">Limpiar</button></div>
+        <div class="grupo-filtro">
+          <h4>Categorías</h4>
+          @if (errorCategorias) { <p class="ayuda">No se cargaron las categorías.</p> }
+          <button type="button" [class.seleccionado]="categoriaSeleccionada === 0" (click)="seleccionarCategoria(0)">Todas</button>
+          @for (categoria of categorias; track categoria.idCategoria) {
+            <button type="button" [class.seleccionado]="categoriaSeleccionada === categoria.idCategoria" (click)="seleccionarCategoria(categoria.idCategoria)">{{ categoria.nombreCategoria }}</button>
+          }
+        </div>
+        <div class="grupo-filtro">
+          <h4>Tallas disponibles</h4>
+          @if (!cargando && tallas.length === 0) { <p class="ayuda">No hay tallas disponibles para filtrar.</p> }
+          <div class="tallas">
+            @for (talla of tallas; track talla.id) {
+              <button type="button" [class.seleccionado]="tallaSeleccionada === talla.id" (click)="seleccionarTalla(talla.id)">{{ talla.nombre }}</button>
+            }
+          </div>
+        </div>
+        <div class="grupo-filtro">
+          <h4>Precio en soles</h4>
+          <div class="precios">
+            <label>Mínimo <input type="number" min="0" placeholder="S/ 0" [(ngModel)]="precioMinimo" (ngModelChange)="aplicarFiltros()" /></label>
+            <label>Máximo <input type="number" min="0" placeholder="S/ 300" [(ngModel)]="precioMaximo" (ngModelChange)="aplicarFiltros()" /></label>
+          </div>
+        </div>
+        <div class="grupo-filtro opciones">
+          <label><input type="checkbox" [(ngModel)]="soloNuevos" (ngModelChange)="aplicarFiltros()" /> Nuevos ingresos</label>
+          <label><input type="checkbox" [(ngModel)]="soloOfertas" (ngModelChange)="aplicarFiltros()" /> En oferta</label>
+          <label><input type="checkbox" [(ngModel)]="soloDisponibles" (ngModelChange)="aplicarFiltros()" /> Con stock</label>
+        </div>
+      </aside>
+
+      <section class="resultados" aria-label="Productos">
+        @if (inventarioParcial) { <p class="aviso">No pudimos comprobar el stock de algunas prendas. Confirma disponibilidad antes de comprar.</p> }
+        @if (cargando) {
+          <div class="grid-productos" aria-busy="true">
+            @for (n of [1,2,3,4,5,6,7,8]; track n) { <div class="esqueleto"><div></div><span></span><span></span></div> }
+          </div>
+        } @else if (errorCarga) {
+          <div class="estado"><h3>No pudimos cargar el catálogo</h3><p>Verifica la conexión con Spring Boot.</p><button type="button" (click)="cargarProductos()">Reintentar</button></div>
+        } @else if (productosFiltrados.length === 0) {
+          <div class="estado"><h3>No encontramos prendas</h3><p>Prueba otros filtros o consulta todo el catálogo.</p><button type="button" (click)="limpiarFiltros()">Ver todas las prendas</button></div>
+        } @else {
+          <div class="grid-productos">
+            @for (producto of productosFiltrados; track producto.idProducto) { <app-product-card [producto]="producto"></app-product-card> }
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+</main>
+<app-footer></app-footer>

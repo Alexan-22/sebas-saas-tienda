@@ -1,0 +1,209 @@
+
+<section class="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+
+  <header class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-widest text-indigo-600">
+        Administración comercial
+      </p>
+      <h1 class="mt-1 text-3xl font-black text-slate-900">
+        Pagos de mi tienda
+      </h1>
+      <p class="mt-2 text-sm text-slate-500">
+        Consulta de pagos persistentes en entorno sandbox.
+      </p>
+    </div>
+
+    <button type="button"
+            (click)="cargar()"
+            [disabled]="cargando()"
+            class="rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+      {{ cargando() ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+  </header>
+
+  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+    Modo de simulación. Esta pantalla no procesa dinero real ni permite aprobar pagos.
+  </div>
+
+  @if (error()) {
+    <div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+      {{ error() }}
+    </div>
+  }
+
+  @if (aviso()) {
+    <div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+      {{ aviso() }}
+    </div>
+  }
+
+  @if (configuracion(); as config) {
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">
+            Proveedor {{ config.proveedor }}
+          </h2>
+          <p class="mt-1 text-sm text-slate-500">
+            Modo {{ config.modo }} ·
+            {{ config.habilitado ? 'Habilitado' : 'Deshabilitado' }}
+          </p>
+        </div>
+
+        <button type="button"
+                (click)="cambiarConfiguracion()"
+                [disabled]="guardando()"
+                class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 disabled:opacity-50">
+          {{ guardando()
+              ? 'Guardando...'
+              : (config.habilitado ? 'Deshabilitar sandbox' : 'Habilitar sandbox') }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="rounded-2xl border bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase text-slate-500">
+        Pendientes
+      </p>
+      <p class="mt-2 text-3xl font-black text-amber-700">
+        {{ pendientes() }}
+      </p>
+    </div>
+
+    <div class="rounded-2xl border bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase text-slate-500">
+        Aprobados
+      </p>
+      <p class="mt-2 text-3xl font-black text-emerald-700">
+        {{ aprobados() }}
+      </p>
+    </div>
+
+    <div class="rounded-2xl border bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase text-slate-500">
+        Rechazados
+      </p>
+      <p class="mt-2 text-3xl font-black text-red-700">
+        {{ rechazados() }}
+      </p>
+    </div>
+  </div>
+
+  <p class="text-xs text-slate-500">
+    Los indicadores corresponden únicamente a los registros de esta página.
+  </p>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 p-5">
+      <h2 class="text-lg font-bold text-slate-900">
+        Historial de pagos
+      </h2>
+      <p class="text-xs text-slate-500">
+        Página {{ pagina() + 1 }} · Hasta 50 registros por página
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[680px] text-left text-sm">
+        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+          <tr>
+            <th class="px-5 py-4">Venta</th>
+            <th class="px-5 py-4">Pago</th>
+            <th class="px-5 py-4">Importe</th>
+            <th class="px-5 py-4">Estado</th>
+            <th class="px-5 py-4">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pago of pagos(); track pago.id) {
+            <tr class="border-t border-slate-100">
+              <td class="px-5 py-4 font-semibold">
+                #{{ pago.pedidoId }}
+              </td>
+              <td class="px-5 py-4 font-mono text-xs">
+                {{ pago.id.slice(0, 8) }}...
+              </td>
+              <td class="px-5 py-4 font-bold">
+                {{ pago.moneda }} {{ pago.monto | number:'1.2-2' }}
+              </td>
+              <td class="px-5 py-4">
+                <span class="rounded-full px-3 py-1 text-xs font-bold"
+                      [ngClass]="colorEstado(pago.estado)">
+                  {{ nombreEstado(pago.estado) }}
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <button type="button"
+                        (click)="verDetalle(pago.id)"
+                        [disabled]="cargandoDetalle()"
+                        class="font-semibold text-indigo-700 hover:underline">
+                  Ver detalle
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="px-5 py-12 text-center text-slate-500">
+                {{ cargando() ? 'Cargando pagos...' : 'No hay pagos para mostrar.' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-between border-t border-slate-200 p-5">
+      <button type="button"
+              (click)="anteriorPagina()"
+              [disabled]="pagina() === 0 || cargando()"
+              class="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">
+        Anterior
+      </button>
+
+      <button type="button"
+              (click)="siguientePagina()"
+              [disabled]="pagos().length < 50 || cargando()"
+              class="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">
+        Siguiente
+      </button>
+    </div>
+  </div>
+
+  @if (detalle(); as pago) {
+    <section class="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-xl font-bold">Detalle del pago</h2>
+        <button type="button"
+                (click)="cerrarDetalle()"
+                class="text-sm font-semibold text-slate-500">
+          Cerrar
+        </button>
+      </div>
+
+      <dl class="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+        <div>
+          <dt class="text-slate-500">ID del pago</dt>
+          <dd class="break-all font-mono">{{ pago.id }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Venta</dt>
+          <dd class="font-bold">#{{ pago.pedidoId }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Importe</dt>
+          <dd class="font-bold">
+            {{ pago.moneda }} {{ pago.monto | number:'1.2-2' }}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Estado</dt>
+          <dd class="font-bold">{{ nombreEstado(pago.estado) }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+
+</section>

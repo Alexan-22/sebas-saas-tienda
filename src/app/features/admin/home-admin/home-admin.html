@@ -1,0 +1,426 @@
+<div class="page">
+
+  <!-- ===================================================== -->
+  <!-- ENCABEZADO -->
+  <!-- ===================================================== -->
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CONTENIDO</p>
+      <h1>PAJINA PRINCIPAL</h1>
+      <span>
+        Administra las imagenes del carrusel y las colecciones que aparecen en la tienda.
+      </span>
+    </div>
+  </header>
+
+  <!-- MENSAJES -->
+  @if (error) {
+    <div class="message error">{{ error }}</div>
+  }
+
+  @if (mensaje) {
+    <div class="message success">{{ mensaje }}</div>
+  }
+
+  <!-- CARGANDO -->
+  @if (cargando) {
+    <div class="loading">CARGANDO PÃGINA PRINCIPAL...</div>
+  }
+
+  @if (!cargando) {
+
+    <!-- =================================================== -->
+    <!-- BANNERS -->
+    <!-- =================================================== -->
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">CARRUSEL PRINCIPAL</span>
+          <h2>BANNERS</h2>
+          <p>
+            Los banners activos aparecerÃ¡n en el carrusel principal de la tienda segÃºn su orden.
+          </p>
+        </div>
+
+        <div class="section-actions">
+          <span class="counter">
+            {{ banners.length }} {{ banners.length === 1 ? 'BANNER' : 'BANNERS' }}
+          </span>
+
+          <button
+            type="button"
+            class="add-button"
+            (click)="nuevoBanner()"
+            [disabled]="creandoBanner">
+            @if (creandoBanner) {
+              CREANDO...
+            } @else {
+              + NUEVO BANNER
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- SIN BANNERS -->
+      @if (banners.length === 0) {
+        <div class="empty-content">
+          <strong>TS</strong>
+          <h3>NO HAY BANNERS</h3>
+          <p>
+            Crea el primer banner para comenzar a construir el carrusel principal.
+          </p>
+
+          <button
+            type="button"
+            class="add-button"
+            (click)="nuevoBanner()"
+            [disabled]="creandoBanner">
+            + CREAR PRIMER BANNER
+          </button>
+        </div>
+      }
+
+      <!-- LISTA DE BANNERS -->
+      <div class="banners-list">
+        @for (banner of banners; track banner.idBanner; let indice = $index) {
+          <article class="banner-item">
+
+            <div class="item-header">
+              <div class="item-number">
+                <span>BANNER</span>
+                <strong>{{ indice + 1 }}</strong>
+              </div>
+
+              <div class="item-header-info">
+                <strong>ID {{ banner.idBanner }}</strong>
+                <span>
+                  ORDEN {{ banner.orden }} Â· {{ banner.estado ? 'ACTIVO' : 'INACTIVO' }}
+                </span>
+              </div>
+
+              <!-- BOTÃ“N ELIMINAR BANNER -->
+              <button
+                type="button"
+                class="delete-button"
+                (click)="eliminarBanner(banner)"
+                [disabled]="eliminandoBanner === banner.idBanner || guardandoBanner === banner.idBanner">
+                @if (eliminandoBanner === banner.idBanner) {
+                  ELIMINANDO...
+                } @else {
+                  ELIMINAR
+                }
+              </button>
+            </div>
+
+            <div class="banner-editor">
+
+              <!-- PREVIEW E IMAGEN -->
+              <div class="card">
+                <div class="card-title">
+                  <h3>VISTA PREVIA</h3>
+                </div>
+
+                <div class="banner-preview">
+                  @if (imagenBannerUrl(banner)) {
+                    <img [src]="imagenBannerUrl(banner)" alt="Banner {{ banner.idBanner }}">
+                  } @else {
+                    <div class="empty-image">
+                      <strong>TS</strong>
+                      <span>SIN IMAGEN</span>
+                    </div>
+                  }
+                </div>
+
+                <label class="file-label">
+                  IMAGEN DEL BANNER
+
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp"
+                    (change)="seleccionarImagenBanner($event, banner.idBanner)"
+                    [disabled]="guardandoBanner === banner.idBanner || eliminandoBanner === banner.idBanner">
+                </label>
+
+                @if (archivoBanner(banner.idBanner); as archivo) {
+                  <div class="selected-file">
+                    <div>
+                      <strong>IMAGEN SELECCIONADA</strong>
+                      <span>{{ archivo.name }}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="cancelarImagenBanner(banner.idBanner)"
+                      [disabled]="guardandoBanner === banner.idBanner">
+                      QUITAR
+                    </button>
+                  </div>
+                }
+
+                @if (errorBanner(banner.idBanner)) {
+                  <div class="image-error">{{ errorBanner(banner.idBanner) }}</div>
+                }
+
+                <small>
+                  JPG, JPEG, JFIF, PNG o WEBP. MÃ¡ximo 5 MB.
+                </small>
+              </div>
+
+              <!-- CONFIGURACIÃ“N -->
+              <div class="card">
+                <div class="card-title">
+                  <h3>CONFIGURACIÃ“N</h3>
+                </div>
+
+                <div class="form-grid">
+                  <label class="full">
+                    TÍTULO DEL BANNER (OBLIGATORIO)
+                    <input type="text" [(ngModel)]="banner.titulo" maxlength="200" placeholder="Ej. Nueva colección Mujer">
+                  </label>
+                  <label class="full">
+                    ETIQUETA
+                    <input type="text" [(ngModel)]="banner.etiqueta" maxlength="100" placeholder="Ej. Temporada 2026">
+                  </label>
+                  <label class="full">
+                    DESCRIPCIÓN
+                    <textarea [(ngModel)]="banner.descripcion" maxlength="500" placeholder="Describe la colección"></textarea>
+                  </label>
+                  <label class="full">
+                    TEXTO DEL BOTÓN
+                    <input type="text" [(ngModel)]="banner.textoBoton" maxlength="100" placeholder="Comprar ahora">
+                  </label>
+                  <label class="full">
+                    ENLACE DEL BANNER
+                    <input
+                      type="text"
+                      [(ngModel)]="banner.enlaceBoton"
+                      maxlength="255"
+                      placeholder="/tienda">
+                  </label>
+
+                  <label class="full">
+                    ORDEN DE VISUALIZACIÃ“N
+                    <input
+                      type="number"
+                      [(ngModel)]="banner.orden"
+                      min="1">
+                  </label>
+                </div>
+
+                <label class="check">
+                  <span>
+                    <strong>Banner activo</strong>
+                    <small>
+                      Mostrar este banner en el carrusel principal.
+                    </small>
+                  </span>
+
+                  <input type="checkbox" [(ngModel)]="banner.estado">
+                </label>
+
+                <button
+                  type="button"
+                  class="save"
+                  (click)="guardarBanner(banner)"
+                  [disabled]="guardandoBanner === banner.idBanner || eliminandoBanner === banner.idBanner">
+                  @if (guardandoBanner === banner.idBanner) {
+                    GUARDANDO...
+                  } @else {
+                    GUARDAR BANNER
+                  }
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- =================================================== -->
+    <!-- COLECCIONES -->
+    <!-- =================================================== -->
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">NAVEGACIÃ“N VISUAL</span>
+          <h2>COMPRA POR ESTILO</h2>
+          <p>
+            Crea las colecciones que necesites y configura su imagen, tÃ­tulo opcional y orden.
+          </p>
+        </div>
+
+        <div class="section-actions">
+          <span class="counter">
+            {{ colecciones.length }}
+            {{ colecciones.length === 1 ? 'COLECCIÃ“N' : 'COLECCIONES' }}
+          </span>
+
+          <button
+            type="button"
+            class="add-button"
+            (click)="nuevaColeccion()"
+            [disabled]="creandoColeccion">
+            @if (creandoColeccion) {
+              CREANDO...
+            } @else {
+              + NUEVA COLECCIÃ“N
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- SIN COLECCIONES -->
+      @if (colecciones.length === 0) {
+        <div class="empty-content">
+          <strong>TS</strong>
+          <h3>NO HAY COLECCIONES</h3>
+          <p>
+            Crea una colecciÃ³n para mostrarla en la pÃ¡gina principal.
+          </p>
+
+          <button
+            type="button"
+            class="add-button"
+            (click)="nuevaColeccion()"
+            [disabled]="creandoColeccion">
+            + CREAR PRIMERA COLECCIÃ“N
+          </button>
+        </div>
+      }
+
+      <!-- GRID COLECCIONES -->
+      <div class="collections-grid">
+        @for (coleccion of colecciones; track coleccion.idColeccion) {
+          <article class="collection-card">
+
+            <div class="collection-image">
+              @if (imagenColeccionUrl(coleccion)) {
+                <img [src]="imagenColeccionUrl(coleccion)" [alt]="coleccion.titulo || 'ColecciÃ³n'">
+              } @else {
+                <div class="empty-image">
+                  <strong>TS</strong>
+                  <span>SIN IMAGEN</span>
+                </div>
+              }
+
+              @if (coleccion.titulo) {
+                <div class="collection-overlay">
+                  <strong>{{ coleccion.titulo }}</strong>
+                </div>
+              }
+            </div>
+
+            <div class="collection-body">
+
+              <div class="collection-admin-header">
+                <div>
+                  <span>ID {{ coleccion.idColeccion }}</span>
+                  <strong>ORDEN {{ coleccion.orden }}</strong>
+                </div>
+
+                <!-- BOTÃ“N ELIMINAR COLECCIÃ“N -->
+                <button
+                  type="button"
+                  class="delete-button small-delete"
+                  (click)="eliminarColeccion(coleccion)"
+                  [disabled]="eliminandoColeccion === coleccion.idColeccion || guardandoColeccion === coleccion.idColeccion">
+                  @if (eliminandoColeccion === coleccion.idColeccion) {
+                    ELIMINANDO...
+                  } @else {
+                    ELIMINAR
+                  }
+                </button>
+              </div>
+
+              <!-- CAMBIAR IMAGEN -->
+              <label class="file-label">
+                CAMBIAR IMAGEN
+
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp"
+                  (change)="seleccionarImagenColeccion($event, coleccion.idColeccion)"
+                  [disabled]="guardandoColeccion === coleccion.idColeccion || eliminandoColeccion === coleccion.idColeccion">
+              </label>
+
+              @if (archivoColeccion(coleccion.idColeccion); as archivo) {
+                <div class="selected-file">
+                  <div>
+                    <strong>IMAGEN SELECCIONADA</strong>
+                    <span>{{ archivo.name }}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    (click)="cancelarImagenColeccion(coleccion.idColeccion)"
+                    [disabled]="guardandoColeccion === coleccion.idColeccion">
+                    QUITAR
+                  </button>
+                </div>
+              }
+
+              @if (errorColeccion(coleccion.idColeccion)) {
+                <div class="image-error">
+                  {{ errorColeccion(coleccion.idColeccion) }}
+                </div>
+              }
+
+              <small>
+                JPG, JPEG, JFIF, PNG o WEBP. MÃ¡ximo 5 MB.
+              </small>
+
+              <!-- FORMULARIO -->
+              <div class="form-grid">
+                <label class="full">
+                  TÃTULO (OPCIONAL)
+                  <input
+                    type="text"
+                    [(ngModel)]="coleccion.titulo"
+                    maxlength="100"
+                    placeholder="Ej. TÃ©rmicos Delta (Opcional)">
+                </label>
+
+                <label class="full">
+                  ORDEN
+                  <input
+                    type="number"
+                    [(ngModel)]="coleccion.orden"
+                    min="1">
+                </label>
+              </div>
+
+              <!-- ESTADO -->
+              <label class="check">
+                <span>
+                  <strong>ColecciÃ³n activa</strong>
+                  <small>
+                    Mostrar esta tarjeta en la pÃ¡gina principal.
+                  </small>
+                </span>
+
+                <input type="checkbox" [(ngModel)]="coleccion.estado">
+              </label>
+
+              <!-- GUARDAR -->
+              <button
+                type="button"
+                class="save"
+                (click)="guardarColeccion(coleccion)"
+                [disabled]="guardandoColeccion === coleccion.idColeccion || eliminandoColeccion === coleccion.idColeccion">
+                @if (guardandoColeccion === coleccion.idColeccion) {
+                  GUARDANDO...
+                } @else {
+                  GUARDAR COLECCIÃ“N
+                }
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+</div>

@@ -1,0 +1,18 @@
+<div class="ops-grid three">
+  <article class="ops-panel ops-kpi"><span>Eventos locales</span><strong>{{ eventos().length }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Módulos con actividad</span><strong>{{ modulos().length }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Resultados filtrados</span><strong>{{ filas.length }}</strong></article>
+</div>
+<section class="ops-panel"><div class="ops-toolbar"><div><h2>Bitácora de operaciones</h2><p class="ops-subtitle">Solo lectura de eventos emitidos por este DEMO.</p></div><button class="ops-btn secondary" (click)="exportar()" [disabled]="!filas.length">Exportar CSV</button></div>
+<div class="ops-form filtros">
+  <div class="ops-field"><label for="buscar">Buscar evento</label><input id="buscar" [(ngModel)]="filtro" placeholder="Acción o detalle" /></div>
+  <div class="ops-field"><label for="modulo">Módulo</label><select id="modulo" [(ngModel)]="modulo"><option value="TODOS">Todos</option><option *ngFor="let m of modulos()" [value]="m">{{ m }}</option></select></div>
+  <div class="ops-field"><label for="desde">Desde</label><input id="desde" type="date" [(ngModel)]="fechaDesde" /></div>
+  <div class="ops-field"><label for="hasta">Hasta</label><input id="hasta" type="date" [(ngModel)]="fechaHasta" /></div>
+</div>
+<div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Fecha</th><th>Módulo</th><th>Acción</th><th>Actor DEMO</th><th>Descripción</th><th>Detalle</th></tr></thead><tbody>
+<tr *ngFor="let e of filas"><td>{{ e.fecha | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ e.modulo }}</td><td><span class="ops-pill">{{ e.accion }}</span></td><td>{{ e.actor }}</td><td>{{ e.descripcion }}</td><td><button class="ops-btn secondary" (click)="seleccionado = e">Ver</button></td></tr>
+<tr *ngIf="!filas.length"><td colspan="6" class="ops-empty">No se encontraron eventos.</td></tr>
+</tbody></table></div></section>
+<section class="ops-panel" *ngIf="seleccionado as e"><div class="ops-toolbar"><h2>Detalle del evento</h2><button class="ops-btn secondary" (click)="seleccionado = undefined">Cerrar</button></div><dl class="detalle"><dt>Identificador</dt><dd>{{ e.id }}</dd><dt>Fecha</dt><dd>{{ e.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</dd><dt>Módulo</dt><dd>{{ e.modulo }}</dd><dt>Acción</dt><dd>{{ e.accion }}</dd><dt>Descripción</dt><dd>{{ e.descripcion }}</dd><dt>Actor</dt><dd>{{ e.actor }}</dd></dl></section>
+<p class="ops-hint">Esto no es auditoría de seguridad: los registros locales pueden alterarse. El backend deberá registrar identidad real, tienda autorizada, fecha, resultado e IP según las políticas aplicables.</p>

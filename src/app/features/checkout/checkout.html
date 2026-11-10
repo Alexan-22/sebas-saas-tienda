@@ -1,0 +1,156 @@
+<app-promo-bar></app-promo-bar>
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-slate-50">
+  <section class="mx-auto max-w-[1400px] px-5 py-14 lg:px-10 lg:py-20">
+
+    <div class="mb-10">
+      <span class="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">Proceso Seguro</span>
+      <h1 class="mt-2 text-4xl font-black uppercase tracking-tight sm:text-5xl text-slate-900">Checkout</h1>
+    </div>
+
+    <div class="grid gap-10 lg:grid-cols-[1fr_440px]">
+      <div class="space-y-8">
+
+        <!-- DATOS DE ENTREGA -->
+        <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Paso 01</span>
+          <h2 class="text-xl font-black uppercase text-slate-900 mt-1">Datos de Entrega</h2>
+
+          <div class="mt-6 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label class="checkout-label">Nombres *</label>
+              <input type="text" [(ngModel)]="datos.nombres" class="checkout-input" placeholder="Tus nombres">
+            </div>
+            <div>
+              <label class="checkout-label">Apellidos *</label>
+              <input type="text" [(ngModel)]="datos.apellidos" class="checkout-input" placeholder="Tus apellidos">
+            </div>
+            <div>
+              <label class="checkout-label">Teléfono / Celular *</label>
+              <div class="phone-control">
+                <div class="phone-prefix"><span>PE</span><strong>+51</strong></div>
+                <input type="tel" maxlength="9" [(ngModel)]="datos.telefono" (input)="normalizarTelefono()" placeholder="999999999" class="phone-input">
+              </div>
+            </div>
+            <div>
+              <label class="checkout-label">Departamento *</label>
+              <select [(ngModel)]="datos.departamento" (ngModelChange)="cambiarDepartamento()" class="checkout-input checkout-select">
+                @for (dep of departamentos; track dep) {
+                  <option [value]="dep">{{ dep }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="checkout-label">Provincia *</label>
+              <input type="text" [(ngModel)]="datos.provincia" class="checkout-input" placeholder="Ej. Lima">
+            </div>
+            <div>
+              <label class="checkout-label">Distrito *</label>
+              <input type="text" [(ngModel)]="datos.distrito" class="checkout-input" placeholder="Ej. Lince">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="checkout-label">Dirección Exacta *</label>
+              <input type="text" [(ngModel)]="datos.direccion" class="checkout-input" placeholder="Av. / Jr. / Calle, número, interior">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="checkout-label">Referencia</label>
+              <textarea [(ngModel)]="datos.referencia" rows="2" class="checkout-textarea" placeholder="Ej. Frente al parque principal..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÉTODO DE PAGO -->
+        <section class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Paso 02</span>
+          <h2 class="text-xl font-black uppercase text-slate-900 mt-1">Método de Pago</h2>
+
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <button type="button" (click)="seleccionarPago('YAPE')" [disabled]="!yapeDisponible" class="payment-option" [class.payment-option-active]="datos.metodoPago === 'YAPE'">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-base font-black text-slate-900">YAPE</p>
+                  <p class="text-xs text-slate-500">Verificación manual por la tienda.</p>
+                </div>
+                @if (datos.metodoPago === 'YAPE') { <span class="payment-check">✓</span> }
+              </div>
+            </button>
+
+            <button type="button" (click)="seleccionarPago('TRANSFERENCIA')" [disabled]="!cuentas.length" class="payment-option" [class.payment-option-active]="datos.metodoPago==='TRANSFERENCIA'">TRANSFERENCIA BANCARIA</button>
+
+          </div>
+
+
+
+          @if (datos.metodoPago === 'YAPE') {
+            <div class="payment-panel">
+              @if (yapeDisponible) {
+                <p class="font-bold">Pago Yape de esta tienda</p>
+                <p>Al confirmar el pedido, se mostrara el QR de tu tienda y el monto exacto.</p>
+                <p>El pago quedara PENDIENTE hasta que el administrador verifique el deposito.</p>
+                <p>No realices un deposito antes de confirmar tu pedido.</p>
+              } @else {
+                <p role="alert">Yape no esta disponible para esta tienda.</p>
+              }
+            </div>
+          }
+          @if(datos.metodoPago==='TRANSFERENCIA') {
+ <div class="payment-panel"><label for="cuenta-banco">Cuenta bancaria de esta tienda</label>
+ <select id="cuenta-banco" [(ngModel)]="cuentaBancariaId" class="checkout-input"><option [ngValue]="null">Selecciona una cuenta</option>@for(c of cuentas;track c.id){<option [ngValue]="c.id">{{c.banco}} · {{c.titular}} · {{c.numeroCuenta}} · {{c.moneda}}</option>}</select>
+ <p>El pago quedará pendiente hasta que el administrador verifique la transferencia.</p></div>
+ }
+ <label class="terms-check mt-6">
+            <input type="checkbox" [(ngModel)]="aceptaTerminos">
+            <span>He leído y acepto los términos y condiciones de compra de Tienda Sebas.</span>
+          </label>
+        </section>
+
+        @if (error) {
+          <div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700 text-xs font-bold">
+            {{ error }}
+          </div>
+        }
+      </div>
+
+      <!-- RESUMEN -->
+      <aside>
+        <div class="sticky top-[100px] bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Resumen</span>
+          <h2 class="text-xl font-black uppercase text-slate-900 mt-1">Tu Pedido</h2>
+
+          <div class="mt-6 space-y-4 max-h-[300px] overflow-y-auto pr-1">
+            @for (item of items(); track item.idProductoTalla) {
+              <div class="flex justify-between items-center text-xs pb-3 border-b border-slate-100">
+                <div>
+                  <strong class="text-slate-900 block uppercase">{{ item.nombre }}</strong>
+                  <span class="text-slate-500">Talla {{ item.talla }} · Cant: {{ item.cantidad }}</span>
+                </div>
+                <strong class="text-slate-900">S/ {{ item.precio * item.cantidad | number:'1.2-2' }}</strong>
+              </div>
+            }
+          </div>
+
+          <div class="mt-6 space-y-2 text-xs text-slate-600">
+            <div class="flex justify-between"><span>Subtotal</span><strong>S/ {{ subtotal() | number:'1.2-2' }}</strong></div>
+            <div class="flex justify-between"><span>Delivery estimado</span><strong>S/ {{ costoDeliveryEstimado | number:'1.2-2' }}</strong></div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
+            <span class="font-black text-sm uppercase">Total Final</span>
+            <strong class="text-xl font-black text-indigo-600">S/ {{ totalEstimado | number:'1.2-2' }}</strong>
+          </div>
+
+          <button type="button" (click)="continuarPago()" [disabled]="procesando" class="checkout-submit mt-6">
+            @if (procesando) { <span>Procesando pedido...</span> } @else { <span>Confirmar pedido</span> }
+          </button>
+
+
+
+          <a routerLink="/carrito" class="block text-center mt-4 text-[9px] font-black uppercase tracking-wider text-slate-600 underline">Volver al carrito</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

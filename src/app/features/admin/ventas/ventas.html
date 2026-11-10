@@ -1,0 +1,339 @@
+<section class="page-container">
+
+  <!-- ENCABEZADO -->
+  <header class="page-header">
+    <div class="header-titles">
+      <span class="badge-subtitle">GESTIÓN COMERCIAL</span>
+      <h1>Ventas y Pedidos</h1>
+      <p>Consulta, filtra y administra las transacciones online y presenciales de la tienda.</p>
+    </div>
+  </header>
+
+  <!-- TARJETAS DE ESTADÍSTICAS GLOBALES -->
+  <div class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon total">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+      </div>
+      <div>
+        <span class="stat-label">VENTAS TOTALES</span>
+        <strong class="stat-value">{{ totalVentas }}</strong>
+        <span class="stat-desc">Transacciones registradas</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon income">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+      </div>
+      <div>
+        <span class="stat-label">INGRESOS ACUMULADOS</span>
+        <strong class="stat-value">S/ {{ ingresosTotales | number:'1.2-2' }}</strong>
+        <span class="stat-desc">Facturación total</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon average">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+      </div>
+      <div>
+        <span class="stat-label">TICKET PROMEDIO</span>
+        <strong class="stat-value">S/ {{ ventaPromedio | number:'1.2-2' }}</strong>
+        <span class="stat-desc">Valor por operación</span>
+      </div>
+    </article>
+  </div>
+
+  <!-- TARJETAS DE RESUMEN DE CANALES Y PAGOS -->
+  <div class="channels-grid">
+    <article class="channel-card">
+      <span class="ch-label">WEB ONLINE</span>
+      <strong class="ch-val">{{ ventasOnline }}</strong>
+      <small>Pedidos por la tienda</small>
+    </article>
+    <article class="channel-card">
+      <span class="ch-label">POS PRESENCIAL</span>
+      <strong class="ch-val">{{ ventasPresenciales }}</strong>
+      <small>Ventas en local</small>
+    </article>
+    <article class="channel-card">
+      <span class="ch-label">EFECTIVO</span>
+      <strong class="ch-val">{{ ventasEfectivo }}</strong>
+      <small>Pagos en cash</small>
+    </article>
+    <article class="channel-card">
+      <span class="ch-label">YAPE</span>
+      <strong class="ch-val">{{ ventasYape }}</strong>
+      <small>Transferencias móviles</small>
+    </article>
+    <article class="channel-card">
+      <span class="ch-label">TARJETA</span>
+      <strong class="ch-val">{{ ventasTarjeta }}</strong>
+      <small>POS / Tarjetas</small>
+    </article>
+  </div>
+
+  <!-- PANEL PRINCIPAL CON FILTROS Y TABLA -->
+  <div class="content-panel">
+    <div class="panel-toolbar">
+      <div class="toolbar-title">
+        <span class="badge-sub">REGISTRO GENERAL</span>
+        <h2>Listado de Transacciones</h2>
+      </div>
+
+      <div class="filters-group">
+        <div class="search-box-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input
+            type="text"
+            [(ngModel)]="busqueda"
+            (ngModelChange)="aplicarFiltros()"
+            placeholder="Buscar por ID, cliente, correo o documento...">
+        </div>
+
+        <select [(ngModel)]="filtroTipoVenta" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los canales</option>
+          <option value="ONLINE">Online (Web)</option>
+          <option value="PRESENCIAL">Presencial (POS)</option>
+        </select>
+
+        <select [(ngModel)]="filtroPago" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los pagos</option>
+          <option value="EFECTIVO">Efectivo</option>
+          <option value="YAPE">Yape</option>
+          <option value="TARJETA">Tarjeta</option>
+        </select>
+
+        <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          @for (estado of estados; track estado) {
+            <option [value]="estado">{{ estado }}</option>
+          }
+        </select>
+
+        <button type="button" class="btn-clear-filters" (click)="limpiarFiltros()">
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="state-container">
+        <div class="spinner"></div>
+        <p>Cargando transacciones...</p>
+      </div>
+    } @else if (error) {
+      <div class="state-container error">
+        <p>{{ error }}</p>
+      </div>
+    } @else if (ventasFiltradas.length === 0) {
+      <div class="state-container">
+        <p>No se encontraron transacciones con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID VENTA</th>
+              <th>FECHA Y HORA</th>
+              <th>CANAL</th>
+              <th>CLIENTE</th>
+              <th>MEDIO DE PAGO</th>
+              <th>TOTAL</th>
+              <th>ESTADO</th>
+              <th class="text-right">ACCIÓN</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (venta of ventasFiltradas; track venta.idVenta) {
+              <tr>
+                <td>
+                  <strong class="sale-id">#{{ venta.idVenta }}</strong>
+                </td>
+
+                <td>
+                  <span class="date-main">{{ venta.fechaVenta | date:'dd/MM/yyyy' }}</span>
+                  <small class="time-sub">{{ venta.fechaVenta | date:'HH:mm' }}</small>
+                </td>
+
+                <td>
+                  <span class="sale-type-badge" [class.presencial]="venta.tipoVenta === 'PRESENCIAL'" [class.online]="venta.tipoVenta === 'ONLINE'">
+                    {{ tipoVentaTexto(venta) }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="customer-info-cell">
+                    <strong>{{ nombreCliente(venta) }}</strong>
+                    <span>{{ informacionCliente(venta) }}</span>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="payment-badge" [class.cash]="venta.medioPago === 'EFECTIVO'">
+                    {{ venta.medioPago }}
+                  </span>
+                </td>
+
+                <td>
+                  <strong class="price-val">S/ {{ venta.total | number:'1.2-2' }}</strong>
+                </td>
+
+                <td>
+                  <span class="status-pill">{{ venta.estado }}</span>
+                </td>
+
+                <td class="text-right">
+                  <button type="button" class="btn-details" (click)="verDetalle(venta)">
+                    Ver Detalle
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+</section>
+
+<!-- MODAL DETALLE DE VENTA -->
+@if (ventaSeleccionada) {
+  <div class="modal-backdrop" (click)="cerrarDetalle()">
+    <section class="modal-card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <span class="badge-sub">COMPROBANTE DETALLADO</span>
+          <h2>Venta #{{ ventaSeleccionada.idVenta }}</h2>
+        </div>
+        <button type="button" class="btn-close-modal" (click)="cerrarDetalle()">×</button>
+      </header>
+
+      <div class="modal-channel-bar">
+        <span class="sale-type-badge" [class.presencial]="ventaSeleccionada.tipoVenta === 'PRESENCIAL'" [class.online]="ventaSeleccionada.tipoVenta === 'ONLINE'">
+          {{ tipoVentaTexto(ventaSeleccionada) }}
+        </span>
+        <small>{{ ventaSeleccionada.tipoVenta === 'PRESENCIAL' ? 'Venta presencial efectuada en local comercial' : 'Pedido generado a través de la tienda web' }}</small>
+      </div>
+
+      <div class="modal-meta-grid">
+        <div class="meta-box">
+          <span>CLIENTE</span>
+          <strong>{{ nombreCliente(ventaSeleccionada) }}</strong>
+          <small>{{ informacionCliente(ventaSeleccionada) }}</small>
+        </div>
+        <div class="meta-box">
+          <span>FECHA DE EMISIÓN</span>
+          <strong>{{ ventaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</strong>
+        </div>
+        <div class="meta-box">
+          <span>MÉTODO DE PAGO</span>
+          <strong>{{ ventaSeleccionada.medioPago }}</strong>
+        </div>
+        <div class="meta-box">
+          <span>ESTADO</span>
+          <strong>{{ ventaSeleccionada.estadoPedido || ventaSeleccionada.estado }}</strong>
+        </div>
+      </div>
+
+      @if (cargandoDetalle) {
+        <div class="modal-state-box">
+          <div class="spinner"></div>
+          <p>Cargando detalles de la transacción...</p>
+        </div>
+      } @else if (errorDetalle) {
+        <div class="modal-state-box error">
+          <p>{{ errorDetalle }}</p>
+        </div>
+      } @else if (detalleSeleccionado) {
+
+        @if (detalleSeleccionado.direccionEnvio) {
+          <section class="delivery-highlight-box">
+            <div class="deliv-head">
+              <span>LOGÍSTICA</span>
+              <strong>Dirección de Envío / Despacho</strong>
+            </div>
+            <div class="deliv-grid-2">
+              <div>
+                <span>DIRECCIÓN EXACTA</span>
+                <strong>{{ detalleSeleccionado.direccionEnvio.direccionExacta }}</strong>
+                <small>{{ ubicacionEntrega }}</small>
+              </div>
+              <div>
+                <span>REFERENCIA</span>
+                <strong>{{ detalleSeleccionado.direccionEnvio.referencia || 'Sin referencias indicadas' }}</strong>
+              </div>
+            </div>
+          </section>
+        } @else if (detalleSeleccionado.tipoVenta === 'PRESENCIAL') {
+          <section class="delivery-highlight-box">
+            <div class="deliv-head">
+              <span>ENTREGA DIRECTA</span>
+              <strong>Retiro presencial en tienda</strong>
+            </div>
+            <p class="small-note">Transacción sin cargos por envío o delivery.</p>
+          </section>
+        }
+
+        <!-- TABLA DE PRODUCTOS COMPRADOS -->
+        <div class="modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>PRODUCTO</th>
+                <th>TALLA</th>
+                <th>CANT.</th>
+                <th>PRECIO UNIT.</th>
+                <th class="text-right">SUBTOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (detalle of detalles; track detalle.idDetalleVenta) {
+                <tr>
+                  <td>
+                    <strong>{{ detalle.productoTalla.producto.nombre }}</strong>
+                  </td>
+                  <td>
+                    <span class="talla-pill">{{ detalle.productoTalla.talla.nombreTalla }}</span>
+                  </td>
+                  <td>{{ detalle.cantidad }}</td>
+                  <td>S/ {{ detalle.precioUnitario | number:'1.2-2' }}</td>
+                  <td class="text-right">
+                    <strong>S/ {{ detalle.subtotal | number:'1.2-2' }}</strong>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RESUMEN FINANCIERO -->
+        <section class="modal-financial-summary">
+          <div class="fin-box">
+            <span>UNIDADES</span>
+            <strong>{{ cantidadProductosDetalle }} pzas.</strong>
+          </div>
+          <div class="fin-box">
+            <span>SUBTOTAL</span>
+            <strong>S/ {{ subtotalDetalle | number:'1.2-2' }}</strong>
+          </div>
+          <div class="fin-box">
+            <span>DELIVERY</span>
+            <strong>S/ {{ costoDeliveryDetalle | number:'1.2-2' }}</strong>
+          </div>
+          <div class="fin-box grand-total">
+            <span>TOTAL PAGADO</span>
+            <strong>S/ {{ totalDetalle | number:'1.2-2' }}</strong>
+          </div>
+        </section>
+
+      }
+    </section>
+  </div>
+}
+
+<app-gestion-envios></app-gestion-envios>

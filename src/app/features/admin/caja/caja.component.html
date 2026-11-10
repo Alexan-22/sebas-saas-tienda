@@ -1,0 +1,36 @@
+<div class="ops-grid three">
+  <article class="ops-panel ops-kpi"><span>Estado de caja</span><strong class="status-value">{{ abierta() ? 'Abierta' : 'Cerrada' }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Efectivo esperado DEMO</span><strong>S/ {{ (abierta()?.efectivoEsperado ?? 0) | number:'1.2-2' }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Sesiones registradas</span><strong>{{ cajas().length }}</strong></article>
+</div>
+<p *ngIf="mensaje" class="ops-feedback" role="status">{{ mensaje }}</p>
+<p *ngIf="error" class="ops-feedback error" role="alert">{{ error }}</p>
+<section *ngIf="!abierta()" class="ops-panel">
+  <h2>Apertura de caja</h2><p class="ops-subtitle">Solo se permite una caja abierta en este DEMO.</p>
+  <form class="ops-form" (ngSubmit)="abrir()" #ap="ngForm">
+    <div class="ops-field"><label for="responsable">Responsable</label><input id="responsable" name="responsable" [(ngModel)]="responsable" required maxlength="100" /></div>
+    <div class="ops-field"><label for="inicial">Monto inicial (S/)</label><input id="inicial" name="inicial" type="number" min="0" step="0.01" [(ngModel)]="montoInicial" required /></div>
+    <div class="ops-actions"><button type="submit" class="ops-btn" [disabled]="ap.invalid">Abrir caja DEMO</button></div>
+  </form>
+</section>
+<section *ngIf="abierta() as sesion" class="ops-panel">
+  <div class="ops-toolbar"><div><h2>Sesión activa</h2><p class="ops-subtitle">Responsable: {{ sesion.responsable }} · Apertura {{ sesion.abiertaEn | date:'dd/MM/yyyy HH:mm' }}</p></div><span class="ops-pill good">ABIERTA</span></div>
+  <form class="ops-form" (ngSubmit)="mover()" #mf="ngForm">
+    <div class="ops-field"><label for="tipo">Movimiento</label><select id="tipo" name="tipo" [(ngModel)]="tipo"><option value="INGRESO">Ingreso</option><option value="EGRESO">Egreso</option></select></div>
+    <div class="ops-field"><label for="concepto">Concepto</label><input id="concepto" name="concepto" [(ngModel)]="concepto" maxlength="150" required /></div>
+    <div class="ops-field"><label for="importe">Importe (S/)</label><input id="importe" name="importe" type="number" min="0.01" step="0.01" [(ngModel)]="importe" required /></div>
+    <div class="ops-actions span-all"><button type="submit" class="ops-btn" [disabled]="mf.invalid">Agregar movimiento DEMO</button><button type="button" class="ops-btn secondary" (click)="confirmando = true">Iniciar cierre</button></div>
+  </form>
+  <div *ngIf="confirmando" class="ops-close">
+    <h3>Arqueo y cierre</h3><p>Esperado: <strong>S/ {{ sesion.efectivoEsperado | number:'1.2-2' }}</strong>. Ingresa el efectivo contado.</p>
+    <div class="ops-actions"><div class="ops-field"><label for="contado">Efectivo contado</label><input id="contado" type="number" min="0" step="0.01" [(ngModel)]="efectivoContado" /></div><button class="ops-btn danger" (click)="cerrar()">Confirmar cierre</button><button class="ops-btn secondary" (click)="confirmando = false">Cancelar</button></div>
+  </div>
+</section>
+<section class="ops-panel"><div class="ops-toolbar"><h2>Historial de sesiones</h2><button class="ops-btn secondary" (click)="exportar()" [disabled]="!cajas().length">Exportar CSV</button></div>
+  <div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Apertura</th><th>Responsable</th><th>Estado</th><th>Inicial</th><th>Esperado</th><th>Contado</th><th>Diferencia</th></tr></thead><tbody>
+    <tr *ngFor="let c of cajas()"><td>{{ c.abiertaEn | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ c.responsable }}</td><td><span class="ops-pill" [class.good]="c.estado === 'ABIERTA'">{{ c.estado }}</span></td><td>S/ {{ c.montoInicial | number:'1.2-2' }}</td><td>S/ {{ c.efectivoEsperado | number:'1.2-2' }}</td><td>{{ c.efectivoContado === null ? '—' : (c.efectivoContado | number:'1.2-2') }}</td><td>{{ c.diferencia === null ? '—' : (c.diferencia | number:'1.2-2') }}</td></tr>
+    <tr *ngIf="!cajas().length"><td colspan="7" class="ops-empty">Todavía no existen sesiones de caja.</td></tr>
+  </tbody></table></div>
+</section>
+<section *ngIf="abierta()" class="ops-panel"><h2>Movimientos de la sesión</h2><div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Concepto</th><th>Monto</th></tr></thead><tbody><tr *ngFor="let m of movimientosActuales"><td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ m.tipo }}</td><td>{{ m.concepto }}</td><td>S/ {{ m.importe | number:'1.2-2' }}</td></tr><tr *ngIf="!movimientosActuales.length"><td class="ops-empty" colspan="4">Sin movimientos registrados.</td></tr></tbody></table></div></section>
+<p class="ops-hint">Los ingresos y egresos de esta pantalla no se conectan todavía a ventas POS reales. En producción, la caja debe conciliar operaciones y medios de pago desde el backend.</p>

@@ -1,0 +1,53 @@
+<main class="min-h-screen bg-slate-50 px-5 py-12">
+  <section class="mx-auto max-w-2xl rounded-2xl border bg-white p-6 shadow-sm sm:p-10">
+    <h1 class="text-2xl font-bold text-slate-900">Pedido Yape</h1>
+    <p class="mt-2 text-slate-600">Consulta el estado de tu pedido con tu usuario registrado.</p>
+
+    @if (cargando) { <p class="mt-6">Consultando el pedido...</p> }
+    @if (error) { <p role="alert" class="mt-6 rounded-lg bg-red-50 p-4 text-red-700">{{ error }}</p> }
+
+    @if (pago; as p) {
+      <div class="mt-6 space-y-3">
+        <div class="flex justify-between"><strong>Pedido</strong><span>#{{ p.idVenta }}</span></div>
+        <div class="flex justify-between"><strong>Importe exacto</strong><span>S/ {{ p.importe | number:'1.2-2' }}</span></div>
+        <div class="flex justify-between"><strong>Estado del pago</strong><strong>{{ p.estado }}</strong></div>
+        <div class="flex justify-between"><strong>Yape de la tienda</strong><span>{{ p.numeroYape }}</span></div>
+        <div class="flex justify-between"><strong>Titular</strong><span>{{ p.titularYape }}</span></div>
+      </div>
+
+      @if (p.estado === 'PENDIENTE') {
+        <div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+          <strong>Pago pendiente de verificacion</strong>
+          <p class="mt-2 text-sm">Si decides pagar, verifica que el QR, nombre y numero correspondan al comercio. El ADMIN debe comprobar el ingreso en su cuenta antes de aprobarlo. No declares tu pedido pagado desde esta pagina.</p>
+        </div>
+      @if (cargandoQr) {
+  <p class="mt-5 text-center text-sm text-slate-500">
+    Cargando QR Yape...
+  </p>
+}
+
+@if (qrObjectUrl) {
+  <div class="mx-auto mt-6 max-w-64 rounded-xl border p-3">
+    <img
+      [src]="qrObjectUrl"
+      alt="QR Yape correspondiente al pedido"
+      class="h-auto w-full"
+    />
+  </div>
+} 
+      <app-yape-comprobante-cliente [idVenta]="p.idVenta" [estado]="p.estado"></app-yape-comprobante-cliente>
+      } @else if (p.estado === 'APROBADO') {
+        <p class="mt-6 rounded-lg bg-green-50 p-4 text-green-800">El comerciante verifico el ingreso y aprobo el pago.</p>
+        <p class="mt-2 text-sm text-slate-600">Verificado por: {{ p.verificadoPor }} · {{ p.verificadoEn | date:'medium' }}</p>
+      } @else {
+        <p class="mt-6 rounded-lg bg-red-50 p-4 text-red-700">El administrador rechazo el pago: {{ p.motivoRechazo }}</p>
+        <p class="mt-2 text-sm text-slate-600">No realices otro pago sin comunicarte con la tienda.</p>
+      }
+    }
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <button type="button" (click)="recargar()" class="rounded-lg bg-slate-900 px-5 py-3 font-semibold text-white">Actualizar estado</button>
+      <a routerLink="/" class="rounded-lg border px-5 py-3 text-slate-800">Volver a la tienda</a>
+    </div>
+  </section>
+</main>

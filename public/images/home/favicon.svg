@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E0AA" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#AA7C11" />
+    </linearGradient>
+  </defs>
+  <!-- Gancho superior -->
+  <path d="M 32,8 C 27,8 25,12 25,16 C 25,20 29,21 32,19 C 34,17 33,14 31,14 C 30,14 29.5,14.5 29.5,15.5 C 29.5,16 30,16.5 30.5,16.5 C 31,16.5 31.5,16 31.5,15 C 31.5,13 29,12 27.5,14 C 26,16 28,21 32,23 L 32,26" 
+        fill="none" stroke="url(#gold)" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Percha / Cuerpo elegante -->
+  <path d="M 10,42 C 18,34 26,27 32,26 C 38,27 46,34 54,42 C 55,43 53,45 51,44 C 44,40 37,36 32,36 C 27,36 20,40 13,44 C 11,45 9,43 10,42 Z" 
+        fill="url(#gold)"/>
+</svg>

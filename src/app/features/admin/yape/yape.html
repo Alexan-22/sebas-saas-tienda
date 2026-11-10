@@ -1,0 +1,113 @@
+<section class="mx-auto max-w-5xl p-6 lg:p-10 space-y-6">
+  <header class="flex flex-wrap justify-between items-start gap-4">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-widest text-indigo-600">B.2.2.1 · Cobro directo por tienda</p>
+      <h1 class="mt-1 text-3xl font-black text-slate-900">Yape de mi tienda</h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Cada comercio recibe el dinero en su propia cuenta Yape. Ningún pago se confirma automáticamente.
+      </p>
+    </div>
+    <span class="rounded-full px-4 py-2 text-sm font-bold border"
+      [class.bg-emerald-50]="form.habilitado && configuracionCompleta"
+      [class.text-emerald-700]="form.habilitado && configuracionCompleta"
+      [class.bg-slate-100]="!form.habilitado || !configuracionCompleta">
+      {{ estadoTexto }}
+    </span>
+  </header>
+
+  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+    Esta configuración es administrativa. El checkout no debe cobrar con este QR hasta contar con
+    pedidos pendientes, verificación manual y auditoría del pago.
+  </div>
+
+  @if (error()) {
+    <div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{{ error() }}</div>
+  }
+  @if (mensaje()) {
+    <div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ mensaje() }}</div>
+  }
+
+  <form (ngSubmit)="guardar()" class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900">Datos del comerciante</h2>
+
+      <div>
+        <label for="numeroYape" class="block text-sm font-semibold text-slate-700">Número Yape</label>
+        <input id="numeroYape" name="numeroYape" type="tel" inputmode="numeric" maxlength="9"
+          autocomplete="off" [ngModel]="form.numeroYape ?? ''" (ngModelChange)="normalizarNumero($event)"
+          placeholder="9XXXXXXXX" [disabled]="guardando() || cargando()"
+          class="mt-2 w-full rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-indigo-500" />
+        <p class="mt-1 text-xs text-slate-500">9 dígitos; debe comenzar con 9.</p>
+      </div>
+
+      <div>
+        <label for="titularYape" class="block text-sm font-semibold text-slate-700">Titular que aparece en Yape</label>
+        <input id="titularYape" name="titularYape" type="text" maxlength="120"
+          [(ngModel)]="form.titularYape" [disabled]="guardando() || cargando()"
+          placeholder="Nombre del titular de la cuenta"
+          class="mt-2 w-full rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <div>
+        <label for="archivoYape" class="block text-sm font-semibold text-slate-700">Imagen QR de tu Yape</label>
+        <label for="archivoYape" class="mt-2 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50 p-6 text-center">
+          <span class="text-3xl">▦</span>
+          <span class="text-sm font-bold text-indigo-900">Elegir imagen QR (PNG o JPG)</span>
+          <span class="text-xs text-indigo-700">Máximo 2 MB · 100–2048 píxeles por lado</span>
+          @if (archivoNombre()) {
+            <span class="text-xs font-semibold text-indigo-800">Seleccionado: {{ archivoNombre() }}</span>
+          }
+        </label>
+        <input id="archivoYape" type="file" accept="image/png,image/jpeg" class="sr-only"
+          [disabled]="guardando() || cargando()" (change)="seleccionarArchivo($event)" />
+        <p class="mt-2 text-xs text-slate-500">
+          La imagen se guardará en PostgreSQL asociada a tu tienda. Confirma visualmente que
+          el QR pertenece al número y titular indicados.
+        </p>
+      </div>
+
+      <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+        <input type="checkbox" name="habilitado" [(ngModel)]="form.habilitado"
+          [disabled]="guardando() || cargando()" class="mt-1" />
+        <span>
+          <strong class="block text-sm text-slate-900">Habilitar Yape para mi tienda</strong>
+          <small class="block mt-1 text-xs text-slate-500">Requiere número, titular y QR guardado. No confirma pagos por sí solo.</small>
+        </span>
+      </label>
+
+      <div class="flex gap-3 flex-wrap">
+        <button type="submit" [disabled]="guardando() || cargando()"
+          class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white disabled:opacity-50">
+          {{ guardando() ? 'Guardando...' : 'Guardar configuración' }}
+        </button>
+        <button type="button" (click)="cargar()" [disabled]="guardando() || cargando()"
+          class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-50">
+          Volver a cargar
+        </button>
+      </div>
+    </div>
+
+    <aside class="rounded-2xl border border-slate-200 bg-white p-6 space-y-4 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900">Vista previa</h2>
+      <div class="flex aspect-square items-center justify-center rounded-xl border bg-slate-50 overflow-hidden">
+        @if (vistaPrevia()) {
+          <img [src]="vistaPrevia()" alt="Vista previa del QR de Yape" class="w-full h-full object-contain p-3" />
+        } @else {
+          <div class="p-8 text-center text-sm text-slate-400">Sube una imagen QR para verla aquí</div>
+        }
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Titular</p>
+        <p class="mt-1 font-bold text-slate-900 break-words">{{ form.titularYape || 'Sin configurar' }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Número Yape</p>
+        <p class="mt-1 font-bold text-slate-900">{{ form.numeroYape || 'Sin configurar' }}</p>
+      </div>
+      <div class="border-t border-slate-200 pt-3 text-xs text-slate-600">
+        {{ qrGuardado() ? 'QR guardado para esta tienda.' : 'Aún no hay un QR guardado.' }}
+        @if (archivoNombre()) { <span> Hay un archivo nuevo pendiente de guardar.</span> }
+      </div>
+    </aside>
+  </form>
+</section>

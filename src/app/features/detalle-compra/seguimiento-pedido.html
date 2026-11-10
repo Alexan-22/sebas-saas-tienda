@@ -1,0 +1,82 @@
+<section class="seguimiento-cliente" aria-label="Seguimiento del pedido">
+  <div class="sc-encabezado">
+    <div>
+      <p class="sc-etiqueta">PEDIDOS Y DELIVERY</p>
+      <h2>Seguimiento de mi envío</h2>
+      <p>Consulta la información registrada por la tienda para tu pedido.</p>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <p class="sc-mensaje" role="status">Consultando información del envío...</p>
+  } @else if (resultado(); as r) {
+    @if (r.tipo === 'sin-guia') {
+      <div class="sc-mensaje" role="status">
+        Todavía no hay una guía de transporte disponible para este pedido.
+        Si tu compra es reciente, la tienda puede estar preparándola.
+      </div>
+    } @else if (r.tipo === 'sin-permiso') {
+      <div class="sc-mensaje sc-error" role="alert">
+        Inicia sesión con la cuenta que realizó la compra para consultar su seguimiento.
+      </div>
+    } @else if (r.tipo === 'id-invalido') {
+      <div class="sc-mensaje sc-error" role="alert">El número de pedido no es válido.</div>
+    } @else if (r.tipo === 'error') {
+      <div class="sc-mensaje sc-error" role="alert">
+        No se pudo consultar el seguimiento. Inténtalo más tarde.
+      </div>
+    } @else if (r.tipo === 'ok') {
+      <div class="sc-resumen">
+        <div>
+          <span class="sc-label">Pedido</span>
+          <strong>#{{ r.seguimiento.idVenta }}</strong>
+        </div>
+        <div>
+          <span class="sc-label">Transportista</span>
+          <strong>{{ nombreOperador(r.seguimiento.operador) }}</strong>
+        </div>
+        <div>
+          <span class="sc-label">Modalidad</span>
+          <strong>{{ r.seguimiento.modalidad === 'AGENCIA' ? 'Recojo en agencia' : 'Entrega a domicilio' }}</strong>
+        </div>
+      </div>
+
+      <div class="sc-estado" [class.sc-alerta]="r.seguimiento.estado === 'CANCELADO' || r.seguimiento.estado === 'INCIDENCIA'">
+        <span class="sc-label">Estado de entrega</span>
+        <strong>{{ tituloEstado(r.seguimiento.estado) }}</strong>
+      </div>
+
+      @if (r.seguimiento.estado !== 'INCIDENCIA' && r.seguimiento.estado !== 'CANCELADO') {
+        <ol class="sc-pasos" aria-label="Etapas de envío">
+          @for (etapa of etapas; track etapa) {
+            <li [class.completado]="etapaCumplida(r.seguimiento.estado, etapa)">
+              <span class="sc-punto" aria-hidden="true"></span>
+              <span>{{ tituloEstado(etapa) }}</span>
+            </li>
+          }
+        </ol>
+      }
+
+      <div class="sc-detalles">
+        <div>
+          <span class="sc-label">N.º de guía</span>
+          <strong>{{ r.seguimiento.numeroGuia || 'Aún no registrado' }}</strong>
+        </div>
+        @if (r.seguimiento.codigoRastreo) {
+          <div>
+            <span class="sc-label">Código de rastreo</span>
+            <strong>{{ r.seguimiento.codigoRastreo }}</strong>
+          </div>
+        }
+        <div>
+          <span class="sc-label">Última actualización</span>
+          <strong>{{ r.seguimiento.actualizadoEn | date:'dd/MM/yyyy HH:mm' }}</strong>
+        </div>
+      </div>
+      <p class="sc-nota">
+        Estos datos son registrados manualmente por la tienda. No constituyen una
+        confirmación de ubicación en tiempo real por Shalom u Olva.
+      </p>
+    }
+  }
+</section>

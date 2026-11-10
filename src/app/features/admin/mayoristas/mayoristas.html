@@ -1,0 +1,62 @@
+<section class="b2b-page">
+  <header class="b2b-header">
+    <div>
+      <p class="eyebrow">VENTAS · MAYORISTAS B2B</p>
+      <h1>Precios y reglas por mayor</h1>
+      <p>Configura los mínimos y descuentos de esta tienda. Los productos de otras tiendas no son accesibles.</p>
+    </div>
+    <button type="button" class="secondary" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+  </header>
+
+  <div class="notice"><strong>Fase 2A:</strong> configuración lista para pruebas. Estos precios aún no se aplican automáticamente al checkout ni al POS. No prometas descuentos al público hasta integrar y probar la fase 2B.</div>
+  @if (cargando) { <p class="status">Cargando configuración…</p> }
+  @if (error) { <p class="error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="ok" role="status">{{ mensaje }}</p> }
+
+  @if (!cargando) {
+    <section class="panel">
+      <div class="panel-heading"><h2>Condiciones mayoristas</h2><span>Esta tienda</span></div>
+      <form (ngSubmit)="guardarConfig()">
+        <label class="switch"><input type="checkbox" name="habilitado" [(ngModel)]="config.habilitado"> Activar reglas mayoristas</label>
+        <div class="fields">
+          <label>Compra mínima de prendas <small>(0 = sin mínimo)</small>
+            <input name="minimoPrendas" type="number" min="0" max="100000" step="1" [(ngModel)]="config.minimoPrendas" required>
+          </label>
+          <label>Monto mínimo S/ <small>(0 = sin mínimo)</small>
+            <input name="minimoMonto" type="number" min="0" step="0.01" [(ngModel)]="config.minimoMonto" required>
+          </label>
+        </div>
+        <p class="help">Si ambos mínimos son mayores que cero, el checkout tendrá que cumplir ambos cuando integremos esta configuración.</p>
+        <button class="primary" type="submit" [disabled]="guardandoConfig">{{ guardandoConfig ? 'Guardando…' : 'Guardar condiciones' }}</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading"><h2>Descuentos por producto</h2><span>Escalas de volumen</span></div>
+      <label>Producto de esta tienda
+        <select name="producto" [(ngModel)]="productoId" (ngModelChange)="seleccionarProducto()">
+          <option [ngValue]="null">Selecciona un producto</option>
+          @for (p of productos; track p.idProducto) {
+            <option [ngValue]="p.idProducto">{{ p.nombre }} · S/ {{ p.precio | number:'1.2-2' }}{{ p.estado ? '' : ' (inactivo)' }}</option>
+          }
+        </select>
+      </label>
+      @if (productoId !== null) {
+        <p class="help">Precio minorista: S/ {{ productoActual?.precio | number:'1.2-2' }}. Las escalas deben tener cantidades diferentes y precios cada vez menores que el precio minorista/oferta.</p>
+        <div class="tier-head"><span>Desde (unidades)</span><span>Precio por unidad (S/)</span><span>Acción</span></div>
+        @for (e of escalas; track $index; let i = $index) {
+          <div class="tier-row">
+            <input type="number" min="2" max="100000" step="1" [(ngModel)]="e.cantidadMinima" [name]="'min-'+i">
+            <input type="number" min="0.01" step="0.01" [(ngModel)]="e.precioUnitario" [name]="'precio-'+i">
+            <button type="button" class="danger" (click)="quitarEscala(i)">Quitar</button>
+          </div>
+        }
+        <div class="actions">
+          <button type="button" class="secondary" (click)="agregarEscala()">+ Agregar escala</button>
+          <button type="button" class="primary" [disabled]="guardandoEscalas" (click)="guardarEscalas()">{{ guardandoEscalas ? 'Guardando…' : 'Guardar escalas' }}</button>
+        </div>
+      }
+    </section>
+  }
+  <app-b2b-simulador></app-b2b-simulador>
+</section>

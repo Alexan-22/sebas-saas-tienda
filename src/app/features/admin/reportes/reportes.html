@@ -1,0 +1,539 @@
+<section class="reportes-page">
+  <!-- ENCABEZADO Y FILTROS -->
+  <header class="page-header">
+    <div class="page-title">
+      <p class="eyebrow">ANÁLISIS COMERCIAL</p>
+      <h1>REPORTES</h1>
+      <span>Centro de métricas de {{ nombreTienda }}. Cada reporte utiliza los datos de esta tienda.</span>
+    </div>
+
+    <div class="filters">
+      <div class="filter-control">
+        <label>PERÍODO</label>
+        <select [(ngModel)]="periodo" (change)="aplicarPeriodo()">
+          <option value="HOY">Hoy</option>
+          <option value="AYER">Ayer</option>
+          <option value="7">Últimos 7 días</option>
+          <option value="15">Últimos 15 días</option>
+          <option value="30">Últimos 30 días</option>
+          <option value="MES">Este mes</option>
+          <option value="ANIO">Este año</option>
+          <option value="ULTIMO_ANIO">Último año</option>
+          <option value="TODO">Todo el período</option>
+        </select>
+      </div>
+
+      <div class="filter-control">
+        <label>CANAL</label>
+        <select [(ngModel)]="canal" (change)="aplicarCanal()">
+          <option value="TODOS">Todos los canales</option>
+          <option value="ONLINE">Online</option>
+          <option value="PRESENCIAL">Presencial</option>
+        </select>
+      </div>
+
+      <div class="export-control">
+        <label>EXPORTAR</label>
+        <div class="export-actions">
+          <button type="button" class="export-button export-pdf" (click)="exportarPDF()" [disabled]="cargando || !!error">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>PDF</span>
+          </button>
+
+          <button type="button" class="export-button export-excel" (click)="exportarExcel()" [disabled]="cargando || !!error">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>EXCEL</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PESTAÑAS (TABS) DE NAVEGACIÓN -->
+  <nav class="reportes-tabs">
+    <button 
+      type="button"
+      (click)="seleccionarPestana('ventas')" 
+      [class.active]="pestanaActiva === 'ventas'"
+      class="tab-button">
+      <span class="tab-icon">📊</span>
+      <span>Ventas e Ingresos</span>
+    </button>
+
+    <button 
+      type="button"
+      (click)="seleccionarPestana('inventario')" 
+      [class.active]="pestanaActiva === 'inventario'"
+      class="tab-button">
+      <span class="tab-icon">📦</span>
+      <span>Productos e Inventario</span>
+    </button>
+
+    <button 
+      type="button"
+      (click)="seleccionarPestana('canales')" 
+      [class.active]="pestanaActiva === 'canales'"
+      class="tab-button">
+      <span class="tab-icon">💳</span>
+      <span>Medios de Pago y Canales</span>
+    </button>
+
+    <button 
+      type="button"
+      (click)="seleccionarPestana('clientes')" 
+      [class.active]="pestanaActiva === 'clientes'"
+      class="tab-button">
+      <span class="tab-icon">👤</span>
+      <span>Clientes y Cuentas</span>
+    </button>
+  </nav>
+
+  <!-- ESTADOS -->
+  @if (cargando) {
+    <div class="estado-pagina">
+      <div class="spinner"></div>
+      <strong>CARGANDO REPORTES...</strong>
+      <span>Procesando ventas, productos, inventario y usuarios.</span>
+    </div>
+  } @else if (error) {
+    <div class="estado-pagina error">
+      <strong>NO SE PUDIERON CARGAR LOS REPORTES</strong>
+      <span>{{ error }}</span>
+      <button type="button" (click)="cargarReportes()">REINTENTAR</button>
+    </div>
+  } @else {
+
+    <!-- PESTAÑA 1: VENTAS E INGRESOS -->
+    @if (pestanaActiva === 'ventas') {
+      <div class="tab-content animated-fade">
+        <section class="stats-grid">
+          <article class="stat-card purple">
+            <div class="stat-header">
+              <p>VENTAS REGISTRADAS</p>
+              <span class="badge-icon">🧾</span>
+            </div>
+            <strong>{{ totalVentas }}</strong>
+            <span>Ventas del filtro seleccionado</span>
+          </article>
+
+          <article class="stat-card emerald">
+            <div class="stat-header">
+              <p>MONTO DE VENTAS</p>
+              <span class="badge-icon">S/</span>
+            </div>
+            <strong>S/ {{ ingresosTotales | number:'1.2-2' }}</strong>
+            <span>Importe de pedidos no cancelados (no equivale a pagos conciliados)</span>
+          </article>
+
+          <article class="stat-card blue">
+            <div class="stat-header">
+              <p>UNIDADES VENDIDAS</p>
+              <span class="badge-icon">👕</span>
+            </div>
+            <strong>{{ unidadesVendidas }}</strong>
+            <span>Prendas vendidas</span>
+          </article>
+
+          <article class="stat-card amber">
+            <div class="stat-header">
+              <p>VENTA PROMEDIO</p>
+              <span class="badge-icon">📈</span>
+            </div>
+            <strong>S/ {{ ventaPromedio | number:'1.2-2' }}</strong>
+            <span>Promedio por venta</span>
+          </article>
+        </section>
+
+        <!-- CANALES RESUMEN -->
+        <section class="channel-summary">
+          <article class="channel-card">
+            <div class="channel-info">
+              <div class="channel-badge online">ONLINE</div>
+              <div>
+                <span>VENTAS EN LA WEB</span>
+                <strong>{{ ventasOnline }}</strong>
+              </div>
+            </div>
+            <small>Compras realizadas desde la tienda web</small>
+          </article>
+
+          <article class="channel-card">
+            <div class="channel-info">
+              <div class="channel-badge pos">PRESENCIAL</div>
+              <div>
+                <span>VENTAS EN TIENDA</span>
+                <strong>{{ ventasPresenciales }}</strong>
+              </div>
+            </div>
+            <small>Ventas registradas desde el punto de venta</small>
+          </article>
+        </section>
+        <section class="summary-grid reporte-ampliado">
+          <article class="panel">
+            <div class="panel-header"><h2>EVOLUCIÓN DE VENTAS</h2><span class="panel-number">03</span></div>
+            <div class="panel-content">
+              @if (ventasPorDia.length === 0) {
+                <p class="empty">Sin movimientos para el período seleccionado.</p>
+              } @else {
+                @for (dia of ventasPorDia; track dia.fecha) {
+                  <div class="bar-item">
+                    <div class="bar-info"><strong>{{ dia.fecha }}</strong><span>{{ dia.ventas }} ventas · S/ {{ dia.total | number:'1.2-2' }}</span></div>
+                    <div class="bar-background"><div class="bar-value gradient-purple" [style.width.%]="dia.porcentaje"></div></div>
+                  </div>
+                }
+              }
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-header"><h2>INGRESOS POR CANAL</h2><span class="panel-number">04</span></div>
+            <div class="panel-content">
+              <div class="reporte-linea"><strong>ONLINE</strong><span>S/ {{ ingresoOnline | number:'1.2-2' }}</span></div>
+              <div class="reporte-linea"><strong>PRESENCIAL</strong><span>S/ {{ ingresoPresencial | number:'1.2-2' }}</span></div>
+              <p class="reporte-aclaracion">Se muestran importes registrados, no una conciliación bancaria.</p>
+            </div>
+          </article>
+        </section>
+        <section class="panel reporte-ampliado">
+          <div class="panel-header"><h2>ÚLTIMAS VENTAS DEL PERÍODO</h2><span class="panel-number">05</span></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>VENTA</th><th>FECHA</th><th>CANAL</th><th>MEDIO DE PAGO</th><th>MONTO</th></tr></thead>
+              <tbody>
+                @for (venta of ventasRecientes; track venta.idVenta) {
+                  <tr><td>#{{ venta.idVenta }}</td><td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ venta.tipoVenta }}</td><td>{{ venta.medioPago }}</td><td>S/ {{ venta.total | number:'1.2-2' }}</td></tr>
+                } @empty {
+                  <tr><td colspan="5">Sin ventas en este período.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    }
+
+    <!-- PESTAÑA 2: PRODUCTOS E INVENTARIO -->
+    @if (pestanaActiva === 'inventario') {
+      <div class="tab-content animated-fade">
+        
+        <section class="panel mb-6">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">INVENTARIO</p>
+              <h2>ESTADO DEL STOCK GENERAL</h2>
+            </div>
+            <span class="panel-number">01</span>
+          </div>
+
+          @if (stockIncompleto) {
+            <p class="aviso-reportes">Algunas consultas de stock fallaron. No se deben considerar completos los totales.</p>
+          }
+          <div class="metrics-grid">
+            <div class="metric">
+              <span>STOCK TOTAL</span>
+              <strong class="text-purple">{{ stockTotal }}</strong>
+              <small>Unidades disponibles en almacén</small>
+            </div>
+            <div class="metric">
+              <span>STOCK BAJO</span>
+              <strong class="text-amber">{{ stockBajo }}</strong>
+              <small>Tallas con 1 a 5 unidades</small>
+            </div>
+            <div class="metric">
+              <span>SIN STOCK</span>
+              <strong class="text-red">{{ sinStock }}</strong>
+              <small>Tallas agotadas</small>
+            </div>
+            <div class="metric">
+              <span>PRODUCTOS ACTIVOS</span>
+              <strong class="text-emerald">{{ productosActivos }}</strong>
+              <small>Productos visibles en catálogo · {{ productosInactivos }} inactivos</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel category-panel mb-6">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">CATEGORÍAS</p>
+              <h2>VENTAS POR CATEGORÍA</h2>
+            </div>
+            <span class="panel-number">02</span>
+          </div>
+
+          <div class="category-content">
+            @if (categorias.length === 0) {
+              <div class="empty">No existen datos por categoría para los filtros seleccionados.</div>
+            } @else {
+              @for (categoria of categorias; track categoria.nombre) {
+                <div class="bar-item">
+                  <div class="bar-info">
+                    <div>
+                      <strong>{{ categoria.nombre }}</strong>
+                      <span>{{ categoria.cantidad }} unidades</span>
+                    </div>
+                    <strong>S/ {{ categoria.ingresos | number:'1.2-2' }}</strong>
+                  </div>
+
+                  <div class="bar-background">
+                    <div class="bar-value gradient-purple" [style.width.%]="categoria.porcentaje"></div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </section>
+
+        <section class="panel products-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">RENDIMIENTO</p>
+              <h2>PRODUCTOS MÁS VENDIDOS (TOP SALES)</h2>
+            </div>
+            <span class="panel-number">03</span>
+          </div>
+
+          @if (productosVendidos.length === 0) {
+            <div class="empty large">No existen productos vendidos para los filtros seleccionados.</div>
+          } @else {
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>POSICIÓN</th>
+                    <th>PRODUCTO</th>
+                    <th>CATEGORÍA</th>
+                    <th>UNIDADES</th>
+                    <th>INGRESOS</th>
+                    <th>RENDIMIENTO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (producto of productosVendidos; track producto.idProducto; let posicion = $index) {
+                    <tr>
+                      <td><span class="ranking">#{{ posicion + 1 }}</span></td>
+                      <td><strong class="product-name">{{ producto.nombre }}</strong></td>
+                      <td><span class="category-badge">{{ producto.categoria }}</span></td>
+                      <td><strong>{{ producto.cantidad }}</strong></td>
+                      <td class="text-emerald font-bold">S/ {{ producto.ingresos | number:'1.2-2' }}</td>
+                      <td>
+                        <div class="table-progress">
+                          <div class="bar-background">
+                            <div class="bar-value gradient-purple" [style.width.%]="producto.porcentaje"></div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <section class="panel reporte-ampliado">
+          <div class="panel-header"><h2>TALLAS CON STOCK BAJO O AGOTADO</h2><span class="panel-number">04</span></div>
+          @if (stockIncompleto) {
+            <p class="aviso-reportes">Inventario parcial: consulta los errores en consola antes de tomar decisiones de reposición.</p>
+          }
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>PRODUCTO</th><th>TALLA</th><th>UNIDADES</th><th>ESTADO</th></tr></thead>
+              <tbody>
+                @for (item of inventarioCritico; track $index) {
+                  <tr>
+                    <td>{{ item.producto?.nombre || 'Producto' }}</td>
+                    <td>{{ item.talla?.nombreTalla || 'Sin talla' }}</td>
+                    <td>{{ item.stock }}</td>
+                    <td>{{ item.stock <= 0 ? 'AGOTADO' : 'STOCK BAJO' }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4">Sin alertas de stock disponibles.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    }
+
+    <!-- PESTAÑA 3: MEDIOS DE PAGO Y CANALES -->
+    @if (pestanaActiva === 'canales') {
+      <div class="tab-content animated-fade">
+        <section class="stats-grid">
+          <article class="stat-card purple"><p>VENTAS ANALIZADAS</p><strong>{{ totalVentas }}</strong><span>Con los filtros actuales</span></article>
+          <article class="stat-card emerald"><p>MONTO REGISTRADO</p><strong>S/ {{ ingresosTotales | number:'1.2-2' }}</strong><span>No es saldo bancario conciliado</span></article>
+          <article class="stat-card blue"><p>MEDIOS USADOS</p><strong>{{ mediosPago.length }}</strong><span>Medios de pago distintos</span></article>
+          <article class="stat-card amber"><p>CANALES</p><strong>{{ canales.length }}</strong><span>ONLINE / PRESENCIAL presentes</span></article>
+        </section>
+        <section class="summary-grid">
+          
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">TRANSACCIONES</p>
+                <h2>MEDIOS DE PAGO</h2>
+              </div>
+              <span class="panel-number">01</span>
+            </div>
+
+            <div class="panel-content">
+              @if (mediosPago.length === 0) {
+                <div class="empty">No existen ventas para los filtros seleccionados.</div>
+              } @else {
+                @for (medio of mediosPago; track medio.nombre) {
+                  <div class="bar-item">
+                    <div class="bar-info">
+                      <div>
+                        <strong>{{ medio.nombre }}</strong>
+                        <span>{{ medio.cantidad }} transacciones</span>
+                      </div>
+                      <strong class="text-purple">S/ {{ medio.total | number:'1.2-2' }}</strong>
+                    </div>
+
+                    <div class="bar-background">
+                      <div class="bar-value gradient-purple" [style.width.%]="medio.porcentaje"></div>
+                    </div>
+                    <small>{{ medio.porcentaje | number:'1.0-0' }}% de las ventas</small>
+                  </div>
+                }
+              }
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">ORIGEN DE VENTAS</p>
+                <h2>VENTAS POR CANAL</h2>
+              </div>
+              <span class="panel-number">02</span>
+            </div>
+
+            <div class="panel-content">
+              @if (canales.length === 0) {
+                <div class="empty">No existen ventas para los filtros seleccionados.</div>
+              } @else {
+                @for (item of canales; track item.nombre) {
+                  <div class="bar-item">
+                    <div class="bar-info">
+                      <div>
+                        <strong>{{ item.nombre }}</strong>
+                        <span>{{ item.cantidad }} ventas</span>
+                      </div>
+                      <strong class="text-emerald">S/ {{ item.total | number:'1.2-2' }}</strong>
+                    </div>
+
+                    <div class="bar-background">
+                      <div class="bar-value gradient-emerald" [style.width.%]="item.porcentaje"></div>
+                    </div>
+                    <small>{{ item.porcentaje | number:'1.0-0' }}% del total</small>
+                  </div>
+                }
+              }
+            </div>
+          </article>
+
+        </section>
+      </div>
+    }
+
+    <!-- PESTAÑA 4: CLIENTES Y CUENTAS -->
+    @if (pestanaActiva === 'clientes') {
+      <div class="tab-content animated-fade">
+        <section class="stats-grid">
+          <article class="stat-card purple"><p>COMPRADORES IDENTIFICADOS</p><strong>{{ clientesCompradores }}</strong><span>Compradores del período y canal</span></article>
+          <article class="stat-card emerald"><p>CLIENTES RECURRENTES</p><strong>{{ clientesRecurrentes }}</strong><span>Con dos o más ventas en el filtro</span></article>
+          <article class="stat-card blue"><p>COMPRADORES ONLINE</p><strong>{{ compradoresOnline }}</strong><span>Usuarios con compras</span></article>
+          <article class="stat-card amber"><p>COMPRADORES POS</p><strong>{{ compradoresPresenciales }}</strong><span>Clientes presenciales con compras</span></article>
+        </section>
+        <section class="summary-grid">
+          
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">USUARIOS REGISTRADOS</p>
+                <h2>CUENTAS DE CLIENTES</h2>
+              </div>
+              <span class="panel-number">01</span>
+            </div>
+
+            <div class="customer-content">
+              <div class="customer-main">
+                <span>CLIENTES EN LA WEB</span>
+                <strong class="text-purple">{{ totalClientes }}</strong>
+                <small>Cuentas de usuarios con rol cliente</small>
+              </div>
+
+              <div class="customer-secondary">
+                <div>
+                  <span>USUARIOS TOTALES</span>
+                  <strong>{{ totalUsuarios }}</strong>
+                </div>
+                <div>
+                  <span>CUENTAS ACTIVAS</span>
+                  <strong class="text-emerald">{{ usuariosActivos }}</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">PREFERENCIAS</p>
+                <h2>PRODUCTO ESTRELLA</h2>
+              </div>
+              <span class="panel-number">02</span>
+            </div>
+
+            <div class="customer-content">
+              @if (productoMasVendido) {
+                <div class="best-product-card">
+                  <span class="badge-star">⭐ MÁS VENDIDO</span>
+                  <strong>{{ productoMasVendido.nombre }}</strong>
+                  <p class="mt-2 text-xs text-neutral-500">Categoría: {{ productoMasVendido.categoria }}</p>
+                  
+                  <div class="mt-6 flex items-center justify-between border-t border-neutral-100 pt-4">
+                    <div>
+                      <span class="text-[10px] text-neutral-400 uppercase font-bold">Unidades</span>
+                      <p class="text-lg font-black text-neutral-900">{{ productoMasVendido.cantidad }} prendas</p>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-[10px] text-neutral-400 uppercase font-bold">Recaudado</span>
+                      <p class="text-lg font-black text-emerald-600">S/ {{ productoMasVendido.ingresos | number:'1.2-2' }}</p>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <div class="empty">No hay datos del producto líder.</div>
+              }
+            </div>
+          </article>
+
+        </section>
+        <section class="panel reporte-ampliado">
+          <div class="panel-header"><h2>CLIENTES CON MAYOR COMPRA REGISTRADA</h2><span class="panel-number">03</span></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>CLIENTE</th><th>CANAL</th><th>COMPRAS</th><th>IMPORTE</th></tr></thead>
+              <tbody>
+                @for (cliente of rankingClientes.slice(0, 12); track cliente.clave) {
+                  <tr><td>{{ cliente.nombre }}</td><td>{{ cliente.tipo }}</td><td>{{ cliente.compras }}</td><td>S/ {{ cliente.total | number:'1.2-2' }}</td></tr>
+                } @empty {
+                  <tr><td colspan="4">No existen compras de clientes identificados para este filtro.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="reporte-aclaracion reporte-padding">Las cuentas registradas son totales actuales; las compras corresponden al período seleccionado. Se agrupa por ID de cliente dentro de esta tienda.</p>
+        </section>
+      </div>
+    }
+
+  }
+</section>

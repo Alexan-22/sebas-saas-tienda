@@ -1,0 +1,3 @@
+.filtros { margin: 14px 0 20px; }
+.detalle { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font-size: 13px; }
+.detalle dt { color: #76849a; font-weight: 700; }.detalle dd { margin: 0; overflow-wrap: anywhere; }

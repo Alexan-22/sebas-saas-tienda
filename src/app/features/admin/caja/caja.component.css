@@ -1,0 +1,5 @@
+.status-value { font-size: 24px !important; }
+.ops-close { margin-top: 20px; padding: 16px; border: 1px solid #f4d9df; background: #fff8f9; border-radius: 12px; }
+.ops-close h3 { margin: 0 0 10px; font-size: 15px; }
+.ops-close p { font-size: 13px; }
+.ops-close .ops-actions { align-items: end; }

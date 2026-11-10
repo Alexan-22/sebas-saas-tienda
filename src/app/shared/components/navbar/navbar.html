@@ -1,0 +1,49 @@
+<header class="site-header">
+  <div class="nav-inner">
+    <a class="brand" routerLink="/" (click)="cerrarMenu()" aria-label="Ir al inicio">
+      @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
+        <img [src]="logo" [alt]="tiendaService.tiendaActual()?.nombre || 'Logo'" class="brand-logo" />
+      } @else {
+        <span class="brand-word">{{ tiendaService.tiendaActual()?.nombre || 'TIENDA' }}</span>
+      }
+    </a>
+    <nav class="desktop-nav" aria-label="Catálogo principal">
+      <a routerLink="/tienda" class="nav-link">Todo</a>
+      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }" class="nav-link">Mujer</a>
+      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }" class="nav-link">Hombre</a>
+      <a routerLink="/tienda" [queryParams]="{ nuevo: true }" class="nav-link">Novedades</a>
+      <a routerLink="/tienda" [queryParams]="{ ofertas: true }" class="nav-link">Ofertas</a>
+    </nav>
+    <div class="nav-actions">
+      <form class="search" (submit)="$event.preventDefault(); ejecutarBusqueda(buscar.value)">
+        <input #buscar type="search" placeholder="Buscar prendas..." aria-label="Buscar prendas" />
+        <button type="submit" aria-label="Buscar">⌕</button>
+      </form>
+      <button class="account" type="button" (click)="irACuenta()" aria-label="Mi cuenta">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3.5-7 8-7s8 2 8 7"/></svg>
+      </button>
+      <a routerLink="/carrito" class="bag" aria-label="Carrito de compras">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16l-1.5 13h-13L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
+        @if (carritoService.cantidadTotal() > 0) { <span class="bag-count">{{ carritoService.cantidadTotal() }}</span> }
+      </a>
+      <button class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuAbierto" [attr.aria-label]="menuAbierto ? 'Cerrar menú' : 'Abrir menú'">{{ menuAbierto ? '✕' : '☰' }}</button>
+    </div>
+  </div>
+  @if (menuAbierto) {
+    <nav class="mobile-nav" aria-label="Navegación móvil">
+      <form (submit)="$event.preventDefault(); ejecutarBusqueda(buscarMovil.value)">
+        <input #buscarMovil type="search" placeholder="Buscar vestidos, camisas, prendas..." aria-label="Buscar prendas" />
+        <button type="submit">Buscar</button>
+      </form>
+      <a routerLink="/tienda" (click)="cerrarMenu()">Toda la tienda</a>
+      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }" (click)="cerrarMenu()">Mujer</a>
+      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }" (click)="cerrarMenu()">Hombre</a>
+      <a routerLink="/tienda" [queryParams]="{ nuevo: true }" (click)="cerrarMenu()">Novedades</a>
+      <a routerLink="/tienda" [queryParams]="{ ofertas: true }" (click)="cerrarMenu()">Ofertas</a>
+      <button type="button" (click)="irACuenta()">{{ authService.autenticado() ? 'Mi cuenta' : 'Iniciar sesión' }}</button>
+      @if (authService.autenticado()) { <button type="button" (click)="cerrarSesion()">Cerrar sesión</button> }
+    </nav>
+  }
+</header>
+
+

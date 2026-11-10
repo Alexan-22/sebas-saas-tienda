@@ -1,0 +1,289 @@
+<section class="producto-form-page">
+
+  <!-- BOTÓN DE RETORNO -->
+  <a routerLink="/admin/productos" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    <span>Volver al Catálogo</span>
+  </a>
+
+  <!-- ENCABEZADO -->
+  <header class="page-header">
+    <div class="page-title">
+      <span class="eyebrow">ADMINISTRACIÓN DE CATÁLOGO</span>
+      <h1>{{ editando ? 'Editar Producto' : 'Nuevo Producto' }}</h1>
+      <p>{{ editando ? 'Actualiza los datos y la imagen del artículo seleccionado.' : 'Registra un nuevo artículo en el inventario de la tienda.' }}</p>
+    </div>
+  </header>
+
+  <!-- ERROR GENERAL -->
+  @if (error) {
+    <div class="alert-box error">
+      <strong>ERROR DE VALIDACIÓN</strong>
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  <!-- ESTADO DE CARGA -->
+  @if (cargando) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Cargando información del producto...</p>
+    </div>
+  } @else {
+
+    <!-- FORMULARIO PRINCIPAL -->
+    <form (ngSubmit)="guardar()" class="form-grid">
+
+      <!-- COLUMNA IZQUIERDA: INFORMACIÓN, PRECIO Y CLASIFICACIÓN -->
+      <div class="main-column">
+
+        <!-- INFORMACIÓN GENERAL -->
+        <section class="panel-card">
+          <div class="panel-header">
+            <h3>Información General</h3>
+            <span class="panel-step">01</span>
+          </div>
+
+          <div class="field-group">
+            <label>NOMBRE DEL PRODUCTO</label>
+            <input
+              type="text"
+              name="nombre"
+              [(ngModel)]="nombre"
+              placeholder="Ej. Polo Oversize Premium"
+              required
+              [disabled]="guardando">
+          </div>
+
+          <div class="field-group">
+            <label>DESCRIPCIÓN</label>
+            <textarea
+              name="descripcion"
+              [(ngModel)]="descripcion"
+              rows="5"
+              placeholder="Detalles de materiales, diseño o características..."
+              [disabled]="guardando"></textarea>
+          </div>
+        </section>
+
+        <!-- PRECIOS -->
+        <section class="panel-card">
+          <div class="panel-header">
+            <h3>Precios y Ofertas</h3>
+            <span class="panel-step">02</span>
+          </div>
+
+          <div class="columns-2">
+            <div class="field-group">
+              <label>PRECIO NORMAL (S/)</label>
+              <input
+                type="number"
+                name="precio"
+                [(ngModel)]="precio"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                [disabled]="guardando">
+            </div>
+
+            <div class="field-group">
+              <label>PRECIO DE OFERTA (S/)</label>
+              <input
+                type="number"
+                name="precioOferta"
+                [(ngModel)]="precioOferta"
+                step="0.01"
+                min="0"
+                placeholder="Opcional"
+                [disabled]="guardando">
+            </div>
+          </div>
+        </section>
+
+        <!-- CLASIFICACIÓN -->
+        <section class="panel-card">
+          <div class="panel-header">
+            <h3>Clasificación Comercial</h3>
+            <span class="panel-step">03</span>
+          </div>
+
+          <div class="columns-2">
+            <div class="field-group">
+              <label>GÉNERO</label>
+              <select name="genero" [(ngModel)]="idGenero" [disabled]="guardando">
+                <option [ngValue]="null">Seleccionar género...</option>
+                @for (genero of generos; track genero.idGenero) {
+                  <option [ngValue]="genero.idGenero">{{ genero.nombreGenero }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label>CATEGORÍA</label>
+              <select name="categoria" [(ngModel)]="idCategoria" [disabled]="guardando">
+                <option [ngValue]="null">Seleccionar categoría...</option>
+                @for (categoria of categorias; track categoria.idCategoria) {
+                  <option [ngValue]="categoria.idCategoria">{{ categoria.nombreCategoria }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: IMAGEN Y VISIBILIDAD -->
+      <aside class="side-column">
+
+        <!-- IMAGEN -->
+        <section class="panel-card image-card-section">
+          <div class="panel-header">
+            <h3>Fotografía</h3>
+            <span class="panel-step">04</span>
+          </div>
+
+          <div class="image-preview-box">
+            @if (imagenActualUrl()) {
+              <img [src]="imagenActualUrl()" [alt]="nombre || 'Previsualización'">
+            } @else {
+              <div class="image-placeholder">
+                <strong>TS</strong>
+                <span>SIN IMAGEN</span>
+              </div>
+            }
+          </div>
+
+          <div class="field-group">
+            <label class="file-upload-btn">
+              <span>Examinar Archivo...</span>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                (change)="seleccionarImagen($event)"
+                [disabled]="guardando">
+            </label>
+          </div>
+
+          @if (archivoImagen) {
+            <div class="selected-file-banner">
+              <div>
+                <strong>Nuevo archivo seleccionado:</strong>
+                <span>{{ archivoImagen.name }}</span>
+              </div>
+              <button type="button" class="btn-remove-img" (click)="cancelarImagen()" [disabled]="guardando">Quitar</button>
+            </div>
+          }
+
+          @if (errorImagen) {
+            <div class="inline-error">{{ errorImagen }}</div>
+          }
+
+          <small class="help-text">Formatos permitidos: JPG, PNG, WEBP. Máximo 5 MB.</small>
+
+          @if (imagen && !archivoImagen) {
+            <div class="current-img-info">
+              <span>Imagen actual en servidor:</span>
+              <strong>{{ imagen }}</strong>
+            </div>
+          }
+        </section>
+
+        <!-- VISIBILIDAD Y ETIQUETAS -->
+        <section class="panel-card">
+          <div class="panel-header">
+            <h3>Visibilidad</h3>
+          </div>
+
+          <div class="checks-list">
+            <label class="check-item">
+              <div>
+                <strong>Producto Activo</strong>
+                <span>Visible en la tienda web</span>
+              </div>
+              <input
+                type="checkbox"
+                name="estado"
+                [(ngModel)]="estado"
+                [disabled]="guardando">
+            </label>
+
+            <label class="check-item">
+              <div>
+                <strong>Nuevo Lanzamiento</strong>
+                <span>Muestra etiqueta "Nuevo"</span>
+              </div>
+              <input
+                type="checkbox"
+                name="nuevo"
+                [(ngModel)]="nuevo"
+                [disabled]="guardando">
+            </label>
+
+            <label class="check-item">
+              <div>
+                <strong>Producto Destacado</strong>
+                <span>Aparece en secciones principales</span>
+              </div>
+              <input
+                type="checkbox"
+                name="destacado"
+                [(ngModel)]="destacado"
+                [disabled]="guardando">
+            </label>
+          </div>
+        </section>
+
+        <!-- BOTÓN DE GUARDAR -->
+        <button type="submit" class="btn-save-main" [disabled]="guardando">
+          @if (subiendoImagen) {
+            <span>Subiendo imagen al servidor...</span>
+          } @else if (guardando) {
+            <span>Guardando información...</span>
+          } @else if (editando) {
+            <span>Guardar Cambios</span>
+          } @else {
+            <span>Crear Producto</span>
+          }
+        </button>
+
+      </aside>
+
+    </form>
+  }
+
+    @if (editando && idProducto) {
+      <section class="panel-card galeria-admin-panel" aria-label="Galería del producto">
+        <div class="panel-header"><h3>Galería adicional</h3><span>{{ (imagen ? 1 : 0) + galeria.length }} / {{ maximoFotos }} fotografías</span></div>
+        <p class="help-text">La portada se administra arriba. Agrega aquí más fotografías. Admite hasta 12 en total, incluida la portada.</p>
+        @if (cargandoGaleria) { <p class="help-text">Cargando galería...</p> }
+        @if (errorGaleria) { <p class="inline-error" role="alert">{{ errorGaleria }}</p> }
+        @if (mensajeGaleria) { <p class="galeria-ok" role="status">{{ mensajeGaleria }}</p> }
+        <div class="galeria-admin-grid">
+          @for (foto of galeria; track foto.idProductoImagen) {
+            <article class="galeria-admin-item">
+              <img [src]="fotoUrl(foto.imagen)" [alt]="'Fotografía ' + foto.orden" loading="lazy">
+              <button type="button" (click)="eliminarFoto(foto)" [disabled]="eliminandoFoto !== null || subiendoGaleria" [attr.aria-label]="'Eliminar fotografía ' + foto.orden">Eliminar</button>
+            </article>
+          }
+        </div>
+        @if (cuposDisponibles > 0) {
+          <label class="file-upload-btn galeria-pick">Seleccionar varias fotografías
+            <input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="seleccionarGaleria($event)" [disabled]="subiendoGaleria || eliminandoFoto !== null">
+          </label>
+        }
+        @if (archivosGaleria.length > 0) {
+          <div class="galeria-pendientes">
+            @for (archivo of archivosGaleria; track archivo.name + $index; let i = $index) {
+              <div><span>{{ archivo.name }}</span><button type="button" (click)="quitarPendiente(i)" [disabled]="subiendoGaleria">Quitar</button></div>
+            }
+          </div>
+          <button type="button" class="btn-save-main" (click)="subirGaleria()" [disabled]="subiendoGaleria || guardando">
+            {{ subiendoGaleria ? 'Subiendo fotografías...' : 'Guardar fotografías' }}
+          </button>
+        }
+      </section>
+    } @else {
+      <section class="panel-card galeria-admin-panel"><p class="help-text">Guarda primero el producto. Después podrás cargar hasta 12 fotografías desde su edición.</p></section>
+    }
+
+</section>

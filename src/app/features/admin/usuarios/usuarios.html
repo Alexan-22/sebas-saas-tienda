@@ -1,0 +1,170 @@
+<section class="usuarios-page">
+
+  <!-- ENCABEZADO -->
+  <header class="page-header">
+    <div class="page-title">
+      <span class="eyebrow">SEGURIDAD Y ACCESOS</span>
+      <h1>Gestión de Usuarios</h1>
+      <p>Administra los roles, cuentas y estados de acceso al sistema de Tienda Sebas.</p>
+    </div>
+  </header>
+
+  <!-- TARJETAS DE ESTADÍSTICAS (KPIs) -->
+  <section class="stats-grid">
+    <article class="stat-card purple">
+      <div class="stat-top">
+        <p>TOTAL USUARIOS</p>
+        <span class="badge-icon">👥</span>
+      </div>
+      <strong>{{ totalUsuarios }}</strong>
+      <span>Cuentas registradas</span>
+    </article>
+
+    <article class="stat-card emerald">
+      <div class="stat-top">
+        <p>ACTIVOS</p>
+        <span class="badge-icon">✓</span>
+      </div>
+      <strong>{{ usuariosActivos }}</strong>
+      <span>Cuentas habilitadas</span>
+    </article>
+
+    <article class="stat-card amber">
+      <div class="stat-top">
+        <p>INACTIVOS</p>
+        <span class="badge-icon">✕</span>
+      </div>
+      <strong>{{ usuariosInactivos }}</strong>
+      <span>Cuentas deshabilitadas</span>
+    </article>
+
+    <article class="stat-card blue">
+      <div class="stat-top">
+        <p>ADMINISTRADORES</p>
+        <span class="badge-icon">🛡️</span>
+      </div>
+      <strong>{{ administradores }}</strong>
+      <span>Permisos elevados</span>
+    </article>
+  </section>
+
+  <!-- PANEL PRINCIPAL -->
+  <section class="content-panel">
+    <div class="panel-toolbar">
+      <div class="toolbar-title">
+        <span class="badge-sub">DIRECTORIO</span>
+        <h2>Listado de Cuentas</h2>
+      </div>
+
+      <div class="filters-group">
+        <div class="search-box-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input
+            type="text"
+            [(ngModel)]="busqueda"
+            (ngModelChange)="aplicarFiltros()"
+            placeholder="Buscar por nombre, correo o ID...">
+        </div>
+
+        <select [(ngModel)]="filtroRol" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los roles</option>
+          @for (rol of roles; track rol) {
+            <option [value]="rol">{{ rol }}</option>
+          }
+        </select>
+
+        <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option value="ACTIVO">Activos</option>
+          <option value="INACTIVO">Inactivos</option>
+        </select>
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="state-container">
+        <div class="spinner"></div>
+        <p>Cargando cuentas de usuario...</p>
+      </div>
+    } @else if (error) {
+      <div class="state-container error">
+        <strong>ERROR DE CARGA</strong>
+        <p>{{ error }}</p>
+        <button type="button" class="btn-action-main" (click)="cargarUsuarios()">REINTENTAR</button>
+      </div>
+    } @else if (usuariosFiltrados.length === 0) {
+      <div class="state-container">
+        <p>No se encontraron cuentas con los filtros seleccionados.</p>
+        <button type="button" class="btn-action-main" (click)="limpiarFiltros()">LIMPIAR FILTROS</button>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>USUARIO</th>
+              <th>CORREO ELECTRÓNICO</th>
+              <th>ROL ASIGNADO</th>
+              <th>ESTADO</th>
+              <th class="text-right">ACCIÓN</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (usuario of usuariosFiltrados; track usuario.idUsuario) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">
+                      {{ iniciales(usuario) }}
+                    </div>
+                    <div>
+                      <strong>{{ nombreCompleto(usuario) }}</strong>
+                      <span class="user-id">ID #{{ usuario.idUsuario }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="email-text">{{ usuario.correo }}</span>
+                </td>
+
+                <td>
+                  <span class="role-badge" [class.admin]="esAdministrador(usuario)">
+                    {{ usuario.rol }}
+                  </span>
+                </td>
+
+                <td>
+                  @if (usuario.estado) {
+                    <span class="status-pill active">ACTIVO</span>
+                  } @else {
+                    <span class="status-pill inactive">INACTIVO</span>
+                  }
+                </td>
+
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="btn-toggle-status"
+                    [class.activate]="!usuario.estado"
+                    [disabled]="procesandoId === usuario.idUsuario"
+                    (click)="cambiarEstado(usuario)">
+                    @if (procesandoId === usuario.idUsuario) {
+                      Procesando...
+                    } @else if (usuario.estado) {
+                      Desactivar
+                    } @else {
+                      Activar
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+</section>

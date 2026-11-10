@@ -1,0 +1,23 @@
+<section class="ops-wrapper">
+  <header class="ops-header">
+    <div>
+      <span class="ops-eyebrow">SEBAS COLLECTION · ADMINISTRACIÓN</span>
+      <h1>Operaciones comerciales</h1>
+      <p>Inventario, caja, envíos, promociones, auditoría y pagos.</p>
+    </div>
+    <span class="ops-tag">ENTORNO DEMO</span>
+  </header>
+  <p class="ops-notice">
+    Módulos de interfaz para pruebas. No operan sobre Supabase, no modifican pedidos reales
+    y no están integrados con Mercado Pago, Yape ni Plin.
+  </p>
+  <nav class="ops-nav" aria-label="Módulos de operaciones">
+    <a routerLink="kardex" routerLinkActive="activo">Kárdex</a>
+    <a routerLink="caja" routerLinkActive="activo">Caja POS</a>
+    <a routerLink="tarifas" routerLinkActive="activo">Envíos</a>
+    <a routerLink="cupones" routerLinkActive="activo">Cupones</a>
+    <a routerLink="auditoria" routerLinkActive="activo">Auditoría</a>
+    <a routerLink="pagos" routerLinkActive="activo">Pagos</a>
+  </nav>
+  <router-outlet />
+</section>

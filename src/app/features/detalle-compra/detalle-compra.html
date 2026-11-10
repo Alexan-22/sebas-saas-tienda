@@ -1,0 +1,145 @@
+<app-promo-bar class="no-print"></app-promo-bar>
+<div class="no-print"><app-navbar></app-navbar></div>
+
+<main class="boleta-page min-h-screen bg-slate-50 px-5 py-12">
+  <section class="mx-auto max-w-[850px]">
+
+    <!-- ACCIONES -->
+    <div class="no-print mb-6 flex items-center justify-between">
+      <a routerLink="/mis-compras" class="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600">
+        ← Volver a Mis Compras
+      </a>
+
+      <button type="button" (click)="imprimir()" [disabled]="cargando || error || detalles.length === 0"
+        class="h-11 rounded-xl bg-indigo-600 px-6 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-indigo-700 disabled:bg-slate-300">
+        🖨️ Imprimir Comprobante
+      </button>
+    </div>
+
+    @if (cargando) {
+      <div class="bg-white p-12 rounded-2xl border border-slate-200 text-center">
+        <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+        <p class="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">Cargando comprobante...</p>
+      </div>
+    } @else if (error) {
+      <div class="bg-white p-12 rounded-2xl border border-red-200 text-center">
+        <h2 class="text-lg font-black uppercase text-red-600">No se pudo cargar el comprobante</h2>
+        <p class="mt-2 text-xs text-slate-500">La compra no existe o no tienes permisos para visualizarla.</p>
+        <a routerLink="/mis-compras" class="mt-6 inline-flex h-11 items-center rounded-xl bg-slate-900 px-6 text-xs font-bold uppercase text-white">Mis Compras</a>
+      </div>
+    } @else {
+      
+      <!-- BOLETA / COMPROBANTE -->
+      <article id="boleta" class="boleta bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-sm text-slate-800">
+
+        <!-- CABECERA -->
+        <header class="flex flex-col justify-between gap-6 border-b-2 border-slate-900 pb-8 sm:flex-row">
+          <div>
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-sm font-black text-white shadow">
+              TS
+            </div>
+            <h1 class="mt-4 text-2xl font-black uppercase tracking-tight text-slate-900">Tienda Sebas</h1>
+            <p class="text-[9px] font-black uppercase tracking-widest text-indigo-600">Polvos Azules · Fashion Store</p>
+            <p class="mt-3 text-xs text-slate-500">Lima, Perú · Comprobante Electrónico</p>
+          </div>
+
+          <div class="sm:text-right">
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Comprobante de Venta</span>
+            <p class="text-3xl font-black text-slate-900 mt-1">#{{ compra?.idVenta }}</p>
+            <span class="inline-block mt-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
+              {{ estadoTexto }}
+            </span>
+          </div>
+        </header>
+
+        <!-- DATOS GENERALES -->
+        <section class="grid gap-6 border-b border-slate-200 py-6 sm:grid-cols-3 text-xs">
+          <div>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">N° Operación</span>
+            <strong class="text-slate-900 font-black text-sm mt-1 block">#{{ compra?.idVenta }}</strong>
+          </div>
+          <div>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Fecha y Hora</span>
+            <strong class="text-slate-900 font-black text-sm mt-1 block">{{ compra?.fechaVenta | date:'dd/MM/yyyy - HH:mm' }}</strong>
+          </div>
+          <div>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Método de Pago</span>
+            <strong class="text-slate-900 font-black text-sm mt-1 block">{{ medioPagoTexto }}</strong>
+          </div>
+        </section>
+
+        <!-- CLIENTE -->
+        <section class="grid gap-6 border-b border-slate-200 py-6 sm:grid-cols-2 text-xs">
+          <div>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Cliente</span>
+            <strong class="text-slate-900 font-black text-sm uppercase mt-1 block">{{ nombreCompletoCliente }}</strong>
+          </div>
+          <div>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Correo Electrónico</span>
+            <strong class="text-slate-900 font-black text-sm mt-1 block break-all">{{ compra?.correoCliente }}</strong>
+          </div>
+        </section>
+
+        @if (tieneDireccionEnvio && compra?.direccionEnvio) {
+          <section class="border-b border-slate-200 py-6 text-xs">
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-2">Dirección de Destino</span>
+            <strong class="text-slate-900 text-sm font-black block">{{ compra?.direccionEnvio?.direccionExacta }}</strong>
+            <p class="text-slate-600 mt-1">{{ ubicacionEnvio }}</p>
+            @if (compra?.direccionEnvio?.referencia) {
+              <p class="text-slate-400 mt-1 italic">Referencia: {{ compra?.direccionEnvio?.referencia }}</p>
+            }
+          </section>
+        }
+
+        <!-- TABLA DE PRODUCTOS -->
+        <section class="mt-8">
+          <div class="hidden sm:grid grid-cols-[1fr_80px_110px_110px] border-b border-slate-300 pb-3 text-[10px] font-black uppercase tracking-wider text-slate-400">
+            <span>Descripción del Producto</span>
+            <span class="text-center">Cant.</span>
+            <span class="text-right">Precio</span>
+            <span class="text-right">Subtotal</span>
+          </div>
+
+          @for (detalle of detalles; track detalle.idDetalleVenta) {
+            <div class="grid gap-3 border-b border-slate-100 py-4 sm:grid-cols-[1fr_80px_110px_110px] sm:items-center text-xs">
+              <div>
+                <strong class="text-slate-900 font-black uppercase block">{{ detalle.productoTalla.producto.nombre }}</strong>
+                <span class="text-indigo-600 font-bold text-[10px]">Talla: {{ detalle.productoTalla.talla.nombreTalla }}</span>
+              </div>
+              <div class="flex justify-between sm:block text-slate-600 sm:text-center font-bold">
+                <span class="sm:hidden text-slate-400">Cantidad:</span> {{ detalle.cantidad }}
+              </div>
+              <div class="flex justify-between sm:block text-slate-600 sm:text-right">
+                <span class="sm:hidden text-slate-400">Precio:</span> S/ {{ detalle.precioUnitario | number:'1.2-2' }}
+              </div>
+              <div class="flex justify-between sm:block text-slate-900 font-black sm:text-right">
+                <span class="sm:hidden text-slate-400">Subtotal:</span> S/ {{ detalle.subtotal | number:'1.2-2' }}
+              </div>
+            </div>
+          }
+        </section>
+
+        <!-- RESUMEN FINANCIERO -->
+        <section class="ml-auto mt-8 max-w-[320px] text-xs space-y-3">
+          <div class="flex justify-between text-slate-600"><span>Cantidad de artículos</span><strong>{{ totalProductos }}</strong></div>
+          <div class="flex justify-between text-slate-600"><span>Subtotal</span><strong>S/ {{ subtotal | number:'1.2-2' }}</strong></div>
+          <div class="flex justify-between text-slate-600"><span>Costo de Envío</span><strong>S/ {{ costoDelivery | number:'1.2-2' }}</strong></div>
+          <div class="flex justify-between pt-3 border-t-2 border-slate-900 text-sm font-black text-slate-900">
+            <span class="uppercase">Total Final</span>
+            <strong class="text-indigo-600 text-xl">S/ {{ total | number:'1.2-2' }}</strong>
+          </div>
+        </section>
+
+        <!-- PIE DE PÁGINA -->
+        <footer class="mt-12 border-t border-slate-200 pt-6 text-center text-slate-400 text-[10px]">
+          <p class="font-black uppercase tracking-wider text-slate-700">¡Gracias por tu compra en Tienda Sebas!</p>
+          <p class="mt-1">Lima, Perú · Soporte y consultas vía WhatsApp</p>
+        </footer>
+      </article>
+    }
+  </section>
+</main>
+
+<div class="no-print"><app-footer></app-footer></div>
+
+<app-seguimiento-pedido></app-seguimiento-pedido>

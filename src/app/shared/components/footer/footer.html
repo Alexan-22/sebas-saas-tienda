@@ -1,0 +1,19 @@
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-intro">
+      <h2>{{ tiendaService.tiendaActual()?.nombre }}</h2>
+      <p>Descubre prendas para expresar tu estilo, todos los días.</p>
+    </div>
+    <div><h3>Explora</h3><a routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }">Mujer</a><a routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }">Hombre</a><a routerLink="/tienda" [queryParams]="{ nuevo: true }">Novedades</a><a routerLink="/tienda" [queryParams]="{ ofertas: true }">Ofertas</a></div>
+    <div><h3>Mi cuenta</h3><a routerLink="/login">Iniciar sesión</a><a routerLink="/registro">Registrarme</a><a routerLink="/mis-compras">Mis pedidos</a></div>
+    <div><h3>Contacto</h3>
+      @if (tiendaService.telefonoWhatsApp(); as numero) {
+        <a [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
+      } @else { <p>Información de contacto próximamente.</p> }
+    </div>
+  </div>
+  <div class="footer-bottom"><span>© {{ anio }} {{ tiendaService.tiendaActual()?.nombre }}. Todos los derechos reservados.</span><span>Moda y estilo en Perú</span></div>
+</footer>
+
+
+========================================

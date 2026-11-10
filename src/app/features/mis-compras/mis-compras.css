@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+/* ==========================================
+   ESTADOS DE PEDIDO
+   ========================================== */
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.estado-registrada {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.estado-pagada {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.estado-enviada {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.estado-entregada {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.estado-cancelada {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.estado-default {
+  background: #f1f5f9;
+  color: #475569;
+}

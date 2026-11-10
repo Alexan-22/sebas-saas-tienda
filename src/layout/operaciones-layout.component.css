@@ -1,0 +1,11 @@
+:host { display: block; background: #f6f7fb; min-height: 100vh; }
+.ops-wrapper { max-width: 1360px; margin: 0 auto; padding: 26px 20px 60px; }
+.ops-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.ops-header h1 { margin: 6px 0; font-size: clamp(24px, 4vw, 33px); color: #182338; }
+.ops-header p { color: #65738b; margin: 0; font-size: 14px; }
+.ops-eyebrow { color: #7352c1; font-weight: 800; letter-spacing: .11em; font-size: 11px; }
+.ops-tag { background: #f9eacb; color: #895909; padding: 10px 12px; border-radius: 999px; white-space: nowrap; font-size: 11px; font-weight: 800; }
+.ops-nav { display: flex; gap: 7px; flex-wrap: wrap; margin: 22px 0; }
+.ops-nav a { padding: 10px 16px; border: 1px solid #e0e5ed; border-radius: 10px; color: #40506a; text-decoration: none; font-size: 13px; font-weight: 700; background: white; }
+.ops-nav a.activo { background: #3b267f; border-color: #3b267f; color: white; }
+@media (max-width: 600px) { .ops-wrapper { padding: 18px 12px 40px; } .ops-header { flex-direction: column; } }

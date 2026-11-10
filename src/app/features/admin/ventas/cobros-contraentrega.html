@@ -1,0 +1,77 @@
+<section class="cod-panel">
+  <header class="cod-header">
+    <div>
+      <p class="cod-kicker">DELIVERY PROPIO · FASE 3C</p>
+      <h2>Pagos contra entrega</h2>
+      <p>Un pedido confirmado no equivale a dinero recibido. Solo el administrador puede confirmar el cobro real.</p>
+    </div>
+    <button type="button" (click)="recargar()" [disabled]="cargando">Actualizar cobros</button>
+  </header>
+  @if (error) { <p role="alert" class="cod-alert cod-error">{{ error }}</p> }
+  @if (mensaje) { <p role="status" class="cod-alert cod-success">{{ mensaje }}</p> }
+  @if (!cobros.length && !cargando) {
+    <p class="cod-empty">Aun no hay pedidos contra entrega en esta tienda. La modalidad debe habilitarse expresamente para cada tienda.</p>
+  } @else {
+    <div class="cod-grid">
+      <div class="cod-list">
+        @for (c of cobros; track c.idVenta) {
+          <button type="button" (click)="seleccionar(c.idVenta)" [class.cod-selected]="elegido === c.idVenta">
+            <strong>Pedido #{{c.idVenta}} — S/ {{c.monto | number:'1.2-2'}}</strong>
+            <span>Pago: {{c.estado}} · Reparto: {{c.estadoEnvio}}</span>
+          </button>
+        }
+      </div>
+      <div class="cod-form">
+        @if (seleccionado; as actual) {
+          <h3>Pedido #{{actual.idVenta}}</h3>
+          <p><strong>Monto exacto:</strong> S/ {{actual.monto | number:'1.2-2'}}</p>
+          @if (actual.estado === 'PENDIENTE' && ['PENDIENTE','PREPARANDO'].includes(actual.estadoEnvio)) {
+            <div class="cod-cancel">
+              <h4>Cancelar contra entrega y reponer stock</h4>
+              <p>Solo antes de despacho y si NO recibiste el dinero. Al confirmar, la cancelacion es definitiva.</p>
+              <label>Motivo obligatorio (10-300 caracteres)
+                <textarea name="motivoCod" [(ngModel)]="motivoCancelacion" maxlength="300" rows="3"
+                  placeholder="Ej.: Pedido de prueba cancelado antes del despacho"></textarea>
+              </label>
+              <label class="cod-check"><input type="checkbox" [(ngModel)]="aceptoCancelacion" name="confirmarCancelacionCod" />
+                Confirmo que no se entrego el pedido ni se recibio dinero.
+              </label>
+              <button type="button" class="cod-danger" [disabled]="!puedeCancelar" (click)="cancelarPedido()">
+                {{ cancelando ? 'Cancelando...' : 'Cancelar y reponer inventario' }}
+              </button>
+            </div>
+          }
+          @if (actual.estado === 'COBRADO') {
+            <p class="cod-alert cod-success">Cobrado por {{actual.metodoCobro}}. Registrado: {{actual.cobradoEn | date:'short'}}</p>
+          } @else if (actual.estado !== 'PENDIENTE') {
+            <p>Estado del cobro: {{actual.estado}}. No se permite confirmar.</p>
+          } @else {
+            @if (!['DESPACHADO','EN_TRANSITO','ENTREGADO'].includes(actual.estadoEnvio)) {
+              <p class="cod-alert cod-error">Primero registra el despacho del reparto propio.</p>
+            }
+            <label>Metodo recibido
+              <select [(ngModel)]="metodo" name="metodoCod">
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="YAPE">Yape recibido</option>
+              </select>
+            </label>
+            @if (metodo === 'YAPE') {
+              <label>Referencia del pago Yape
+                <input type="text" [(ngModel)]="referencia" maxlength="100" placeholder="Operacion verificada" />
+              </label>
+            }
+            <label class="cod-check"><input type="checkbox" [(ngModel)]="confirmarDinero" />
+              Confirmo que el dinero ya fue recibido y verificado.
+            </label>
+            <button type="button" class="cod-primary" (click)="cobrar()" [disabled]="!puedeCobrar">
+              {{ guardando ? 'Registrando...' : 'Confirmar dinero recibido' }}
+            </button>
+          }
+        } @else {
+          <p>Selecciona un pedido de la lista.</p>
+        }
+      </div>
+    </div>
+  }
+  <p class="cod-note">No confirma pagos en bancos ni pasarelas, no crea movimientos de caja ni cambia la venta historica. Conciliar el dinero y reportes financieros por separado.</p>
+</section>

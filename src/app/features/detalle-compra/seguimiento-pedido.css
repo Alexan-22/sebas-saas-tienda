@@ -1,0 +1,22 @@
+:host { display: block; }
+.seguimiento-cliente { max-width: 100%; margin: 24px 0; padding: 24px; background: #fff; border: 1px solid #e3e9f1; border-radius: 14px; color: #17223b; font-family: inherit; }
+.sc-encabezado h2 { margin: 4px 0 7px; font-size: 22px; }
+.sc-encabezado p { margin: 0; color: #5c6880; font-size: 13px; }
+.sc-encabezado .sc-etiqueta { letter-spacing: 1.8px; font-size: 10px; font-weight: 800; color: #325da6; }
+.sc-mensaje { margin: 16px 0 0; padding: 16px; border-radius: 9px; background: #f2f6fc; color: #33425f; line-height: 1.6; }
+.sc-error { background: #fff1f1; color: #9c2424; }
+.sc-resumen, .sc-detalles { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 16px; padding: 16px 0; }
+.sc-resumen { border-bottom: 1px solid #e9eef5; margin-top: 12px; }
+.sc-detalles { border-top: 1px solid #e9eef5; }
+.sc-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #718096; letter-spacing: .5px; margin-bottom: 5px; }
+.sc-resumen strong, .sc-detalles strong { font-size: 14px; overflow-wrap: anywhere; }
+.sc-estado { margin: 16px 0; border-radius: 10px; padding: 16px; background: #eaf3fe; color: #164782; }
+.sc-estado strong { display: block; margin-top: 5px; font-size: 19px; }
+.sc-estado.sc-alerta { background: #fff1ee; color: #913b23; }
+.sc-pasos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 12px 0 20px; margin: 0; gap: 8px; list-style: none; }
+.sc-pasos li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; color: #7b879a; font-size: 11px; }
+.sc-pasos .sc-punto { width: 13px; height: 13px; border: 2px solid #c4cbd5; border-radius: 50%; background: #fff; }
+.sc-pasos li.completado { color: #1d57a0; font-weight: 700; }
+.sc-pasos li.completado .sc-punto { background: #377bd6; border-color: #377bd6; box-shadow: 0 0 0 3px #e6f1ff; }
+.sc-nota { color: #64718a; font-size: 12px; line-height: 1.5; margin: 7px 0 0; }
+@media (max-width: 520px) { .seguimiento-cliente { padding: 16px; } .sc-pasos { gap: 3px; } .sc-pasos li { font-size: 9px; } }

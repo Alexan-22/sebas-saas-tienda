@@ -1,0 +1,40 @@
+<div class="ops-grid three">
+  <article class="ops-panel ops-kpi"><span>Productos / tallas</span><strong>{{ stocks().length }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Unidades disponibles (DEMO)</span><strong>{{ totalUnidades }}</strong></article>
+  <article class="ops-panel ops-kpi"><span>Movimientos registrados</span><strong>{{ movimientos().length }}</strong></article>
+</div>
+<section class="ops-panel">
+  <h2>Registrar movimiento de inventario</h2>
+  <p class="ops-subtitle">En un ajuste, la cantidad representa el nuevo stock. En entradas o salidas, representa unidades.</p>
+  <p *ngIf="mensaje" class="ops-feedback" role="status">{{ mensaje }}</p>
+  <p *ngIf="error" class="ops-feedback error" role="alert">{{ error }}</p>
+  <form class="ops-form" (ngSubmit)="guardar()" #f="ngForm">
+    <div class="ops-field">
+      <label for="stock">Producto y talla</label>
+      <select id="stock" name="stock" [(ngModel)]="stockClave" required>
+        <option value="">Seleccionar producto</option>
+        <option *ngFor="let s of stocks()" [value]="clave(s)">{{ s.producto }} · {{ s.talla }} ({{ s.cantidad }} uds.)</option>
+      </select>
+    </div>
+    <div class="ops-field">
+      <label for="tipo">Tipo de movimiento</label>
+      <select id="tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="ENTRADA">Entrada (+)</option><option value="SALIDA">Salida (-)</option><option value="AJUSTE">Ajuste (nuevo stock)</option>
+      </select>
+    </div>
+    <div class="ops-field">
+      <label for="cantidad">{{ tipo === 'AJUSTE' ? 'Nuevo stock' : 'Cantidad de unidades' }}</label>
+      <input id="cantidad" name="cantidad" type="number" min="0" step="1" [(ngModel)]="cantidad" required />
+    </div>
+    <div class="ops-field span-all">
+      <label for="motivo">Motivo y referencia</label>
+      <textarea id="motivo" name="motivo" [(ngModel)]="motivo" rows="2" required maxlength="200" placeholder="Ej.: recepción de proveedor / corrección de conteo"></textarea>
+    </div>
+    <div class="ops-actions span-all"><button class="ops-btn" type="submit" [disabled]="f.invalid">Registrar movimiento DEMO</button></div>
+  </form>
+</section>
+<section class="ops-panel">
+  <div class="ops-toolbar"><div><h2>Historial Kárdex</h2><p class="ops-subtitle">Cada movimiento conserva el stock antes y después.</p></div><div class="ops-actions"><input aria-label="Buscar movimientos" [(ngModel)]="filtro" placeholder="Buscar..." /><button class="ops-btn secondary" (click)="exportar()" [disabled]="!filas.length">Exportar CSV</button></div></div>
+  <div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Fecha</th><th>Producto / talla</th><th>Movimiento</th><th>Variación</th><th>Antes</th><th>Después</th><th>Motivo</th></tr></thead>
+  <tbody><tr *ngFor="let m of filas"><td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ m.producto }} · {{ m.talla }}</td><td><span class="ops-pill">{{ m.tipo }}</span></td><td [class.positivo]="m.diferencia > 0" [class.negativo]="m.diferencia < 0">{{ m.diferencia > 0 ? '+' : '' }}{{ m.diferencia }}</td><td>{{ m.stockAnterior }}</td><td><strong>{{ m.stockPosterior }}</strong></td><td>{{ m.motivo }}</td></tr><tr *ngIf="!filas.length"><td colspan="7" class="ops-empty">Sin movimientos que mostrar.</td></tr></tbody></table></div>
+</section>

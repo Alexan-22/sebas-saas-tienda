@@ -1,0 +1,127 @@
+<app-promo-bar></app-promo-bar>
+<app-navbar></app-navbar>
+
+<main class="cart-page">
+  <section class="cart-container">
+
+    <div class="cart-header">
+      <span class="cart-eyebrow">Selección Actual</span>
+      <h1 class="cart-title">Tu Carrito</h1>
+      @if (items().length > 0) {
+        <p class="cart-description">Verifica tus prendas y tallas antes de proceder con el pago.</p>
+      }
+    </div>
+
+    @if (items().length === 0) {
+      <div class="empty-cart">
+        <div class="empty-cart-icon">🛍️</div>
+        <h2>Tu carrito está vacío</h2>
+        <p>Explora nuestro catálogo y añade tus prendas favoritas.</p>
+        <a routerLink="/" class="btn-shop">Ver Catálogo</a>
+      </div>
+    } @else {
+
+      @if (sincronizandoStock) {
+        <div class="stock-sync">
+          <span class="stock-sync-spinner"></span>
+          <div>
+            <strong>Verificando disponibilidad</strong>
+            <p>Comprobando stock en tiempo real...</p>
+          </div>
+        </div>
+      }
+
+      <div class="cart-grid">
+        <div class="cart-products">
+          @for (item of items(); track item.idProductoTalla) {
+            <article class="cart-item" [class.cart-item-out]="item.stock <= 0">
+              <a [routerLink]="['/producto', item.idProducto]" class="product-image">
+                @if (imagenUrl(item.imagen)) {
+                  <img [src]="imagenUrl(item.imagen)" [alt]="item.nombre">
+                } @else {
+                  <div class="image-placeholder"><span>TS</span></div>
+                }
+                @if (item.stock <= 0) {
+                  <div class="image-out-overlay"><span>Agotado</span></div>
+                }
+              </a>
+
+              <div class="product-info">
+                <div class="product-meta">
+                  <span class="size-label">Talla: {{ item.talla }}</span>
+                  @if (item.stock <= 0) {
+                    <span class="stock-badge stock-out">Agotado</span>
+                  } @else if (item.stock <= 3) {
+                    <span class="stock-badge stock-low">¡Últimas {{ item.stock }}!</span>
+                  } @else {
+                    <span class="stock-badge stock-available">Disponible</span>
+                  }
+                </div>
+
+                <a [routerLink]="['/producto', item.idProducto]" class="product-name-link">
+                  <h2 class="product-name">{{ item.nombre }}</h2>
+                </a>
+
+                <p class="product-price">S/ {{ item.precio | number:'1.2-2' }}</p>
+
+                @if (item.stock > 0) {
+                  <div class="quantity-section">
+                    <p class="quantity-label">Cantidad</p>
+                    <div class="quantity-control">
+                      <button type="button" (click)="disminuir(item.idProductoTalla, item.cantidad)" [disabled]="item.cantidad <= 1 || sincronizandoStock">−</button>
+                      <div class="quantity-value">{{ item.cantidad }}</div>
+                      <button type="button" (click)="aumentar(item.idProductoTalla, item.cantidad)" [disabled]="item.cantidad >= item.stock || sincronizandoStock">+</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="out-message">Sin stock disponible para esta talla.</div>
+                }
+
+                <button type="button" (click)="eliminar(item.idProductoTalla)" class="remove-button">Eliminar</button>
+              </div>
+
+              <div class="item-total">
+                <p class="item-total-label">Subtotal</p>
+                <p class="item-total-price">S/ {{ item.precio * item.cantidad | number:'1.2-2' }}</p>
+              </div>
+            </article>
+          }
+        </div>
+
+        <aside class="summary-column">
+          <div class="summary-card">
+            <span class="summary-eyebrow">Resumen de Orden</span>
+            <h2 class="summary-title">Total</h2>
+
+            <div class="summary-lines">
+              <div class="summary-row"><span>Productos</span><strong>{{ items().length }}</strong></div>
+              <div class="summary-row"><span>Subtotal</span><strong>S/ {{ subtotal() | number:'1.2-2' }}</strong></div>
+              <div class="summary-row"><span>Envío</span><span>Calculado en checkout</span></div>
+            </div>
+
+            <div class="summary-total">
+              <span>Total Estimado</span>
+              <strong>S/ {{ subtotal() | number:'1.2-2' }}</strong>
+            </div>
+
+            <button type="button" (click)="continuarCompra()" [disabled]="sincronizandoStock" class="checkout-button">
+              @if (sincronizandoStock) {
+                <span class="button-spinner"></span> Verificando...
+              } @else {
+                Continuar Compra
+              }
+            </button>
+
+            <button type="button" (click)="comprarPorWhatsApp()" [disabled]="sincronizandoStock" class="whatsapp-buy-button">
+              Comprar por WhatsApp 💬
+            </button>
+
+            <a routerLink="/" class="continue-shopping">← Seguir Comprando</a>
+          </div>
+        </aside>
+      </div>
+    }
+  </section>
+</main>
+
+<app-footer></app-footer>

@@ -1,0 +1,33 @@
+:host { display: block; }
+.logistica-panel { margin: 28px 0; padding: 24px; border: 1px solid #dae2ed; border-radius: 16px; background: #fff; color: #142438; font-family: inherit; }
+.logistica-cabecera { display:flex; align-items: start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+.logistica-etiqueta { color: #2660a8; font-size: 11px; letter-spacing: .12em; font-weight: 700; margin:0 0 7px; }
+h2 { margin: 0 0 6px; font-size: 23px; font-weight: 750; }
+h3 { margin:0 0 14px; font-size: 17px; }
+.logistica-cabecera p:not(.logistica-etiqueta) { margin:0; color:#64758a; font-size:13px; }
+.logistica-columnas { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(260px,1fr); gap:17px; }
+.logistica-bloque { border:1px solid #e0e7f0; border-radius:12px; padding:18px; background:#fbfcfe; min-width:0; }
+.campo { display:flex; flex-direction:column; gap:6px; font-size:12px; font-weight:650; color:#344c66; margin-bottom:13px; }
+input, select, textarea { width:100%; min-width:0; box-sizing:border-box; border:1px solid #cdd8e5; border-radius:8px; padding:10px 11px; font:inherit; font-weight:400; font-size:14px; color:#15253a; background:#fff; }
+input:focus, select:focus, textarea:focus { outline:2px solid #a0c4f3; border-color:#4184ce; }
+input:disabled,select:disabled,textarea:disabled { background:#f1f5f9; }
+.campos-dos { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.fila-acciones,.cambiar-estado { display:flex;align-items:end;gap:10px;flex-wrap:wrap; }
+.cambiar-estado { margin-top:18px; padding-top:15px; border-top:1px solid #e1e7ef; }
+.cambiar-estado .campo { flex:1;min-width:170px; margin-bottom:0; }
+.boton-principal,.boton-secundario { cursor:pointer; border:1px solid #2563a7; border-radius:9px; padding:10px 14px; font-size:13px; font-weight:700; }
+.boton-principal { background:#2563a7;color:white; }
+.boton-secundario { background:white;color:#2563a7; }
+button:disabled { opacity:.55;cursor:not-allowed; }
+.estado { background:#eaf1fa;color:#315f9d; font-size:11px; font-weight:700; padding:5px 9px; border-radius:20px; }
+.envios-lista { display:flex;flex-direction:column;gap:8px;max-height:370px;overflow:auto; }
+.envio-item { background:white; border:1px solid #dce5ef; border-radius:10px; display:grid; grid-template-columns:1fr auto; gap:5px; text-align:left; align-items:center; padding:10px; cursor:pointer; color:inherit; }
+.envio-item:hover { border-color:#5596da; }
+.envio-item span:not(.estado) { color:#657589; font-size:12px; }
+.envio-item small { grid-column:1 / -1;color:#728196; }
+.aviso { margin:12px 0;color:#6b7787;font-size:13px; }
+.nota { margin:15px 0 0;color:#728196;font-size:12px; }
+.alerta { border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px; }
+.alerta.error { color:#842029;background:#f8d7da; }
+.alerta.exito { color:#17613d;background:#d8f3e5; }
+@media(max-width:800px){.logistica-columnas{grid-template-columns:1fr}.campos-dos{grid-template-columns:1fr}.logistica-panel{padding:15px}}

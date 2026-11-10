@@ -1,0 +1,99 @@
+<section class="logistica-panel">
+  <header class="logistica-cabecera">
+    <div>
+      <p class="logistica-etiqueta">PEDIDOS Y DELIVERY · FASE 3A</p>
+      <h2>Guías y seguimiento de envíos</h2>
+      <p>Registra Shalom, Olva o reparto propio. No genera guías ni costos automáticamente.</p>
+    </div>
+    <button type="button" class="boton-secundario" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+  </header>
+
+  @if (error) { <p class="alerta error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="alerta exito" role="status">{{ mensaje }}</p> }
+
+  <div class="logistica-columnas">
+    <div class="logistica-bloque">
+      <h3>Registrar o editar un envío</h3>
+      <label class="campo">
+        Pedido online
+        <select name="pedidoEnvio" [(ngModel)]="ventaId" (ngModelChange)="seleccionar()">
+          <option [ngValue]="null">Selecciona una venta online</option>
+          @for (v of ventas; track v.idVenta) {
+            <option [ngValue]="v.idVenta">#{{ v.idVenta }} · {{ v.nombreCliente || 'Cliente' }} {{ v.apellidoCliente || '' }}</option>
+          }
+        </select>
+      </label>
+      @if (!cargando && ventas.length === 0) {
+        <p class="aviso">Todavia no hay pedidos con tipo ONLINE confirmado en esta tienda. Este formulario solo gestiona envios: para probarlo, crea una compra nueva desde la tienda publica con una cuenta de prueba. No conviertas ventas POS ni cambies ventas antiguas por SQL.</p>
+      }
+      @if (ventaId) {
+        <div class="campos-dos">
+          <label class="campo">Transportista
+            <select name="operadorEnvio" [(ngModel)]="formulario.operador" [disabled]="!editable">
+              <option value="SHALOM">Shalom</option>
+              <option value="OLVA">Olva Courier</option>
+              <option value="PROPIO">Delivery propio</option>
+            </select>
+          </label>
+          <label class="campo">Modalidad
+            <select name="modalidadEnvio" [(ngModel)]="formulario.modalidad" [disabled]="!editable">
+              <option value="AGENCIA">Recojo en agencia</option>
+              <option value="DOMICILIO">Entrega a domicilio</option>
+            </select>
+          </label>
+        </div>
+        <div class="campos-dos">
+          <label class="campo">N.º de guía
+            <input name="guiaEnvio" type="text" maxlength="100" [(ngModel)]="formulario.numeroGuia" [disabled]="!editable" placeholder="Guía emitida por transportista" />
+          </label>
+          <label class="campo">Código de rastreo (opcional)
+            <input name="rastreoEnvio" type="text" maxlength="100" [(ngModel)]="formulario.codigoRastreo" [disabled]="!editable" />
+          </label>
+        </div>
+        <label class="campo">Observaciones
+          <textarea name="observacionesEnvio" rows="2" maxlength="500" [(ngModel)]="formulario.observaciones" [disabled]="!editable"></textarea>
+        </label>
+        <div class="fila-acciones">
+          <button type="button" class="boton-principal" (click)="guardar()" [disabled]="guardando || !editable">
+            {{ actual ? 'Actualizar guía' : 'Registrar seguimiento' }}
+          </button>
+          @if (actual) { <span class="estado">{{ actual.estado.replaceAll('_', ' ') }}</span> }
+        </div>
+        @if (actual && transiciones[actual.estado].length) {
+          <div class="cambiar-estado">
+            <label class="campo">Siguiente estado
+              <select name="estadoEnvio" [(ngModel)]="estadoNuevo">
+                @for (s of transiciones[actual.estado]; track s) {
+                  <option [ngValue]="s">{{ s.replaceAll('_', ' ') }}</option>
+                }
+              </select>
+            </label>
+            <button type="button" class="boton-secundario" (click)="cambiarEstado()" [disabled]="guardando">Actualizar estado</button>
+          </div>
+        }
+      } @else {
+        <p class="aviso">Selecciona una venta online para comenzar.</p>
+      }
+    </div>
+
+    <div class="logistica-bloque">
+      <h3>Últimos envíos registrados</h3>
+      @if (!envios.length) {
+        <p class="aviso">Todavía no hay guías en esta tienda.</p>
+      } @else {
+        <div class="envios-lista">
+          @for (e of envios; track e.id) {
+            <button type="button" class="envio-item" (click)="seleccionarEnvio(e)">
+              <strong>Pedido #{{ e.idVenta }}</strong>
+              <span>{{ e.operador }} · {{ e.modalidad }}</span>
+              <span class="estado">{{ e.estado.replaceAll('_', ' ') }}</span>
+              <small>{{ e.numeroGuia || 'Sin número de guía' }}</small>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  <p class="nota">Los estados aquí son logísticos e independientes del estado comercial del pedido. La integración automática con Shalom/Olva se realizará solo con acceso autorizado del transportista.</p>
+  <app-cobros-contraentrega></app-cobros-contraentrega>
+</section>

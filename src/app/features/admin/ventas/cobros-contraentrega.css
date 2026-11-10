@@ -1,0 +1,30 @@
+:host { display: block; margin-top: 22px; }
+.cod-panel { border: 1px solid #d9e1ed; border-radius: 16px; background: white; padding: 22px; color: #14243c; }
+.cod-header { display: flex; justify-content: space-between; align-items: start; gap: 18px; }
+.cod-header h2 { font-size: 21px; font-weight: 750; margin: 4px 0 7px; }
+.cod-header p { font-size: 12px; color: #52647b; }
+.cod-kicker { font-size: 10px!important; font-weight: 800; letter-spacing: .14em; color: #2962af!important; }
+.cod-header button,.cod-form button { background: #fff; border: 1px solid #aebdd3; border-radius: 8px; padding: 11px 13px; cursor:pointer; }
+.cod-grid { display: grid; grid-template-columns: minmax(210px,1fr) minmax(300px,1fr); gap: 14px; margin-top: 18px; }
+.cod-list { display: flex; flex-direction: column; gap: 9px; max-height: 360px; overflow: auto; }
+.cod-list button { text-align: left; display: grid; gap: 5px; padding: 14px; background: #f8fafe; border: 1px solid #dce5f0; border-radius: 9px; cursor: pointer; }
+.cod-list span { font-size: 12px; color: #53647b; }
+.cod-list button.cod-selected { border-color:#2869bb; }
+.cod-form { border: 1px solid #dce5f0; border-radius: 9px; padding: 17px; }
+.cod-form h3 { font-weight: 750; margin-bottom: 12px; }
+.cod-form label { display: grid; gap: 6px; margin: 14px 0; font-weight: 600; font-size: 12px; }
+.cod-form input:not([type=checkbox]), .cod-form select { border:1px solid #b4c6de; padding: 10px; border-radius: 7px; }
+.cod-form .cod-check { display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+.cod-form button.cod-primary { background:#225eae; color:white; border:0; font-weight:700; }
+.cod-form button:disabled { cursor:not-allowed; opacity:.5; }
+.cod-alert { padding: 10px 12px; border-radius:8px; margin: 12px 0; font-size: 12px; }
+.cod-error { background:#ffebeb; color:#8a2525; }
+.cod-success { background:#e3f7ec; color:#116038; }
+.cod-empty,.cod-note { font-size:12px; color:#53647b; margin-top:15px; }
+@media (max-width:740px) { .cod-grid { grid-template-columns:1fr; } .cod-header { flex-direction:column; } }
+
+.cod-cancel { border-top: 1px solid #d9e1ed; margin-top:18px; padding-top:15px; }
+.cod-cancel h4 { font-size:13px; font-weight:800; color:#8b2222; }
+.cod-cancel p {font-size:12px;color:#685656;margin-top:5px;}
+.cod-cancel textarea { border:1px solid #b4c6de;border-radius:7px;padding:10px;resize:vertical; }
+.cod-form button.cod-danger { background:#922f2f;color:white;border:0;font-weight:700; }

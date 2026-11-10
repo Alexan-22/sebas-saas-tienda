@@ -1,0 +1,45 @@
+<section class="configuracion">
+  <div class="cabecera">
+    <p class="eyebrow">MI TIENDA / CONFIGURACIÓN</p>
+    <h1>Identidad de mi tienda</h1>
+    <p>Personaliza la marca que verán tus clientes. Los cambios solo afectan a tu tienda.</p>
+  </div>
+  @if (error) { <div class="aviso error" role="alert">{{ error }}</div> }
+  @if (exito) { <div class="aviso exito" role="status">{{ exito }}</div> }
+  <div class="panel">
+    <h2>Logotipo comercial</h2>
+    @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
+      <img class="logo" [src]="logo" [alt]="tiendaService.tiendaActual()?.nombre || 'Logo de la tienda'" />
+    } @else { <div class="sin-logo">Sin logotipo; se mostrará el nombre comercial.</div> }
+    <label class="subir">{{ subiendoLogo ? 'Subiendo...' : 'Seleccionar nuevo logotipo' }}
+      <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarLogo($event)" [disabled]="subiendoLogo || guardando" />
+    </label>
+    <small>PNG, JPG o WebP. Máximo 2 MB. Recomendado: fondo transparente.</small>
+  </div>
+  <form class="panel" (ngSubmit)="guardar()" #form="ngForm">
+    <h2>Información y colores</h2>
+    <div class="campos">
+      <label>Nombre comercial
+        <input name="nombre" [(ngModel)]="datos.nombre" required maxlength="100" />
+      </label>
+      <label>Teléfono de contacto
+        <input name="telefonoSoporte" [(ngModel)]="datos.telefonoSoporte" maxlength="20" placeholder="+51 999 999 999" />
+      </label>
+      <label>WhatsApp
+        <input name="whatsapp" [(ngModel)]="datos.whatsapp" maxlength="20" placeholder="+51 999 999 999" />
+      </label>
+      <label>Descripción comercial
+        <textarea name="descripcionComercial" [(ngModel)]="datos.descripcionComercial" maxlength="500" rows="3"></textarea>
+      </label>
+      <label>Color principal
+        <div class="color"><input type="color" name="colorPrimario" [(ngModel)]="datos.colorPrimario" /> {{ datos.colorPrimario }}</div>
+      </label>
+      <label>Color secundario
+        <div class="color"><input type="color" name="colorSecundario" [(ngModel)]="datos.colorSecundario" /> {{ datos.colorSecundario }}</div>
+      </label>
+    </div>
+    <button type="submit" [disabled]="form.invalid || guardando || subiendoLogo">
+      {{ guardando ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN' }}
+    </button>
+  </form>
+</section>
