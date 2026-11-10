@@ -1,4 +1,4 @@
-import { CompraRequest } from '../../core/models/venta';
+import { CompraRequest } from '../../../../core/models/venta';
 const storageKey = 'sebas.transferencia.intento';
 // Session-only metadata; no token or credentials. Failed HTTP responses retain the key.
 export function claveTransferencia(request: CompraRequest, storage: Storage = sessionStorage): string {

@@ -1,5 +1,5 @@
 import { claveYape, completarIntentoYape } from './yape-idempotencia';
-import { CompraRequest } from '../../core/models/venta';
+import { CompraRequest } from '../../../../core/models/venta';
 describe('Yape checkout retries', () => {
  const request: CompraRequest = { medioPago:'YAPE', items:[{idProductoTalla:1,cantidad:1}], direccionEnvio:{departamento:'Lima',provincia:'Lima',distrito:'Lima',direccionExacta:'Fixture',referencia:''} };
  beforeEach(() => sessionStorage.clear());

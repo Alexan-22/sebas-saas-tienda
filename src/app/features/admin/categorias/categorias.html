@@ -1,48 +1,142 @@
+
 <section class="categorias-admin">
+
   <header class="encabezado">
     <div>
       <p class="etiqueta">CATÁLOGO · ADMINISTRACIÓN</p>
       <h1>Categorías de mi tienda</h1>
-      <p>Organiza tu catálogo. Los cambios afectan solamente a esta tienda.</p>
+      <p>
+        Organiza tu catálogo. Los cambios afectan solamente
+        a esta tienda.
+      </p>
     </div>
-    <button type="button" class="secundario" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+
+    <button
+      type="button"
+      class="secundario"
+      (click)="cargar()"
+      [disabled]="cargando || guardando || eliminandoId !== null">
+      Actualizar
+    </button>
   </header>
 
-  <p class="alerta" *ngIf="error" role="alert">{{ error }}</p>
-  <p class="aviso" *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <p class="alerta" *ngIf="error" role="alert">
+    {{ error }}
+  </p>
+
+  <p class="aviso" *ngIf="mensaje" role="status">
+    {{ mensaje }}
+  </p>
 
   <form class="crear" (ngSubmit)="crear()">
-    <label for="nombre-nuevo">Nueva categoría</label>
+
+    <label for="nombre-nuevo">
+      Nueva categoría
+    </label>
+
     <div class="crear-fila">
-      <input id="nombre-nuevo" name="nuevaCategoria" [(ngModel)]="nuevaCategoria"
-             maxlength="100" placeholder="Ej.: Vestidos, Polos, Calzados..." required />
-      <button type="submit" [disabled]="guardando || !nuevaCategoria.trim()">Crear categoría</button>
+      <input
+        id="nombre-nuevo"
+        name="nuevaCategoria"
+        [(ngModel)]="nuevaCategoria"
+        maxlength="100"
+        placeholder="Ej.: Vestidos, Polos, Calzados..."
+        required>
+
+      <button
+        type="submit"
+        [disabled]="guardando || eliminandoId !== null || !nuevaCategoria.trim()">
+        Crear categoría
+      </button>
     </div>
   </form>
 
   <div class="listado">
+
     <div class="listado-titulo">
       <h2>Mis categorías</h2>
       <span>{{ categorias.length }} registradas</span>
     </div>
-    <p *ngIf="cargando">Cargando categorías...</p>
-    <p *ngIf="!cargando && categorias.length === 0">Todavía no tienes categorías. Crea la primera arriba.</p>
 
-    <div class="categoria" *ngFor="let categoria of categorias">
-      <div class="nombre" *ngIf="idEditando !== categoria.idCategoria">
+    <p *ngIf="cargando">
+      Cargando categorías...
+    </p>
+
+    <p *ngIf="!cargando && categorias.length === 0">
+      Todavía no tienes categorías. Crea la primera arriba.
+    </p>
+
+    <div
+      class="categoria"
+      *ngFor="let categoria of categorias">
+
+      <div
+        class="nombre"
+        *ngIf="idEditando !== categoria.idCategoria">
+
         <strong>{{ categoria.nombreCategoria }}</strong>
-        <span [class.inactiva]="!categoria.estado">{{ categoria.estado ? 'Activa' : 'Inactiva' }}</span>
+
+        <span [class.inactiva]="!categoria.estado">
+          {{ categoria.estado ? 'Activa' : 'Inactiva' }}
+        </span>
       </div>
-      <div class="edicion" *ngIf="idEditando === categoria.idCategoria">
-        <input [name]="'editar-' + categoria.idCategoria" [(ngModel)]="nombreEditando" maxlength="100" />
-        <button type="button" (click)="guardarEdicion(categoria)" [disabled]="guardando || !nombreEditando.trim()">Guardar</button>
-        <button type="button" class="secundario" (click)="cancelarEdicion()">Cancelar</button>
+
+      <div
+        class="edicion"
+        *ngIf="idEditando === categoria.idCategoria">
+
+        <input
+          [name]="'editar-' + categoria.idCategoria"
+          [(ngModel)]="nombreEditando"
+          maxlength="100">
+
+        <button
+          type="button"
+          (click)="guardarEdicion(categoria)"
+          [disabled]="guardando || !nombreEditando.trim()">
+          Guardar
+        </button>
+
+        <button
+          type="button"
+          class="secundario"
+          (click)="cancelarEdicion()">
+          Cancelar
+        </button>
       </div>
-      <div class="acciones" *ngIf="idEditando !== categoria.idCategoria">
-        <button type="button" class="secundario" (click)="editar(categoria)" [disabled]="guardando">Editar</button>
-        <button type="button" class="secundario" (click)="cambiarEstado(categoria)" [disabled]="guardando">
+
+      <div
+        class="acciones"
+        *ngIf="idEditando !== categoria.idCategoria">
+
+        <button
+          type="button"
+          class="secundario"
+          (click)="editar(categoria)"
+          [disabled]="guardando || eliminandoId !== null">
+          Editar
+        </button>
+
+        <button
+          type="button"
+          class="secundario"
+          (click)="cambiarEstado(categoria)"
+          [disabled]="guardando || eliminandoId !== null">
           {{ categoria.estado ? 'Desactivar' : 'Activar' }}
         </button>
+
+        <button
+          type="button"
+          class="btn-eliminar"
+          (click)="eliminar(categoria)"
+          [disabled]="guardando || eliminandoId !== null">
+          {{
+            eliminandoId === categoria.idCategoria
+              ? 'Eliminando...'
+              : 'Eliminar'
+          }}
+        </button>
+
       </div>
     </div>
   </div>

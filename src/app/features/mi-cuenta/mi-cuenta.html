@@ -1,0 +1,225 @@
+
+<app-navbar></app-navbar>
+
+<main class="mi-cuenta-page">
+
+  <div class="cuenta-contenedor">
+
+    <header class="cuenta-header">
+      <span>SEBAS COLLECTION · MI CUENTA</span>
+      <h1>Mi perfil</h1>
+      <p>
+        Administra tus datos y consulta tus compras.
+      </p>
+    </header>
+
+    @if (cargando) {
+      <section class="cuenta-card">
+        <p>Cargando tu información...</p>
+      </section>
+
+    } @else if (perfil) {
+
+      <section class="cuenta-presentacion">
+        <div class="cuenta-avatar">
+          {{ iniciales }}
+        </div>
+
+        <div class="cuenta-identidad">
+          <h2>{{ perfil.nombre }} {{ perfil.apellido }}</h2>
+          <p>{{ perfil.correo }}</p>
+          <span>Cliente registrado</span>
+        </div>
+      </section>
+
+      <nav class="cuenta-accesos">
+        <a routerLink="/mis-compras" class="acceso">
+          <span class="acceso-icono">◻</span>
+          <span>
+            <strong>Mis compras</strong>
+            <small>Revisa tus pedidos y su estado</small>
+          </span>
+          <span class="flecha">›</span>
+        </a>
+
+        <a routerLink="/tienda" class="acceso">
+          <span class="acceso-icono">✦</span>
+          <span>
+            <strong>Seguir comprando</strong>
+            <small>Explora nuestro catálogo</small>
+          </span>
+          <span class="flecha">›</span>
+        </a>
+      </nav>
+
+      <div class="cuenta-grid">
+
+        <section class="cuenta-card">
+          <h2>Información personal</h2>
+          <p class="descripcion">
+            Mantén actualizados tus datos de contacto.
+          </p>
+
+          @if (error) {
+            <p class="alerta error" role="alert">
+              {{ error }}
+            </p>
+          }
+
+          @if (mensaje) {
+            <p class="alerta exito" role="status">
+              {{ mensaje }}
+            </p>
+          }
+
+          <form (ngSubmit)="guardar()">
+
+            <div class="dos-columnas">
+              <label>
+                Nombre
+                <input
+                  type="text"
+                  name="nombre"
+                  [(ngModel)]="nombre"
+                  maxlength="100"
+                  required>
+              </label>
+
+              <label>
+                Apellido
+                <input
+                  type="text"
+                  name="apellido"
+                  [(ngModel)]="apellido"
+                  maxlength="100"
+                  required>
+              </label>
+            </div>
+
+            <label>
+              Correo electrónico
+              <input
+                type="email"
+                [value]="perfil.correo"
+                disabled>
+            </label>
+
+            <p class="ayuda">
+              Tu correo está asociado a tu inicio de sesión
+              y no puede modificarse desde esta pantalla.
+            </p>
+
+            <button
+              type="submit"
+              class="boton-principal"
+              [disabled]="guardando">
+              {{ guardando ? 'Guardando...' : 'Guardar mis datos' }}
+            </button>
+
+          </form>
+        </section>
+
+        <section class="cuenta-card">
+          <h2>Contraseña y seguridad</h2>
+
+          <p class="descripcion">
+            Protege tu cuenta con una contraseña segura.
+          </p>
+
+          @if (errorContrasena) {
+            <p class="alerta error" role="alert">
+              {{ errorContrasena }}
+            </p>
+          }
+
+          @if (mensajeContrasena) {
+            <p class="alerta exito" role="status">
+              {{ mensajeContrasena }}
+            </p>
+          }
+
+          <form (ngSubmit)="cambiarContrasena()">
+
+            <label>
+              Contraseña actual
+              <input
+                type="password"
+                name="actual"
+                [(ngModel)]="contrasenaActual"
+                autocomplete="current-password"
+                required>
+            </label>
+
+            <label>
+              Nueva contraseña
+              <input
+                type="password"
+                name="nueva"
+                [(ngModel)]="contrasenaNueva"
+                autocomplete="new-password"
+                minlength="12"
+                maxlength="128"
+                required>
+            </label>
+
+            <label>
+              Confirmar nueva contraseña
+              <input
+                type="password"
+                name="confirmar"
+                [(ngModel)]="confirmarContrasena"
+                autocomplete="new-password"
+                minlength="12"
+                maxlength="128"
+                required>
+            </label>
+
+            <p class="ayuda">
+              Mínimo 12 caracteres.
+              Después del cambio deberás iniciar sesión otra vez.
+            </p>
+
+            <button
+              type="submit"
+              class="boton-principal"
+              [disabled]="cambiando">
+              {{
+                cambiando
+                  ? 'Actualizando...'
+                  : 'Actualizar contraseña'
+              }}
+            </button>
+
+          </form>
+
+          <div class="salir-zona">
+            <h3>Cerrar sesión</h3>
+            <p>Salir de tu cuenta en este dispositivo.</p>
+
+            <button
+              type="button"
+              class="boton-salir"
+              (click)="salir()">
+              Cerrar sesión
+            </button>
+          </div>
+        </section>
+
+      </div>
+
+    } @else {
+      <section class="cuenta-card">
+        <p class="alerta error">{{ error }}</p>
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="cargarPerfil()">
+          Reintentar
+        </button>
+      </section>
+    }
+
+  </div>
+</main>
+
+<app-footer></app-footer>

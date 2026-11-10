@@ -866,3 +866,26 @@
     transition: none;
   }
 }
+
+
+.admin-user-profile .perfil-enlace {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-user-profile .perfil-enlace:hover .user-avatar-badge {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .16);
+}
+
+.admin-user-profile .user-avatar-badge {
+  transition: transform .2s, box-shadow .2s;
+}
+
+.admin-user-profile .avatar-inicial {
+  font-weight: 800;
+}

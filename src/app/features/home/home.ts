@@ -147,13 +147,14 @@ export class Home implements OnInit, OnDestroy {
     this.iniciarCarrusel();
   }
   private iniciarCarrusel(): void {
-    this.detenerCarrusel();
-    if (this.banners.length > 1) {
-      this.intervaloCarrusel = setInterval(() => {
-        this.bannerActual = (this.bannerActual + 1) % this.banners.length;
-      }, 6500);
-    }
+  this.detenerCarrusel();
+
+  if (this.banners.length > 1) {
+    this.intervaloCarrusel = setInterval(() => {
+      this.bannerActual = (this.bannerActual + 1) % this.banners.length;
+    }, 3000);
   }
+}
   private detenerCarrusel(): void {
     if (this.intervaloCarrusel) clearInterval(this.intervaloCarrusel);
     this.intervaloCarrusel = null;

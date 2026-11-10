@@ -1,4 +1,4 @@
-import { CompraRequest } from '../../core/models/venta';
+import { CompraRequest } from '../../../../core/models/venta';
 const storageKey = 'sebas.yape.intento';
 // Session-only metadata; no token or credentials. Failed HTTP responses retain the key.
 export function claveYape(request: CompraRequest, storage: Storage = sessionStorage): string {

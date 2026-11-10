@@ -861,3 +861,51 @@ small {
     width: 100%;
   }
 }
+
+/* ============================================
+   PREVISUALIZACIÓN REAL DEL BANNER
+   ============================================ */
+
+.banner-preview {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid #e5e5e5;
+}
+
+.banner-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* Solo ocultar la sombra del banner,
+   sin afectar los overlays de colecciones */
+.banner-preview .banner-overlay {
+  display: none;
+}
+
+.banner-preview:before,
+.banner-preview:after {
+  content: none;
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .banner-preview {
+    aspect-ratio: auto;
+  }
+
+  .banner-preview img {
+    height: auto;
+  }
+}

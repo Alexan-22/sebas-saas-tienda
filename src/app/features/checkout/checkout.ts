@@ -1,5 +1,5 @@
 import { TransferenciasService, CuentaBancaria } from '../../core/services/transferencias.service';
-import { claveTransferencia, completarIntentoTransferencia } from './transferencia-idempotencia';
+import { claveTransferencia, completarIntentoTransferencia } from './idempotencia/transferencia/transferencia-idempotencia';
 
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
@@ -18,7 +18,7 @@ import { ProductoTalla } from '../../core/models/producto-talla';
 import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { Footer } from '../../shared/components/footer/footer';
-import { claveYape, completarIntentoYape } from './yape-idempotencia';
+import { claveYape, completarIntentoYape } from './idempotencia/yape/yape-idempotencia';
 
 @Component({
   selector: 'app-checkout',

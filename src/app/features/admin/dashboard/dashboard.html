@@ -1,232 +1,435 @@
+
 <div class="dashboard-container">
 
-  <!-- CABECERA Y ACCIÓN PRINCIPAL -->
+  <!-- ==========================================
+       CABECERA
+  =========================================== -->
   <div class="page-header-flex">
     <div>
-      <span class="eyebrow">{{ tiendaService.tiendaActual()?.nombre || 'Sebas Collection' }}</span>
+      <span class="eyebrow">
+        {{ tiendaService.tiendaActual()?.nombre || 'Mi tienda' }}
+      </span>
+
       <h1>Panel de Administración</h1>
-      <p>Centro de control y métricas en tiempo real de tu tienda.</p>
+
+      <p>
+        Centro de control de ventas, pedidos e inventario
+        de tu tienda online.
+      </p>
     </div>
 
-    <button 
-      type="button" 
-      (click)="irAPedidos()"
-      class="btn-primary-action">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <button
+      type="button"
+      class="btn-primary-action"
+      (click)="irAPedidos()">
+
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5">
         <path d="M12 5v14M5 12h14"/>
       </svg>
+
       <span>Ver pedidos online</span>
     </button>
   </div>
 
-  <!-- BANNER INFORMATIVO -->
+  <!-- ==========================================
+       INFORMACIÓN DE DATOS
+  =========================================== -->
   <div class="info-banner">
     <span>💡</span>
-    <p><strong>Sincronización activa:</strong> Los indicadores se actualizan dinámicamente con la base de datos.</p>
+
+    <p>
+      <strong>Indicadores conectados:</strong>
+      Los datos se consultan desde los servicios de tu tienda.
+      Los importes representan pedidos registrados no cancelados,
+      no necesariamente pagos cobrados.
+    </p>
   </div>
 
-  <!-- FILTRO DE TIEMPO INTERACTIVO -->
+  <!-- ==========================================
+       MENSAJES DE ERROR
+  =========================================== -->
+  @if (errorVentas) {
+    <div class="info-banner" role="alert">
+      <span>⚠️</span>
+      <p>{{ errorVentas }}</p>
+    </div>
+  }
+
+  @if (errorInventario) {
+    <div class="info-banner" role="alert">
+      <span>⚠️</span>
+      <p>{{ errorInventario }}</p>
+    </div>
+  }
+
+  <!-- ==========================================
+       FILTROS DE PERÍODO
+  =========================================== -->
   <div class="time-filter-group">
-    <button 
-      type="button" 
+
+    <button
+      type="button"
       (click)="cambiarPeriodo('Semana')"
       [class.active]="periodoActivo === 'Semana'">
       Semana
     </button>
-    <button 
-      type="button" 
+
+    <button
+      type="button"
       (click)="cambiarPeriodo('Mes')"
       [class.active]="periodoActivo === 'Mes'">
       Mes
     </button>
-    <button 
-      type="button" 
+
+    <button
+      type="button"
       (click)="cambiarPeriodo('Trimestre')"
       [class.active]="periodoActivo === 'Trimestre'">
       Trimestre
     </button>
+
   </div>
 
-  <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+  <!-- ==========================================
+       TARJETAS DE INDICADORES
+  =========================================== -->
   <div class="stats-grid">
-    
-    <!-- TARJETA 1: VENTAS -->
+
+    <!-- IMPORTE DE PEDIDOS -->
     <article class="stat-card purple-accent">
+
       <div class="stat-top">
-        <span class="stat-lbl">INGRESOS VENTAS</span>
+        <span class="stat-lbl">
+          IMPORTE DE PEDIDOS
+        </span>
+
         <div class="stat-icon-box purple">S/</div>
       </div>
-      <strong class="stat-val">S/ {{ montoTotalVentas | number:'1.2-2' }}</strong>
-      <span class="stat-sub">Período: {{ periodoActivo }}</span>
+
+      <strong class="stat-val">
+        @if (montoTotalVentas !== null) {
+          S/ {{ montoTotalVentas | number:'1.2-2' }}
+        } @else {
+          ...
+        }
+      </strong>
+
+      <span class="stat-sub">
+        Período: {{ periodoActivo }}
+      </span>
     </article>
 
-    <!-- TARJETA 2: PEDIDOS -->
+    <!-- PEDIDOS -->
     <article class="stat-card blue-accent">
+
       <div class="stat-top">
-        <span class="stat-lbl">PEDIDOS REGISTRADOS</span>
+        <span class="stat-lbl">
+          PEDIDOS REGISTRADOS
+        </span>
+
         <div class="stat-icon-box blue">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12l2 5H4l2-5Z"/><path d="M4 7v15h16V7"/></svg>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <path d="M6 2h12l2 5H4l2-5Z"/>
+            <path d="M4 7v15h16V7"/>
+          </svg>
         </div>
       </div>
-      <strong class="stat-val">{{ totalVentasConteo ?? '...' }}</strong>
-      <span class="stat-sub">Transacciones totales</span>
+
+      <strong class="stat-val">
+        {{ totalVentasConteo ?? '...' }}
+      </strong>
+
+      <span class="stat-sub">
+        Pedidos del período seleccionado
+      </span>
     </article>
 
-    <!-- TARJETA 3: PRODUCTOS -->
+    <!-- PRODUCTOS -->
     <article class="stat-card emerald-accent">
+
       <div class="stat-top">
-        <span class="stat-lbl">CATÁLOGO PRODUCTOS</span>
+        <span class="stat-lbl">
+          CATÁLOGO PRODUCTOS
+        </span>
+
         <div class="stat-icon-box emerald">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+          </svg>
         </div>
       </div>
-      <strong class="stat-val">{{ totalProductos ?? '...' }}</strong>
-      <span class="stat-sub">Modelos activos</span>
+
+      <strong class="stat-val">
+        {{ totalProductos ?? '...' }}
+      </strong>
+
+      <span class="stat-sub">
+        Productos activos
+      </span>
     </article>
 
-    <!-- TARJETA 4: STOCK BAJO -->
+    <!-- ALERTAS DE STOCK -->
     <article class="stat-card amber-accent">
+
       <div class="stat-top">
-        <span class="stat-lbl">ALERTAS STOCK</span>
+        <span class="stat-lbl">
+          ALERTAS STOCK
+        </span>
+
         <div class="stat-icon-box amber">!</div>
       </div>
-      <strong class="stat-val">7</strong>
-      <span class="stat-sub">Requieren reposición</span>
+
+      <strong class="stat-val">
+        {{ totalAlertas ?? '...' }}
+      </strong>
+
+      <span class="stat-sub">
+        Tallas con 5 unidades o menos
+      </span>
     </article>
 
   </div>
 
-  <!-- SECCIÓN CENTRAL: GRÁFICO Y ALERTAS DE INVENTARIO -->
+  <!-- ==========================================
+       GRÁFICO Y ALERTAS
+  =========================================== -->
   <div class="dashboard-grid-main">
 
-    <!-- GRÁFICO DE RENDIMIENTO -->
+    <!-- GRÁFICO DE VENTAS -->
     <div class="panel-card chart-panel">
+
       <div class="panel-header-simple">
         <div>
           <h3>Rendimiento de Ventas</h3>
-          <p>Actividad comercial correspondiente a: {{ periodoActivo }}</p>
+
+          <p>
+            Importe de pedidos no cancelados:
+            {{ periodoActivo }}
+          </p>
         </div>
-        <span class="badge-live">EN VIVO</span>
+
+        <span class="badge-live">
+          DATOS REALES
+        </span>
       </div>
 
       <div class="bar-chart-container">
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 50%;"></div>
-          <span>Lun</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 65%;"></div>
-          <span>Mar</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 55%;"></div>
-          <span>Mié</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 80%;"></div>
-          <span>Jue</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 75%;"></div>
-          <span>Vie</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill active" style="height: 95%;"></div>
-          <span>Sáb</span>
-        </div>
-        <div class="bar-column">
-          <div class="bar-fill" style="height: 70%;"></div>
-          <span>Dom</span>
-        </div>
+
+        @for (barra of barrasVentas; track $index) {
+          <div class="bar-column">
+
+            <div
+              class="bar-fill"
+              [class.active]="barra.total > 0"
+              [style.height.%]="barra.porcentaje"
+              [title]="'Importe: S/ ' + barra.total.toFixed(2)">
+            </div>
+
+            <span>{{ barra.etiqueta }}</span>
+          </div>
+        } @empty {
+          <p>
+            Cargando información de ventas...
+          </p>
+        }
+
       </div>
+
     </div>
 
     <!-- ALERTAS DE INVENTARIO -->
     <div class="panel-card alert-panel">
+
       <div class="panel-header-simple">
         <div>
           <h3>Alertas de Inventario</h3>
-          <p>Tallas con existencias mínimas</p>
+
+          <p>
+            Tallas con existencias mínimas
+          </p>
         </div>
       </div>
 
       <div class="alert-list">
-        <div class="alert-item">
-          <div>
-            <strong>Blusa Elegance</strong>
-            <span>Stock crítico en almacén</span>
-          </div>
-          <span class="badge-stock amber">2 un.</span>
-        </div>
 
-        <div class="alert-item">
-          <div>
-            <strong>Vestido Casual</strong>
-            <span>Stock crítico en almacén</span>
-          </div>
-          <span class="badge-stock amber">3 un.</span>
-        </div>
+        @for (alerta of alertasStock; track $index) {
 
-        <div class="alert-item">
-          <div>
-            <strong>Pantalón Classic</strong>
-            <span>Stock crítico en almacén</span>
+          <div class="alert-item">
+
+            <div>
+              <strong>
+                {{ alerta.nombre }}
+              </strong>
+
+              <span>
+                Talla: {{ alerta.talla }}
+              </span>
+            </div>
+
+            <span class="badge-stock amber">
+              {{ alerta.stock }} un.
+            </span>
+
           </div>
-          <span class="badge-stock amber">4 un.</span>
-        </div>
+
+        } @empty {
+
+          <div class="alert-item">
+            <div>
+              <strong>
+                {{ errorInventario
+                  ? 'Inventario no disponible'
+                  : 'Sin alertas registradas' }}
+              </strong>
+
+              <span>
+                {{ errorInventario
+                  || 'No existen tallas con stock crítico.' }}
+              </span>
+            </div>
+          </div>
+
+        }
+
       </div>
 
-      <a routerLink="/admin/productos" class="link-footer">
+      <a
+        routerLink="/admin/stock"
+        class="link-footer">
         Gestionar inventario completo →
       </a>
+
     </div>
 
   </div>
 
-  <!-- ACCESOS RÁPIDOS -->
+  <!-- ==========================================
+       ACCESOS RÁPIDOS
+  =========================================== -->
   <div class="quick-access-section">
+
     <h3>Accesos Rápidos</h3>
 
     <div class="quick-grid">
-      <a routerLink="/admin/ventas" class="quick-card">
+
+      <!-- PEDIDOS -->
+      <a
+        routerLink="/admin/ventas"
+        class="quick-card">
+
         <div class="quick-icon purple">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
         </div>
+
         <div>
           <strong>Pedidos online</strong>
-          <p>Gestionar pedidos de la tienda web</p>
+          <p>Gestionar compras de la tienda web</p>
         </div>
       </a>
 
-      <a routerLink="/admin/productos" class="quick-card">
+      <!-- PRODUCTOS -->
+      <a
+        routerLink="/admin/productos"
+        class="quick-card">
+
         <div class="quick-icon blue">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18"/>
+          </svg>
         </div>
+
         <div>
           <strong>Productos</strong>
           <p>Administrar catálogo web</p>
         </div>
       </a>
 
-      <a routerLink="/admin/stock" class="quick-card">
+      <!-- STOCK -->
+      <a
+        routerLink="/admin/stock"
+        class="quick-card">
+
         <div class="quick-icon emerald">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
         </div>
+
         <div>
           <strong>Stock y Tallas</strong>
           <p>Controlar existencias</p>
         </div>
       </a>
 
-      <a routerLink="/admin/ventas" class="quick-card">
+      <!-- REPORTES -->
+      <a
+        routerLink="/admin/reportes"
+        class="quick-card">
+
         <div class="quick-icon amber">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/>
+          </svg>
         </div>
+
         <div>
-          <strong>Ventas y Pedidos</strong>
-          <p>Consultar transacciones</p>
+          <strong>Reportes</strong>
+          <p>Consultar ventas e indicadores</p>
         </div>
       </a>
+
     </div>
   </div>
 

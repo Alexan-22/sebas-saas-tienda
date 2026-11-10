@@ -1,0 +1,212 @@
+
+<section class="perfil-page">
+
+  <header class="page-heading">
+    <div>
+      <span>MI CUENTA · ADMINISTRACIÓN</span>
+      <h1>Mi perfil</h1>
+      <p>Administra tus datos personales y la seguridad de tu cuenta.</p>
+    </div>
+
+    <a routerLink="/admin/dashboard" class="volver">
+      Volver al Dashboard
+    </a>
+  </header>
+
+  @if (cargando) {
+    <div class="perfil-card">
+      <p>Cargando información de tu cuenta...</p>
+    </div>
+  }
+
+  @if (!cargando && perfil) {
+
+    <div class="perfil-portada">
+      <div class="avatar">{{ iniciales }}</div>
+
+      <div class="perfil-identidad">
+        <span>ADMINISTRADOR DE TIENDA</span>
+        <h2>{{ perfil.nombre }} {{ perfil.apellido }}</h2>
+        <p>{{ perfil.correo }}</p>
+      </div>
+
+      <span class="estado">
+        {{ perfil.estado ? 'Cuenta activa' : 'Cuenta inactiva' }}
+      </span>
+    </div>
+
+    <div class="perfil-grid">
+
+      <section class="perfil-card">
+        <div class="card-heading">
+          <h2>Información personal</h2>
+          <p>Los cambios se guardan en tu cuenta.</p>
+        </div>
+
+        @if (error) {
+          <p class="alerta error" role="alert">{{ error }}</p>
+        }
+
+        @if (mensaje) {
+          <p class="alerta exito" role="status">{{ mensaje }}</p>
+        }
+
+        <form (ngSubmit)="guardarPerfil()">
+
+          <div class="dos-columnas">
+            <label>
+              Nombre
+              <input
+                type="text"
+                name="nombre"
+                [(ngModel)]="nombre"
+                maxlength="100"
+                required>
+            </label>
+
+            <label>
+              Apellido
+              <input
+                type="text"
+                name="apellido"
+                [(ngModel)]="apellido"
+                maxlength="100"
+                required>
+            </label>
+          </div>
+
+          <label>
+            Correo electrónico
+            <input
+              type="email"
+              [value]="perfil.correo"
+              disabled>
+          </label>
+
+          <label>
+            Rol
+            <input
+              type="text"
+              [value]="perfil.rol"
+              disabled>
+          </label>
+
+          <label>
+            Identificador de tienda
+            <input
+              type="text"
+              [value]="perfil.tiendaId ?? ''"
+              disabled>
+          </label>
+
+          <p class="ayuda">
+            Por seguridad, no puedes cambiar tu correo, rol
+            ni tienda asociada desde esta pantalla.
+          </p>
+
+          <button
+            type="submit"
+            class="btn-principal"
+            [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </form>
+      </section>
+
+      <section class="perfil-card">
+        <div class="card-heading">
+          <h2>Seguridad de la cuenta</h2>
+          <p>Actualiza tu contraseña de acceso.</p>
+        </div>
+
+        @if (errorContrasena) {
+          <p class="alerta error" role="alert">
+            {{ errorContrasena }}
+          </p>
+        }
+
+        @if (mensajeContrasena) {
+          <p class="alerta exito" role="status">
+            {{ mensajeContrasena }}
+          </p>
+        }
+
+        <form (ngSubmit)="cambiarContrasena()">
+
+          <label>
+            Contraseña actual
+            <input
+              type="password"
+              name="actual"
+              [(ngModel)]="contrasenaActual"
+              autocomplete="current-password"
+              required>
+          </label>
+
+          <label>
+            Nueva contraseña
+            <input
+              type="password"
+              name="nueva"
+              [(ngModel)]="contrasenaNueva"
+              autocomplete="new-password"
+              minlength="12"
+              maxlength="128"
+              required>
+          </label>
+
+          <label>
+            Confirmar contraseña
+            <input
+              type="password"
+              name="confirmar"
+              [(ngModel)]="confirmarContrasena"
+              autocomplete="new-password"
+              minlength="12"
+              maxlength="128"
+              required>
+          </label>
+
+          <p class="ayuda">
+            Utiliza al menos 12 caracteres.
+            Necesitarás iniciar sesión nuevamente.
+          </p>
+
+          <button
+            type="submit"
+            class="btn-principal"
+            [disabled]="cambiandoContrasena">
+            {{
+              cambiandoContrasena
+                ? 'Actualizando...'
+                : 'Cambiar contraseña'
+            }}
+          </button>
+        </form>
+
+        <div class="cerrar-cuenta">
+          <h3>Sesión actual</h3>
+          <p>Salir de tu cuenta en este dispositivo.</p>
+
+          <button
+            type="button"
+            class="btn-salir"
+            (click)="cerrarSesion()">
+            Cerrar sesión
+          </button>
+        </div>
+      </section>
+
+    </div>
+  }
+
+  @if (!cargando && !perfil && error) {
+    <div class="perfil-card">
+      <p class="alerta error">{{ error }}</p>
+      <button class="btn-principal" (click)="cargarPerfil()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+</section>

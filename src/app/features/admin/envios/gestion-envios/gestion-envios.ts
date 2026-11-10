@@ -1,9 +1,9 @@
-import { CobrosContraEntrega } from './cobros-contraentrega';
+import { CobrosContraEntrega } from '../cobros-contraentrega/cobros-contraentrega';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EnviosService, Envio, EstadoEnvio, GuardarEnvio, VentaLogistica } from '../../../core/services/envios';
+import { EnviosService, Envio, EstadoEnvio, GuardarEnvio, VentaLogistica } from '../../../../core/services/envios';
 
 @Component({
   selector: 'app-gestion-envios',

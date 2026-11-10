@@ -1,0 +1,289 @@
+
+:host {
+  display: block;
+}
+
+/* Reutilizar el diseño del perfil administrativo */
+@import url('../admin/perfil/perfil-admin.css');
+
+.mi-cuenta-page {
+  min-height: 70vh;
+  background: #f8fafc;
+  padding: 50px 18px 70px;
+  color: #101828;
+}
+
+.cuenta-contenedor {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.cuenta-header {
+  margin-bottom: 28px;
+}
+
+.cuenta-header > span {
+  font-size: 11px;
+  color: #5446e8;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.cuenta-header h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 10px 0;
+}
+
+.cuenta-header p {
+  color: #667085;
+}
+
+.cuenta-presentacion {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 20px;
+}
+
+.cuenta-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #111827;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 27px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.cuenta-identidad h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.cuenta-identidad p {
+  margin: 0 0 8px;
+  color: #667085;
+  overflow-wrap: anywhere;
+}
+
+.cuenta-identidad span {
+  font-size: 12px;
+  color: #047857;
+  font-weight: 700;
+}
+
+.cuenta-accesos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.acceso {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 22px;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  transition: border-color .2s, transform .2s;
+}
+
+.acceso:hover {
+  border-color: #4f46e5;
+  transform: translateY(-2px);
+}
+
+.acceso-icono {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  width: 48px;
+  background: #eef2ff;
+  border-radius: 12px;
+  color: #4f46e5;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.acceso strong,
+.acceso small {
+  display: block;
+}
+
+.acceso small {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #667085;
+}
+
+.flecha {
+  margin-left: auto;
+  font-size: 24px;
+  color: #667085;
+}
+
+.cuenta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.cuenta-card {
+  background: white;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  padding: 26px;
+}
+
+.cuenta-card h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+
+.cuenta-card .descripcion {
+  color: #667085;
+  font-size: 13px;
+  margin: 0 0 26px;
+}
+
+.cuenta-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cuenta-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cuenta-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  font: inherit;
+  background: #fff;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+  outline: none;
+}
+
+.cuenta-card input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+}
+
+.cuenta-card input:disabled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.boton-principal {
+  background: #111827;
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.boton-principal:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.ayuda {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.alerta {
+  padding: 13px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.alerta.error {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.alerta.exito {
+  color: #027a48;
+  background: #ecfdf3;
+}
+
+.salir-zona {
+  border-top: 1px solid #e4e7ec;
+  margin-top: 28px;
+  padding-top: 20px;
+}
+
+.salir-zona h3 {
+  margin: 0 0 8px;
+}
+
+.salir-zona p {
+  color: #667085;
+  font-size: 13px;
+}
+
+.boton-salir {
+  background: white;
+  color: #b42318;
+  border: 1px solid #fda29b;
+  padding: 12px 16px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .cuenta-grid,
+  .cuenta-accesos {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .mi-cuenta-page {
+    padding: 26px 12px 50px;
+  }
+
+  .cuenta-presentacion {
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+
+  .dos-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .cuenta-card {
+    padding: 18px;
+  }
+}

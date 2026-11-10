@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CobroContraEntrega, ContraEntregaService } from '../../../core/services/contraentrega';
+import { CobroContraEntrega, ContraEntregaService } from '../../../../core/services/contraentrega';
 
 @Component({
   selector: 'app-cobros-contraentrega',

@@ -82,6 +82,15 @@ export const routes: Routes = [
     component: MisCompras,
     canActivate: [authGuard]
   },
+
+{
+  path: 'mi-cuenta',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/mi-cuenta/mi-cuenta')
+      .then(m => m.MiCuenta)
+},
+
   {
     path: 'mis-compras/:id',
     component: DetalleCompra,
@@ -97,6 +106,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
 
     children: [
+
+{
+  path: 'perfil',
+  loadComponent: () =>
+    import('./features/admin/perfil/perfil-admin')
+      .then(m => m.PerfilAdmin)
+},
+
 
       // -------------------------------------------------
       // DASHBOARD
@@ -143,13 +160,31 @@ export const routes: Routes = [
         component: Stock
       },
 
+      
       // -------------------------------------------------
-      // NEGOCIO
+      // NEGOCIO - VENTAS
       // -------------------------------------------------
       {
         path: 'ventas',
         component: Ventas
       },
+
+      // -------------------------------------------------
+      // NEGOCIO - PEDIDOS ONLINE
+      // -------------------------------------------------
+      {
+        path: 'pedidos',
+        loadComponent: () =>
+          import('./features/admin/pedidos/pedidos')
+            .then(m => m.Pedidos)
+      },
+      {
+  path: 'envios',
+  loadComponent: () =>
+    import('./features/admin/envios/envios')
+      .then(m => m.Envios)
+},
+
 
       // -------------------------------------------------
       // B.2.1 - ADMINISTRACION DE PAGOS SANDBOX

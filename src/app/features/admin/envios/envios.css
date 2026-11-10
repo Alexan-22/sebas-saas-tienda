@@ -1,0 +1,31 @@
+﻿:host {
+  display: block;
+}
+
+.envios-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  color: #0f172a;
+}
+
+.envios-header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: #6366f1;
+}
+
+.envios-header h1 {
+  margin: 8px 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.envios-header p {
+  color: #64748b;
+  font-size: 13px;
+}
