@@ -77,6 +77,7 @@ export class ProductDetail implements OnInit {
   cantidad = 1;
   cargando = true;
   cargandoTallas = true;
+  errorVariantes = false;
   errorCarga = false;
   productoAgregado = false;
 
@@ -211,27 +212,50 @@ export class ProductDetail implements OnInit {
 
   cargarTallas(idProducto: number): void {
     this.cargandoTallas = true;
-    this.variantePublicaService.listarPorProducto(idProducto).subscribe({
-      next: (variantes) => {
-        this.tallas = [...(variantes ?? [])];
-        this.colorSeleccionadoId = null;
-        this.tallaSeleccionada = null;
-        // Productos sin talla ni color se pueden comprar directamente.
-        if (this.tallas.length === 1 && this.tallas[0].talla == null &&
-            this.tallas[0].idColor == null && this.tallas[0].stock > 0) {
-          this.tallaSeleccionada = this.tallas[0];
+    this.errorVariantes = false;
+
+    this.variantePublicaService
+      .listarPorProducto(idProducto)
+      .subscribe({
+        next: (variantes) => {
+          this.tallas = Array.isArray(variantes)
+            ? variantes
+            : [];
+
+          this.colorSeleccionadoId = null;
+          this.tallaSeleccionada = null;
+
+          if (
+            this.tallas.length === 1 &&
+            this.tallas[0].talla == null &&
+            this.tallas[0].idColor == null &&
+            this.tallas[0].stock > 0
+          ) {
+            this.tallaSeleccionada = this.tallas[0];
+          }
+
+          this.errorVariantes = false;
+          this.cargandoTallas = false;
+          this.cdr.detectChanges();
+        },
+
+        error: (error) => {
+          console.error(
+            'ERROR CONSULTANDO VARIANTES',
+            'Producto:', idProducto,
+            'HTTP:', error.status,
+            'Detalle:', error.error
+          );
+
+          this.tallas = [];
+          this.tallaSeleccionada = null;
+          this.colorSeleccionadoId = null;
+          this.errorVariantes = true;
+          this.cargandoTallas = false;
+
+          this.cdr.detectChanges();
         }
-        this.cargandoTallas = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error consultando variantes publicas', error);
-        this.tallas = [];
-        this.tallaSeleccionada = null;
-        this.cargandoTallas = false;
-        this.cdr.detectChanges();
-      }
-    });
+      });
   }
 
   // ==========================================

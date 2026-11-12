@@ -1,9 +1,4 @@
-
-<!-- ======================================================
-     SEBAS COLLECTION SAAS
-     ADMIN LAYOUT - INTERFAZ PROFESIONAL
-     ====================================================== -->
-
+<!-- Sebas Collection SaaS | Administración de tienda -->
 <!-- Biblioteca de iconos SVG reutilizables -->
 <svg
   class="icon-library"
@@ -121,625 +116,286 @@
     <path d="M5 5l14 14M19 5 5 19"/>
   </symbol>
 
+  <!-- Personalización visual -->
+  <symbol id="ad-layout" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <path d="M3 9h18M8 9v12"/>
+  </symbol>
+
+  <symbol id="ad-footer" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <path d="M3 16h18M8 19h3M14 19h3"/>
+  </symbol>
+
+  <symbol id="ad-wallet" viewBox="0 0 24 24">
+    <rect x="3" y="5" width="18" height="15" rx="2"/>
+    <path d="M3 9h18M15 13h6v4h-6a2 2 0 0 1 0-4Z"/>
+  </symbol>
+
 </svg>
 
 <div class="admin-shell">
-
-  <!-- FONDO MÓVIL -->
+  <!-- Capa para cerrar el menú en dispositivos móviles -->
   @if (menuAbierto) {
-    <button
-      type="button"
-      class="sidebar-backdrop"
-      aria-label="Cerrar menú"
-      (click)="cerrarMenu()">
-    </button>
+    <button type="button" class="sidebar-backdrop" aria-label="Cerrar menú"
+            (click)="cerrarMenu()"></button>
   }
 
-  <!-- ======================================================
-       SIDEBAR
-       ====================================================== -->
-  <aside
-    class="admin-sidebar"
-    [class.mobile-open]="menuAbierto">
-
-    <!-- MARCA -->
+  <aside class="admin-sidebar" [class.mobile-open]="menuAbierto" aria-label="Navegación de administración">
     <div class="admin-brand">
-
       <a routerLink="/admin/dashboard" (click)="cerrarMenu()">
-
         <div class="brand-icon-box">
-          {{
-            (tiendaService.tiendaActual()?.nombre || 'TIENDA')
-              .slice(0, 2)
-              .toUpperCase()
-          }}
+          {{ (tiendaService.tiendaActual()?.nombre || 'TIENDA').slice(0, 2).toUpperCase() }}
         </div>
-
         <div class="brand-copy">
-          <strong>
-            {{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}
-          </strong>
+          <strong>{{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}</strong>
           <span>GESTIÓN DE TIENDA</span>
         </div>
-
       </a>
-
-      <button
-        type="button"
-        class="sidebar-close"
-        aria-label="Cerrar navegación"
-        (click)="cerrarMenu()">
-        <svg class="ui-icon"><use href="#ad-close"/></svg>
+      <button type="button" class="sidebar-close" aria-label="Cerrar navegación"
+              (click)="cerrarMenu()">
+        <svg class="ui-icon" aria-hidden="true"><use href="#ad-close"/></svg>
       </button>
-
     </div>
 
-    <!-- NAVEGACIÓN -->
-    <nav class="admin-navigation" aria-label="Panel administrativo">
-
+    <nav class="admin-navigation" aria-label="Menú principal del panel">
       <!-- GENERAL -->
       <div class="nav-section">
-
-        <span class="navigation-title">
-          GENERAL
-        </span>
-
-        <a
-          routerLink="/admin/dashboard"
-          routerLinkActive="active"
-          (click)="cerrarMenu()"
-          class="nav-link">
-
-          <span class="nav-icon">
-            <svg><use href="#ad-dashboard"/></svg>
-          </span>
-
-          <span>Dashboard</span>
-        </a>
-
-        <a
-          routerLink="/admin/home"
-          routerLinkActive="active"
-          (click)="cerrarMenu()"
-          class="nav-link">
-
-          <span class="nav-icon">
-            <svg><use href="#ad-home"/></svg>
-          </span>
-
-          <span>Página principal</span>
-        </a>
-
+        <span class="navigation-title">GENERAL</span>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-dashboard"/></svg></span>
+            <span>Dashboard</span>
+          </a>
+          <a routerLink="/admin/home" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-home"/></svg></span>
+            <span>Página principal</span>
+          </a>
       </div>
 
       <!-- CATÁLOGO -->
       <div class="nav-section">
-
-        <button
-          type="button"
-          class="section-toggle"
-          [class.section-selected]="esRutaActiva([
-            '/admin/productos',
-            '/admin/categorias',
-            '/admin/stock'
-          ])"
-          [attr.aria-expanded]="grupoAbierto('catalogo')"
-          (click)="alternarGrupo('catalogo')">
-
+        <button type="button" class="section-toggle"
+                [class.section-selected]="esRutaActiva(['/admin/productos', '/admin/categorias', '/admin/stock'])"
+                [attr.aria-expanded]="grupoAbierto('catalogo')"
+                (click)="alternarGrupo('catalogo')">
           <span>CATÁLOGO</span>
-
-          <svg
-            class="chevron"
-            [class.rotado]="grupoAbierto('catalogo')">
-            <use href="#ad-chevron"/>
-          </svg>
-
+          <svg class="chevron" aria-hidden="true" [class.rotado]="grupoAbierto('catalogo')"><use href="#ad-chevron"/></svg>
         </button>
-
         @if (grupoAbierto('catalogo')) {
-
           <div class="section-content">
-
-            <a
-              routerLink="/admin/productos"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-box"/></svg>
-              </span>
-
-              <span>Productos</span>
-            </a>
-
-            <a
-              routerLink="/admin/categorias"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-tags"/></svg>
-              </span>
-
-              <span>Categorías</span>
-            </a>
-
-            <a
-              routerLink="/admin/stock"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-stock"/></svg>
-              </span>
-
-              <span>Stock y tallas</span>
-            </a>
-
+          <a routerLink="/admin/productos" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-box"/></svg></span>
+            <span>Productos</span>
+          </a>
+          <a routerLink="/admin/categorias" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-tags"/></svg></span>
+            <span>Categorías</span>
+          </a>
+          <a routerLink="/admin/stock" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-stock"/></svg></span>
+            <span>Stock y tallas</span>
+          </a>
           </div>
         }
-
       </div>
 
       <!-- OPERACIONES -->
       <div class="nav-section">
-
-        <button
-          type="button"
-          class="section-toggle"
-          [class.section-selected]="esRutaActiva([
-            '/admin/pedidos',
-            '/admin/envios',
-            '/admin/ventas'
-          ])"
-          [attr.aria-expanded]="grupoAbierto('operaciones')"
-          (click)="alternarGrupo('operaciones')">
-
+        <button type="button" class="section-toggle"
+                [class.section-selected]="esRutaActiva(['/admin/pedidos', '/admin/envios', '/admin/ventas'])"
+                [attr.aria-expanded]="grupoAbierto('operaciones')"
+                (click)="alternarGrupo('operaciones')">
           <span>OPERACIONES</span>
-
-          <svg
-            class="chevron"
-            [class.rotado]="grupoAbierto('operaciones')">
-            <use href="#ad-chevron"/>
-          </svg>
-
+          <svg class="chevron" aria-hidden="true" [class.rotado]="grupoAbierto('operaciones')"><use href="#ad-chevron"/></svg>
         </button>
-
         @if (grupoAbierto('operaciones')) {
-
           <div class="section-content">
-
-            <a
-              routerLink="/admin/pedidos"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-orders"/></svg>
-              </span>
-
-              <span>Pedidos</span>
-            </a>
-
-            <a
-              routerLink="/admin/envios"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-truck"/></svg>
-              </span>
-
-              <span>Envíos</span>
-            </a>
-
-            <a
-              routerLink="/admin/ventas"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-sales"/></svg>
-              </span>
-
-              <span>Ventas</span>
-            </a>
-
+          <a routerLink="/admin/pedidos" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-orders"/></svg></span>
+            <span>Pedidos</span>
+          </a>
+          <a routerLink="/admin/envios" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-truck"/></svg></span>
+            <span>Envíos</span>
+          </a>
+          <a routerLink="/admin/ventas" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-sales"/></svg></span>
+            <span>Ventas</span>
+          </a>
           </div>
         }
-
       </div>
 
-      <!-- PAGOS -->
+      <!-- PAGOS Y COBROS -->
       <div class="nav-section">
-
-        <button
-          type="button"
-          class="section-toggle"
-          [class.section-selected]="esRutaActiva([
-            '/admin/pagos',
-            '/admin/transferencias',
-            '/admin/pagos-yape',
-            '/admin/yape'
-          ])"
-          [attr.aria-expanded]="grupoAbierto('pagos')"
-          (click)="alternarGrupo('pagos')">
-
+        <button type="button" class="section-toggle"
+                [class.section-selected]="esRutaActiva(['/admin/pagos', '/admin/cuentas-bancarias', '/admin/transferencias', '/admin/pagos-yape', '/admin/yape'])"
+                [attr.aria-expanded]="grupoAbierto('pagos')"
+                (click)="alternarGrupo('pagos')">
           <span>PAGOS Y COBROS</span>
-
-          <svg
-            class="chevron"
-            [class.rotado]="grupoAbierto('pagos')">
-            <use href="#ad-chevron"/>
-          </svg>
-
+          <svg class="chevron" aria-hidden="true" [class.rotado]="grupoAbierto('pagos')"><use href="#ad-chevron"/></svg>
         </button>
-
         @if (grupoAbierto('pagos')) {
-
           <div class="section-content">
-
-            <a
-              routerLink="/admin/pagos"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-card"/></svg>
-              </span>
-
-              <span>Resumen de pagos</span>
-            </a>
-
-            <a
-              routerLink="/admin/cuentas-bancarias" routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link"
-              [class.active]="router.url.startsWith(
-                '/admin/transferencias#cuentas'
-              )">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-bank"/></svg>
-              </span>
-
-              <span>Cuentas bancarias</span>
-            </a>
-
-            <a
-              routerLink="/admin/transferencias" routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link"
-              [class.active]="router.url.startsWith(
-                '/admin/transferencias#pendientes'
-              )">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-clock"/></svg>
-              </span>
-
-              <span>Transferencias pendientes</span>
-            </a>
-
-            <a
-              routerLink="/admin/pagos-yape"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-phone"/></svg>
-              </span>
-
-              <span>Pagos Yape pendientes</span>
-            </a>
-
-            <a
-              routerLink="/admin/yape"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-settings"/></svg>
-              </span>
-
-              <span>Yape de mi tienda</span>
-            </a>
-
+          <a routerLink="/admin/pagos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-wallet"/></svg></span>
+            <span>Resumen de pagos</span>
+          </a>
+          <a routerLink="/admin/transferencias" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-clock"/></svg></span>
+            <span>Transferencias pendientes</span>
+          </a>
+          <a routerLink="/admin/pagos-yape" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-phone"/></svg></span>
+            <span>Pagos Yape pendientes</span>
+          </a>
+          <a routerLink="/admin/cuentas-bancarias" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-bank"/></svg></span>
+            <span>Cuentas bancarias</span>
+          </a>
+          <a routerLink="/admin/yape" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-phone"/></svg></span>
+            <span>Yape de mi tienda</span>
+          </a>
           </div>
         }
-
       </div>
 
-      <!-- REPORTES -->
+      <!-- REPORTES: preserva la lógica existente de vista por queryParam -->
       <div class="nav-section">
-
-        <button
-          type="button"
-          class="section-toggle"
-          [class.section-selected]="esRutaActiva(['/admin/reportes'])"
-          [attr.aria-expanded]="menuReportesAbierto"
-          (click)="alternarReportes()">
-
+        <button type="button" class="section-toggle"
+                [class.section-selected]="esRutaActiva(['/admin/reportes'])"
+                [attr.aria-expanded]="menuReportesAbierto"
+                (click)="alternarReportes()">
           <span>REPORTES</span>
-
-          <svg
-            class="chevron"
-            [class.rotado]="menuReportesAbierto">
-            <use href="#ad-chevron"/>
-          </svg>
-
+          <svg class="chevron" aria-hidden="true" [class.rotado]="menuReportesAbierto"><use href="#ad-chevron"/></svg>
         </button>
-
         @if (menuReportesAbierto) {
-
           <div class="section-content">
-
-            <a
-              routerLink="/admin/reportes"
-              [queryParams]="{ vista: 'ventas' }"
-              [class.active]="esReporteActivo('ventas')"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-sales"/></svg>
-              </span>
-
+            <a routerLink="/admin/reportes" [queryParams]="{ vista: 'ventas' }"
+               [class.active]="esReporteActivo('ventas')" class="nav-link" (click)="cerrarMenu()">
+              <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-sales"/></svg></span>
               <span>Ventas e ingresos</span>
             </a>
-
-            <a
-              routerLink="/admin/reportes"
-              [queryParams]="{ vista: 'inventario' }"
-              [class.active]="esReporteActivo('inventario')"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-stock"/></svg>
-              </span>
-
+            <a routerLink="/admin/reportes" [queryParams]="{ vista: 'inventario' }"
+               [class.active]="esReporteActivo('inventario')" class="nav-link" (click)="cerrarMenu()">
+              <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-stock"/></svg></span>
               <span>Productos e inventario</span>
             </a>
-
-            <a
-              routerLink="/admin/reportes"
-              [queryParams]="{ vista: 'canales' }"
-              [class.active]="esReporteActivo('canales')"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-report"/></svg>
-              </span>
-
+            <a routerLink="/admin/reportes" [queryParams]="{ vista: 'canales' }"
+               [class.active]="esReporteActivo('canales')" class="nav-link" (click)="cerrarMenu()">
+              <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-report"/></svg></span>
               <span>Pagos y canales</span>
             </a>
-
-            <a
-              routerLink="/admin/reportes"
-              [queryParams]="{ vista: 'clientes' }"
-              [class.active]="esReporteActivo('clientes')"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-users"/></svg>
-              </span>
-
+            <a routerLink="/admin/reportes" [queryParams]="{ vista: 'clientes' }"
+               [class.active]="esReporteActivo('clientes')" class="nav-link" (click)="cerrarMenu()">
+              <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-users"/></svg></span>
               <span>Clientes y cuentas</span>
             </a>
-
           </div>
         }
-
       </div>
 
       <!-- ADMINISTRACIÓN -->
       <div class="nav-section">
-
-        <button
-          type="button"
-          class="section-toggle"
-          [class.section-selected]="esRutaActiva([
-            '/admin/usuarios',
-            '/admin/configuracion',
-            '/admin/perfil'
-          ])"
-          [attr.aria-expanded]="grupoAbierto('administracion')"
-          (click)="alternarGrupo('administracion')">
-
+        <button type="button" class="section-toggle"
+                [class.section-selected]="esRutaActiva(['/admin/configuracion', '/admin/personalizacion-cabecera', '/admin/personalizacion-footer', '/admin/usuarios', '/admin/perfil'])"
+                [attr.aria-expanded]="grupoAbierto('administracion')"
+                (click)="alternarGrupo('administracion')">
           <span>ADMINISTRACIÓN</span>
-
-          <svg
-            class="chevron"
-            [class.rotado]="grupoAbierto('administracion')">
-            <use href="#ad-chevron"/>
-          </svg>
-
+          <svg class="chevron" aria-hidden="true" [class.rotado]="grupoAbierto('administracion')"><use href="#ad-chevron"/></svg>
         </button>
-
         @if (grupoAbierto('administracion')) {
-
           <div class="section-content">
-
-            <a
-              routerLink="/admin/usuarios"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-users"/></svg>
-              </span>
-
-              <span>Usuarios</span>
-            </a>
-
-            <a
-              routerLink="/admin/configuracion"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-settings"/></svg>
-              </span>
-
-              <span>Configuración de tienda</span>
-            </a>
-      <a routerLink="/admin/personalizacion-cabecera" routerLinkActive="active" (click)="cerrarMenu()"><span class="nav-icon">â˜°</span> MenÃº y Promo Bar</a>
-
-                        <a routerLink="/admin/personalizacion-footer" routerLinkActive="active"
-               (click)="cerrarMenu()" class="nav-link">
-              <span class="nav-icon"><svg><use href="#ad-settings"/></svg></span>
-              <span>Footer y redes sociales</span>
-            </a>
-            <a
-              routerLink="/admin/perfil"
-              routerLinkActive="active"
-              (click)="cerrarMenu()"
-              class="nav-link">
-
-              <span class="nav-icon">
-                <svg><use href="#ad-user"/></svg>
-              </span>
-
-              <span>Mi perfil</span>
-            </a>
-
+          <a routerLink="/admin/configuracion" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-settings"/></svg></span>
+            <span>Configuración de tienda</span>
+          </a>
+          <a routerLink="/admin/personalizacion-cabecera" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-layout"/></svg></span>
+            <span>Menú y Promo Bar</span>
+          </a>
+          <a routerLink="/admin/personalizacion-footer" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-footer"/></svg></span>
+            <span>Footer y redes sociales</span>
+          </a>
+          <a routerLink="/admin/usuarios" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-users"/></svg></span>
+            <span>Usuarios</span>
+          </a>
+          <a routerLink="/admin/perfil" routerLinkActive="active"
+             class="nav-link" (click)="cerrarMenu()">
+            <span class="nav-icon" aria-hidden="true"><svg><use href="#ad-user"/></svg></span>
+            <span>Mi perfil</span>
+          </a>
           </div>
         }
-
       </div>
-
     </nav>
 
-    <!-- PIE DE SIDEBAR -->
     <div class="sidebar-footer">
-
-      <a
-        routerLink="/"
-        (click)="cerrarMenu()"
-        class="store-link">
-
-        <svg class="ui-icon">
-          <use href="#ad-store"/>
-        </svg>
-
+      <a routerLink="/" (click)="cerrarMenu()" class="store-link">
+        <svg class="ui-icon" aria-hidden="true"><use href="#ad-store"/></svg>
         <span>Ver tienda online</span>
       </a>
-
-      <button
-        type="button"
-        class="btn-logout"
-        (click)="cerrarSesion()">
-
-        <svg class="ui-icon">
-          <use href="#ad-logout"/>
-        </svg>
-
+      <button type="button" class="btn-logout" (click)="cerrarSesion()">
+        <svg class="ui-icon" aria-hidden="true"><use href="#ad-logout"/></svg>
         <span>Cerrar sesión</span>
       </button>
-
     </div>
-
   </aside>
 
-  <!-- ======================================================
-       CONTENIDO PRINCIPAL
-       ====================================================== -->
   <div class="admin-main">
-
-    <!-- BARRA SUPERIOR -->
     <header class="admin-topbar">
-
       <div class="topbar-left">
-
-        <button
-          type="button"
-          class="mobile-menu-button"
-          aria-label="Abrir menú"
-          [attr.aria-expanded]="menuAbierto"
-          (click)="toggleMenu()">
-
-          <svg class="ui-icon">
-            <use href="#ad-menu"/>
-          </svg>
-
+        <button type="button" class="mobile-menu-button"
+                aria-label="Abrir menú" [attr.aria-expanded]="menuAbierto"
+                (click)="toggleMenu()">
+          <svg class="ui-icon" aria-hidden="true"><use href="#ad-menu"/></svg>
         </button>
-
         <div class="topbar-titles">
           <span>ESPACIO DE TRABAJO</span>
-
-          <strong>
-            {{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}
-          </strong>
+          <strong>{{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}</strong>
         </div>
-
       </div>
 
       <div class="topbar-actions">
-
-        <a
-          routerLink="/"
-          class="topbar-store"
-          title="Abrir tienda online">
-
-          <svg class="ui-icon">
-            <use href="#ad-store"/>
-          </svg>
-
+        <a routerLink="/" class="topbar-store" title="Abrir tienda online">
+          <svg class="ui-icon" aria-hidden="true"><use href="#ad-store"/></svg>
           <span>Ver tienda</span>
         </a>
-
         <div class="topbar-divider"></div>
-
-        <a
-          routerLink="/admin/perfil"
-          class="admin-user-profile"
-          title="Administrar mi perfil">
-
+        <a routerLink="/admin/perfil" class="admin-user-profile" title="Administrar mi perfil">
           <div class="user-meta">
-            <span class="user-role">
-              ADMINISTRADOR
-            </span>
-
-            <strong>
-              {{ authService.obtenerCorreo() || 'Mi cuenta' }}
-            </strong>
+            <span class="user-role">ADMINISTRADOR</span>
+            <strong>{{ authService.obtenerCorreo() || 'Mi cuenta' }}</strong>
           </div>
-
           <div class="user-avatar-badge">
-            {{
-              (authService.obtenerCorreo() || 'A')
-                .charAt(0)
-                .toUpperCase()
-            }}
+            {{ (authService.obtenerCorreo() || 'A').charAt(0).toUpperCase() }}
           </div>
-
         </a>
-
       </div>
-
     </header>
 
-    <!-- COMPONENTE DE CADA PÁGINA -->
     <main class="admin-content-area">
       <router-outlet></router-outlet>
     </main>
-
   </div>
-
 </div>

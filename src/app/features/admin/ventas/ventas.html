@@ -220,8 +220,12 @@
           <strong>{{ ventaSeleccionada.medioPago }}</strong>
         </div>
         <div class="meta-box">
-          <span>ESTADO</span>
-          <strong>{{ ventaSeleccionada.estadoPedido || ventaSeleccionada.estado }}</strong>
+          <span>ESTADO DEL PEDIDO</span>
+          <strong>{{ ventaSeleccionada.estadoPedido || 'Sin informar' }}</strong>
+        </div>
+        <div class="meta-box">
+          <span>ESTADO DEL PAGO</span>
+          <strong>{{ estadoPagoTexto(ventaSeleccionada.estado) }}</strong>
         </div>
       </div>
 
@@ -262,6 +266,7 @@
             <thead>
               <tr>
                 <th>PRODUCTO</th>
+                <th>COLOR</th>
                 <th>TALLA</th>
                 <th>CANT.</th>
                 <th>PRECIO UNIT.</th>
@@ -275,7 +280,10 @@
                     <strong>{{ detalle.productoTalla.producto.nombre }}</strong>
                   </td>
                   <td>
-                    <span class="talla-pill">{{ detalle.productoTalla.talla.nombreTalla }}</span>
+                    <strong>{{ nombreColorDetalle(detalle.productoTalla.idColor) }}</strong>
+                  </td>
+                  <td>
+                    <span class="talla-pill">{{ detalle.productoTalla.talla?.nombreTalla || 'Unica' }}</span>
                   </td>
                   <td>{{ detalle.cantidad }}</td>
                   <td>S/ {{ detalle.precioUnitario | number:'1.2-2' }}</td>
@@ -303,7 +311,7 @@
             <strong>S/ {{ costoDeliveryDetalle | number:'1.2-2' }}</strong>
           </div>
           <div class="fin-box grand-total">
-            <span>TOTAL PAGADO</span>
+            <span>TOTAL DEL PEDIDO</span>
             <strong>S/ {{ totalDetalle | number:'1.2-2' }}</strong>
           </div>
         </section>
