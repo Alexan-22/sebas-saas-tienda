@@ -440,15 +440,10 @@ export class Ventas implements OnInit {
   }
 
 
-  get ventasTarjeta(): number {
-
+  get ventasTransferencia(): number {
     return this.ventas.filter(
-      (
-        venta: Venta
-      ) =>
-        venta.medioPago
-          ?.toUpperCase() ===
-        'TARJETA'
+      (venta: Venta) =>
+        venta.medioPago?.toUpperCase() === 'TRANSFERENCIA'
     ).length;
   }
 

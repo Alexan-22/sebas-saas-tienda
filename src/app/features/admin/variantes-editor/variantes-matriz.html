@@ -1,0 +1,66 @@
+<section class="matriz" aria-label="Matriz de variantes y stock">
+  <h3>Matriz inteligente de stock</h3>
+  <p class="ayuda">Selecciona los colores y las tallas. El sistema genera las combinaciones automáticamente.</p>
+
+  @if (requiereColor) {
+    <h4>1. Selecciona colores</h4>
+    <div class="opciones">
+      @for (c of coloresVisibles; track c.idColor) {
+        <button type="button" class="color" [class.elegido]="coloresElegidos.includes(c.idColor)"
+          (click)="alternarColor(c.idColor)" [disabled]="guardando" [attr.aria-pressed]="coloresElegidos.includes(c.idColor)">
+          <span class="muestra" [style.backgroundColor]="c.codigoHex"></span>{{ c.nombre }}
+          @if (coloresElegidos.includes(c.idColor)) { <span>✓</span> }
+        </button>
+      }
+    </div>
+    @if (!coloresVisibles.length) { <p class="ayuda">Primero crea colores desde el formulario superior.</p> }
+  }
+
+  @if (requiereTalla) {
+    <h4>2. Selecciona tallas</h4>
+    <div class="opciones">
+      @for (t of tallasDelSistema; track t.idTalla) {
+        <button type="button" class="talla" [class.elegido]="tallasElegidas.includes(t.idTalla)"
+          (click)="alternarTalla(t.idTalla)" [disabled]="guardando" [attr.aria-pressed]="tallasElegidas.includes(t.idTalla)">{{ t.nombreTalla }}</button>
+      }
+    </div>
+    @if (!tallasDelSistema.length) { <p class="ayuda">No hay tallas activas para este sistema. Revisa el catálogo de tallas.</p> }
+  }
+
+  <div class="global">
+    <label>Stock inicial para todas las combinaciones nuevas
+      <input type="number" min="0" step="1" [(ngModel)]="stockGeneral" [disabled]="guardando" />
+    </label>
+    <button type="button" (click)="aplicarGeneral()" [disabled]="guardando">Aplicar a todas</button>
+  </div>
+
+  <div class="resumen">
+    <span><b>{{ nuevas.length }}</b> combinaciones nuevas</span>
+    <span><b>{{ filas.length - nuevas.length }}</b> ya registradas</span>
+    <span><b>{{ stockNuevo }}</b> unidades nuevas</span>
+  </div>
+
+  @if (filas.length) {
+    <div class="tabla-wrap"><table class="tabla">
+      <thead><tr><th>Color</th><th>Talla</th><th>Stock inicial</th><th>Estado</th></tr></thead>
+      <tbody>
+        @for (f of filas; track clave(f.idColor, f.idTalla)) {
+          <tr><td>{{ f.nombreColor }}</td><td>{{ f.nombreTalla }}</td><td>
+            @if (f.existe) { <strong>{{ f.stock }}</strong> }
+            @else { <input type="number" min="0" step="1" [ngModel]="stockCelda(f.idColor, f.idTalla)"
+              (ngModelChange)="cambiarStock(f.idColor, f.idTalla, $event)" [disabled]="guardando" [attr.aria-label]="'Stock de '+f.nombreColor+' '+f.nombreTalla" /> }
+          </td><td>@if (f.existe) { <span class="registrada">Existente, no se toca</span> } @else { Nueva }</td></tr>
+        }
+      </tbody>
+    </table></div>
+  } @else {
+    <p class="ayuda">Selecciona las opciones arriba para generar la matriz.</p>
+  }
+
+  @if (error) { <p class="error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="exito" role="status">{{ mensaje }}</p> }
+  <button type="button" class="guardar" (click)="guardarLote()" [disabled]="guardando || nuevas.length === 0">
+    {{ guardando ? 'Guardando...' : 'Guardar '+nuevas.length+' combinaciones nuevas' }}
+  </button>
+  <p class="ayuda">Las combinaciones existentes no se duplican ni se modifica su stock. Los ajustes posteriores se realizan mediante el módulo de inventario auditado.</p>
+</section>

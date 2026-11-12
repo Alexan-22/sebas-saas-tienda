@@ -52,20 +52,16 @@
       <strong class="ch-val">{{ totalVentas }}</strong>
       <small>Pedidos por la tienda</small>
     </article>
-    <article class="channel-card">
-      <span class="ch-label">EFECTIVO</span>
-      <strong class="ch-val">{{ ventasEfectivo }}</strong>
-      <small>Pagos en cash</small>
-    </article>
+    
     <article class="channel-card">
       <span class="ch-label">YAPE</span>
       <strong class="ch-val">{{ ventasYape }}</strong>
       <small>Transferencias móviles</small>
     </article>
     <article class="channel-card">
-      <span class="ch-label">TARJETA</span>
-      <strong class="ch-val">{{ ventasTarjeta }}</strong>
-      <small>Pagos con tarjeta</small>
+      <span class="ch-label">TRANSFERENCIA</span>
+      <strong class="ch-val">{{ ventasTransferencia }}</strong>
+      <small>Transferencias bancarias</small>
     </article>
   </div>
 
@@ -89,9 +85,9 @@
 
         <select [(ngModel)]="filtroPago" (ngModelChange)="aplicarFiltros()">
           <option value="">Todos los pagos</option>
-          <option value="EFECTIVO">Efectivo</option>
+          
           <option value="YAPE">Yape</option>
-          <option value="TARJETA">Tarjeta</option>
+          <option value="TRANSFERENCIA">Transferencia bancaria</option>
         </select>
 
         <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">

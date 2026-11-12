@@ -116,44 +116,57 @@
           {{ producto.descripcion }}
         </p>
 
-        <!-- TALLAS -->
-        <div class="product-option mt-8 pt-6 border-t border-slate-200">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-black text-indigo-600">01</span>
-              <strong class="text-xs font-black uppercase text-slate-900 tracking-wider">Selecciona tu talla</strong>
-            </div>
-            @if (tallaSeleccionada) {
-              <span class="text-xs font-bold text-slate-500">{{ tallaSeleccionada.stock }} disponibles</span>
-            }
-          </div>
-
-          @if (cargandoTallas) {
-            <p class="text-xs text-slate-400 mt-3">Cargando tallas...</p>
-          } @else if (tallas.length === 0) {
-            <p class="text-xs text-rose-600 mt-3 font-semibold">Este producto no tiene tallas configuradas.</p>
-          } @else {
-            <div class="flex flex-wrap gap-2.5 mt-4">
-              @for (pt of tallas; track pt.idProductoTalla) {
-                <button
-                  type="button"
-                  class="size-button h-12 min-w-[56px] px-4 rounded-xl border font-black text-xs uppercase transition flex flex-col items-center justify-center"
-                  [disabled]="pt.stock <= 0"
-                  [class.border-indigo-600]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
-                  [class.bg-indigo-600]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
-                  [class.text-white]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
-                  [class.border-slate-200]="tallaSeleccionada?.idProductoTalla !== pt.idProductoTalla && pt.stock > 0"
-                  [class.bg-slate-50]="pt.stock <= 0"
-                  [class.text-slate-300]="pt.stock <= 0"
-                  [class.cursor-not-allowed]="pt.stock <= 0"
-                  (click)="seleccionarTalla(pt)">
-                  <span>{{ pt.talla.nombreTalla }}</span>
+        <!-- COLORES Y TALLAS OPCIONALES -->
+        @if (coloresDisponibles.length > 0) {
+          <div class="product-option mt-8 pt-6 border-t border-slate-200">
+            <strong class="text-xs font-black uppercase text-slate-900 tracking-wider">Selecciona tu color</strong>
+            <div class="flex flex-wrap gap-4 mt-4">
+              @for (color of coloresDisponibles; track color.id) {
+                <button type="button" (click)="seleccionarColor(color.id)"
+                  [disabled]="color.stock <= 0" [attr.aria-label]="'Color ' + color.nombre"
+                  [attr.aria-pressed]="colorSeleccionadoId === color.id"
+                  class="flex flex-col items-center gap-2 text-xs font-semibold disabled:opacity-40">
+                  <span class="h-9 w-9 rounded-full border-2 shadow-sm"
+                    [class.ring-2]="colorSeleccionadoId === color.id"
+                    [class.ring-offset-2]="colorSeleccionadoId === color.id"
+                    [class.ring-slate-700]="colorSeleccionadoId === color.id"
+                    [style.backgroundColor]="color.hex || '#ccc'"></span>
+                  <span>{{ color.nombre }}</span>
                 </button>
               }
             </div>
-          }
-        </div>
+          </div>
+        }
 
+        @if (requiereTalla) {
+          <div class="product-option mt-8 pt-6 border-t border-slate-200">
+            <div class="flex items-center justify-between">
+              <strong class="text-xs font-black uppercase text-slate-900 tracking-wider">Selecciona tu talla</strong>
+              @if (tallaSeleccionada) {
+                <span class="text-xs font-bold text-slate-500">{{ tallaSeleccionada.stock }} disponibles</span>
+              }
+            </div>
+            @if (cargandoTallas) {
+              <p class="text-xs text-slate-400 mt-3">Consultando tallas...</p>
+            } @else if (coloresDisponibles.length > 0 && colorSeleccionadoId === null) {
+              <p class="text-xs text-slate-500 mt-3">Primero elige un color.</p>
+            } @else {
+              <div class="flex flex-wrap gap-2.5 mt-4">
+                @for (pt of tallasDisponibles; track pt.idProductoTalla) {
+                  <button type="button" class="size-button h-12 min-w-[56px] px-4 rounded-xl border font-black text-xs uppercase transition"
+                    [disabled]="pt.stock <= 0"
+                    [class.border-indigo-600]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
+                    [class.bg-indigo-600]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
+                    [class.text-white]="tallaSeleccionada?.idProductoTalla === pt.idProductoTalla"
+                    [class.bg-slate-50]="pt.stock <= 0"
+                    (click)="seleccionarTalla(pt)">
+                    {{ pt.talla?.nombreTalla || 'Ãšnica' }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
         <!-- CANTIDAD -->
         <div class="product-option mt-8 pt-6 border-t border-slate-200">
           <div class="flex items-center gap-2 mb-4">
@@ -170,7 +183,7 @@
             @if (tallaSeleccionada) {
               <span class="text-xs text-slate-500 font-medium">Máximo: {{ tallaSeleccionada.stock }} unidades</span>
             } @else {
-              <span class="text-xs text-slate-400 italic">Selecciona una talla primero</span>
+              <span class="text-xs text-slate-400 italic">Selecciona una variante primero</span>
             }
           </div>
         </div>
@@ -193,7 +206,7 @@
             (click)="agregarAlCarrito()"
             [disabled]="!tallaSeleccionada || !hayStock">
             @if (!hayStock) { Agotado }
-            @else if (!tallaSeleccionada) { Elige Talla }
+            @else if (!tallaSeleccionada) { Elige una opciÃ³n }
             @else if (productoAgregado) { ✓ Agregado }
             @else { Agregar al Carrito }
           </button>
@@ -215,7 +228,7 @@
           </div>
           <div class="flex items-start gap-3">
             <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600 font-black">💳</div>
-            <div><strong class="block text-slate-900 uppercase">Yape o Tarjeta</strong><span class="text-slate-500 text-[10px]">Métodos confiables.</span></div>
+            <div><strong class="block text-slate-900 uppercase">Yape o transferencia bancaria</strong><span class="text-slate-500 text-[10px]">Métodos confiables.</span></div>
           </div>
           <div class="flex items-start gap-3">
             <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600 font-black">🔒</div>

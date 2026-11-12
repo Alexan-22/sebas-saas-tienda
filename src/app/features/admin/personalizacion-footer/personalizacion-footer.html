@@ -1,0 +1,39 @@
+<section class="sf-editor">
+  <header class="sf-header"><span>PERSONALIZACIÓN · MI TIENDA</span><h1>Footer y redes sociales</h1><p>Personaliza el pie de página de {{nombre}}. Solo tu tienda verá estos enlaces y mensajes.</p></header>
+  @if (error) { <div class="sf-notice sf-error" role="alert">{{error}}</div> }
+  @if (exito) { <div class="sf-notice sf-ok" role="status">{{exito}}</div> }
+  @if (cargando) { <p>Cargando configuración...</p> }
+  @else {
+    <div class="sf-columns"><div>
+      <section class="sf-panel"><h2>01 · Identidad y contacto</h2><p>Presenta tu negocio con una descripción auténtica.</p>
+        <label>Descripción de la tienda <textarea rows="3" [(ngModel)]="formulario.descripcion" maxlength="240"></textarea></label>
+        <label>Texto de contacto <input [(ngModel)]="formulario.textoContacto" maxlength="150" /></label>
+        <div class="sf-pair"><label>Correo de contacto <input type="email" [(ngModel)]="formulario.correo" maxlength="150" placeholder="hola@mitienda.com" /></label>
+        <label>Horario de atención <input [(ngModel)]="formulario.horario" maxlength="100" placeholder="Lun a sáb · 9 a.m. a 6 p.m." /></label></div>
+        <p class="sf-hint">El número de WhatsApp se administra en Configuración de tienda, sin duplicarlo aquí.</p>
+      </section>
+      <section class="sf-panel"><h2>02 · Redes sociales</h2><p>Coloca el enlace HTTPS de cada perfil. Si lo dejas vacío, no aparecerá su icono.</p>
+        <label>Facebook <input type="url" [(ngModel)]="formulario.facebookUrl" maxlength="350" placeholder="https://www.facebook.com/tu-tienda" /></label>
+        <label>Instagram <input type="url" [(ngModel)]="formulario.instagramUrl" maxlength="350" placeholder="https://www.instagram.com/tu-tienda" /></label>
+        <label>TikTok <input type="url" [(ngModel)]="formulario.tiktokUrl" maxlength="350" placeholder="https://www.tiktok.com/@tu-tienda" /></label>
+      </section>
+      <section class="sf-panel"><h2>03 · Beneficios comerciales</h2>
+        <label class="sf-check"><input type="checkbox" [(ngModel)]="formulario.beneficiosActivos" /> Mostrar banda de beneficios</label>
+        <label>Beneficio 1 <input [(ngModel)]="formulario.beneficioEnvios" maxlength="90" /></label>
+        <label>Beneficio 2 <input [(ngModel)]="formulario.beneficioPagos" maxlength="90" /></label>
+        <label>Beneficio 3 <input [(ngModel)]="formulario.beneficioAtencion" maxlength="90" /></label>
+        <p class="sf-hint">Evita prometer envíos gratuitos o medios de pago que aún no ofreces.</p>
+      </section>
+      <section class="sf-panel"><h2>04 · Comunidad y pie legal</h2>
+        <label class="sf-check"><input type="checkbox" [(ngModel)]="formulario.newsletterActivo" /> Mostrar invitación a la comunidad</label>
+        <p class="sf-hint">No se recopilan correos: es una invitación informativa, no un sistema de suscripciones.</p>
+        <label>Título <input [(ngModel)]="formulario.newsletterTitulo" maxlength="100" /></label>
+        <label>Descripción <textarea [(ngModel)]="formulario.newsletterDescripcion" maxlength="200" rows="2"></textarea></label>
+        <label>Texto legal <input [(ngModel)]="formulario.textoLegal" maxlength="180" /></label>
+      </section>
+      <div class="sf-actions"><button type="button" class="sf-secondary" (click)="restaurar()" [disabled]="guardando">Descartar cambios</button><button type="button" class="sf-primary" [disabled]="guardando" (click)="guardar()">{{guardando ? 'Guardando...' : 'Guardar footer'}}</button></div>
+    </div>
+    <aside class="sf-preview"><span>VISTA PREVIA</span><div class="sf-mini"><h2>{{nombre}}</h2><p>{{formulario.descripcion}}</p><h3>EXPLORA</h3><small>Toda la tienda · Mujer · Hombre · Novedades</small><h3>REDES SOCIALES</h3><div class="sf-chips">@if (formulario.facebookUrl) {<span>Facebook</span>} @if (formulario.instagramUrl) {<span>Instagram</span>} @if (formulario.tiktokUrl) {<span>TikTok</span>} @if (!formulario.facebookUrl && !formulario.instagramUrl && !formulario.tiktokUrl) {<small>Aún no configuradas</small>}</div><p>{{formulario.textoContacto}}</p></div><p>El color de la marca se conserva en botones y acentos. Guarda para publicar.</p></aside>
+    </div>
+  }
+</section>

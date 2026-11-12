@@ -134,7 +134,13 @@
                 <strong>Sin tallas asignadas</strong>
                 <p>Este producto todavía no cuenta con tallas ni existencias registradas.</p>
 
-                @if (tallasNoAsignadas(item).length > 0) {
+                @if (esProductoConVariantes(item.producto)) {
+                  <a
+                    class="btn-add-size"
+                    [routerLink]="['/admin/productos', item.producto.idProducto, 'editar']">
+                    Administrar colores, tallas y matriz
+                  </a>
+                } @else if (tallasNoAsignadas(item).length > 0) {
                   <button type="button" class="btn-add-size" (click)="abrirAsignacion(item)">
                     + Asignar primera talla
                   </button>
@@ -153,7 +159,7 @@
                   <div class="size-row">
                     <!-- TALLA -->
                     <div>
-                      <span class="size-pill">{{ productoTalla.talla.nombreTalla }}</span>
+                      <span class="size-pill">{{ productoTalla.talla?.nombreTalla ?? 'Sin talla' }}</span>
                     </div>
 
                     <!-- ESTADO -->
@@ -174,7 +180,7 @@
                         <input
                           type="number"
                           min="0"
-                          [(ngModel)]="productoTalla.stock">
+                          step="1" inputmode="numeric" aria-label="Escribir stock manualmente" [(ngModel)]="productoTalla.stock">
                         <button type="button" class="qty-btn" (click)="aumentar(productoTalla)">+</button>
                       </div>
                     </div>
@@ -206,7 +212,13 @@
                   <span>Agrega más tallas disponibles para este producto.</span>
                 </div>
 
-                @if (tallasNoAsignadas(item).length > 0) {
+                @if (esProductoConVariantes(item.producto)) {
+                  <a
+                    class="btn-add-size"
+                    [routerLink]="['/admin/productos', item.producto.idProducto, 'editar']">
+                    Administrar colores, tallas y matriz
+                  </a>
+                } @else if (tallasNoAsignadas(item).length > 0) {
                   <button
                     type="button"
                     class="btn-add-size"

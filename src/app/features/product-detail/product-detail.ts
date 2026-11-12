@@ -3,10 +3,10 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Producto } from '../../core/models/producto';
-import { ProductoTalla } from '../../core/models/producto-talla';
+import { VariantePublica } from '../../core/services/variante-publica.service';
 import { ProductoImagen } from '../../core/models/producto-imagen';
 import { ProductoService } from '../../core/services/producto';
-import { ProductoTallaService } from '../../core/services/producto-talla';
+import { VariantePublicaService } from '../../core/services/variante-publica.service';
 import { ProductoImagenService } from '../../core/services/producto-imagen';
 import { CarritoService } from '../../core/services/carrito';
 import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
@@ -22,8 +22,8 @@ import { Footer } from '../../shared/components/footer/footer';
 })
 export class ProductDetail implements OnInit {
   producto: Producto | null = null;
-  tallas: ProductoTalla[] = [];
-  tallaSeleccionada: ProductoTalla | null = null;
+  tallas: VariantePublica[] = [];
+  tallaSeleccionada: VariantePublica | null = null;
 
   // ==========================================
   // GALERÍA
@@ -34,6 +34,42 @@ export class ProductDetail implements OnInit {
   cargandoImagenes = true;
   imagenAmpliada = false;
 
+  colorSeleccionadoId: number | null = null;
+
+  get coloresDisponibles(): Array<{ id: number; nombre: string; hex: string | null; stock: number }> {
+    const colores = new Map<number, { id: number; nombre: string; hex: string | null; stock: number }>();
+    for (const v of this.tallas) {
+      if (v.idColor == null) continue;
+      const anterior = colores.get(v.idColor);
+      if (anterior) anterior.stock += v.stock;
+      else colores.set(v.idColor, {
+        id: v.idColor,
+        nombre: v.colorNombre ?? 'Color',
+        hex: v.colorHex,
+        stock: v.stock
+      });
+    }
+    return [...colores.values()];
+  }
+
+  get tallasDisponibles(): VariantePublica[] {
+    return this.tallas.filter(v => this.coloresDisponibles.length === 0
+      ? v.idColor == null
+      : this.colorSeleccionadoId != null && v.idColor === this.colorSeleccionadoId);
+  }
+
+  get requiereTalla(): boolean {
+    return this.tallas.some(v => v.talla != null);
+  }
+
+  seleccionarColor(id: number): void {
+    if (this.colorSeleccionadoId === id) return;
+    this.colorSeleccionadoId = id;
+    this.tallaSeleccionada = null;
+    this.cantidad = 1;
+    const elegibles = this.tallasDisponibles.filter(v => v.stock > 0);
+    if (!this.requiereTalla && elegibles.length === 1) this.tallaSeleccionada = elegibles[0];
+  }
   // ==========================================
   // ESTADO
   // ==========================================
@@ -50,7 +86,7 @@ export class ProductDetail implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private productoService: ProductoService,
-    private productoTallaService: ProductoTallaService,
+    private variantePublicaService: VariantePublicaService,
     private productoImagenService: ProductoImagenService,
     private carritoService: CarritoService,
     private cdr: ChangeDetectorRef
@@ -175,40 +211,27 @@ export class ProductDetail implements OnInit {
 
   cargarTallas(idProducto: number): void {
     this.cargandoTallas = true;
-
-    this.productoTallaService
-      .listarPorProducto(idProducto)
-      .subscribe({
-        next: (tallas: ProductoTalla[]) => {
-          console.log(
-            'TALLAS CARGADAS:',
-            tallas
-          );
-
-          this.tallas = (tallas ?? [])
-            .sort(
-              (a, b) =>
-                a.talla.idTalla -
-                b.talla.idTalla
-            );
-
-          this.cargandoTallas = false;
-
-          this.cdr.detectChanges();
-        },
-
-        error: (error: unknown) => {
-          console.error(
-            'ERROR CARGANDO TALLAS:',
-            error
-          );
-
-          this.tallas = [];
-          this.cargandoTallas = false;
-
-          this.cdr.detectChanges();
+    this.variantePublicaService.listarPorProducto(idProducto).subscribe({
+      next: (variantes) => {
+        this.tallas = [...(variantes ?? [])];
+        this.colorSeleccionadoId = null;
+        this.tallaSeleccionada = null;
+        // Productos sin talla ni color se pueden comprar directamente.
+        if (this.tallas.length === 1 && this.tallas[0].talla == null &&
+            this.tallas[0].idColor == null && this.tallas[0].stock > 0) {
+          this.tallaSeleccionada = this.tallas[0];
         }
-      });
+        this.cargandoTallas = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error consultando variantes publicas', error);
+        this.tallas = [];
+        this.tallaSeleccionada = null;
+        this.cargandoTallas = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   // ==========================================
@@ -304,7 +327,7 @@ export class ProductDetail implements OnInit {
   // SELECCIONAR TALLA
   // ==========================================
 
-  seleccionarTalla(productoTalla: ProductoTalla): void {
+  seleccionarTalla(productoTalla: VariantePublica): void {
     if (productoTalla.stock <= 0) {
       return;
     }
@@ -350,7 +373,7 @@ export class ProductDetail implements OnInit {
       idProducto: this.producto.idProducto,
       idProductoTalla: this.tallaSeleccionada.idProductoTalla,
       nombre: this.producto.nombre,
-      talla: this.tallaSeleccionada.talla.nombreTalla,
+      talla: [this.tallaSeleccionada.colorNombre, this.tallaSeleccionada.talla?.nombreTalla].filter(Boolean).join(' Â· ') || 'Ãšnica',
       imagen: this.producto.imagen,
       precio: this.precioActual,
       cantidad: this.cantidad,

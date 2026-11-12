@@ -1,0 +1,81 @@
+/* Sebas SaaS · Editor Footer Boutique V2 · solo presentación */
+:host{
+  display:block;min-width:0;color:#1b2944;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  --sf-editor-accent:#5654cb;--sf-editor-border:#e0e6f0;--sf-editor-muted:#77849a
+}
+:host *{box-sizing:border-box}
+.sf-editor{width:min(100%,1440px);margin:0 auto;padding:36px 30px 90px}
+.sf-header{position:relative;margin-bottom:32px;padding:0 0 29px;border-bottom:1px solid var(--sf-editor-border)}
+.sf-header:after{content:"";position:absolute;bottom:-1px;left:0;width:72px;height:3px;border-radius:8px;background:var(--sf-editor-accent)}
+.sf-header>span,.sf-preview>span{
+  display:inline-flex;align-items:center;gap:10px;
+  color:var(--sf-editor-accent);font-size:10px;font-weight:850;letter-spacing:.19em
+}
+.sf-header>span:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.sf-header h1{margin:11px 0 8px;font-size:clamp(29px,3.3vw,43px);line-height:1.16;font-weight:750;letter-spacing:-.052em}
+.sf-header p{margin:0;max-width:660px;color:var(--sf-editor-muted);font-size:13px;line-height:1.85}
+.sf-columns{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(310px,.83fr);gap:28px;align-items:start}
+.sf-columns>div{min-width:0}
+.sf-panel,.sf-preview{
+  margin:0 0 22px;padding:30px;
+  background:#fff;border:1px solid var(--sf-editor-border);border-radius:22px;
+  box-shadow:0 8px 34px rgba(28,42,84,.045)
+}
+.sf-panel{position:relative;transition:border-color .2s ease,box-shadow .2s ease}
+.sf-panel:hover{border-color:#cbd4e6;box-shadow:0 12px 37px rgba(28,42,84,.065)}
+.sf-panel h2{margin:0 0 9px;font-size:18px;font-weight:760;line-height:1.35;letter-spacing:-.025em}
+.sf-panel>p{margin:0 0 23px;color:var(--sf-editor-muted);font-size:12px;line-height:1.8}
+.sf-panel label{display:block;margin:20px 0 0;color:#344158;font-size:12px;font-weight:750;line-height:1.5}
+.sf-panel input:not([type=checkbox]),.sf-panel textarea{
+  display:block;width:100%;min-width:0;margin-top:9px;padding:13px 15px;
+  min-height:48px;outline:0;border-radius:12px;
+  border:1px solid #dbe2ed;background:#fbfcff;
+  color:#1a2840;font:500 13px/1.6 Inter,"Segoe UI",Arial,sans-serif;
+  transition:background .15s,border-color .15s,box-shadow .15s
+}
+.sf-panel textarea{min-height:95px;resize:vertical}
+.sf-panel input:not([type=checkbox]):hover,.sf-panel textarea:hover{border-color:#bdc9dc;background:#fff}
+.sf-panel input:not([type=checkbox]):focus,.sf-panel textarea:focus{
+  background:#fff;border-color:var(--sf-editor-accent);
+  box-shadow:0 0 0 4px rgba(86,84,203,.10)
+}
+.sf-panel input::placeholder,.sf-panel textarea::placeholder{color:#a5afc0;font-weight:400}
+.sf-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.sf-panel .sf-check{display:flex;align-items:center;gap:11px;margin:19px 0 14px;font-weight:750;cursor:pointer}
+.sf-check input{width:19px;height:19px;flex:0 0 19px;accent-color:var(--sf-editor-accent);cursor:pointer}
+.sf-hint{display:block;margin-top:17px!important;color:#8491a3!important;font-size:11px!important;line-height:1.8!important}
+.sf-actions{
+  display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px;
+  padding:8px 0 25px
+}
+.sf-actions button{min-height:49px;padding:13px 23px;border-radius:12px;font:800 12px/1.2 Inter,"Segoe UI",Arial,sans-serif;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+.sf-actions button:disabled{opacity:.55;cursor:default;transform:none}
+.sf-actions button:not(:disabled):hover{transform:translateY(-2px)}
+.sf-secondary{border:1px solid #d6dfea;background:#fff;color:#3c4a64}
+.sf-secondary:hover{background:#f7f9fe;box-shadow:0 5px 14px rgba(30,40,70,.08)}
+.sf-primary{border:1px solid #242e50;background:#242e50;color:#fff;box-shadow:0 7px 17px rgba(35,47,88,.12)}
+.sf-primary:hover{background:#171f3e;box-shadow:0 10px 20px rgba(35,47,88,.2)}
+.sf-actions button:focus-visible{outline:3px solid rgba(86,84,203,.4);outline-offset:3px}
+.sf-notice{margin:14px 0 25px;padding:16px 19px;border:1px solid transparent;border-radius:13px;font-size:13px;line-height:1.6}
+.sf-error{background:#fff4f3;color:#9b3438;border-color:#f3d0ce}
+.sf-ok{background:#f1faf4;color:#246d47;border-color:#ccebd7}
+.sf-preview{position:sticky;top:22px;padding:24px;background:linear-gradient(180deg,#fff,#fbfcff)}
+.sf-preview>span{margin:5px 0 4px}
+.sf-mini{
+  position:relative;overflow:hidden;margin:18px 0 15px;
+  padding:38px 31px;border-radius:17px;background:#171819;color:#fff;
+  box-shadow:0 14px 24px rgba(18,20,30,.13)
+}
+.sf-mini:before{content:"";display:block;position:absolute;left:0;right:0;top:0;height:3px;background:var(--color-primario,#6862c4)}
+.sf-mini h2{margin:0 0 10px;font:400 clamp(23px,2.3vw,31px)/1.18 Georgia,"Times New Roman",serif;letter-spacing:.03em;text-transform:uppercase;overflow-wrap:anywhere}
+.sf-mini h3{display:flex;align-items:center;gap:9px;margin:29px 0 13px;color:#f7f4f2;font-size:10px;letter-spacing:.15em;font-weight:850}
+.sf-mini h3:before{content:"";width:14px;height:2px;background:var(--color-primario,#8176ca)}
+.sf-mini p,.sf-mini small{margin:0;color:#c4c0bc;font-size:12px;line-height:1.85}
+.sf-chips{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 16px}
+.sf-chips span{display:inline-flex;align-items:center;min-height:34px;padding:8px 12px;border:1px solid rgba(255,255,255,.25);border-radius:11px;color:#f4f1ef;font-size:11px;font-weight:700}
+.sf-preview>p{margin:12px 4px 3px;color:var(--sf-editor-muted);font-size:11px;line-height:1.8}
+@media(max-width:1120px){.sf-columns{grid-template-columns:1fr}.sf-preview{position:static}}
+@media(max-width:700px){.sf-editor{padding:24px 16px 65px}.sf-header{margin-bottom:22px}.sf-panel,.sf-preview{padding:22px;border-radius:18px}.sf-pair{grid-template-columns:1fr;gap:0}.sf-actions button{flex:1}.sf-mini{padding:28px 22px}}
+@media(max-width:400px){.sf-editor{padding:18px 11px 50px}.sf-panel,.sf-preview{padding:18px}.sf-actions{gap:8px}.sf-actions button{padding:12px}}
+@media(prefers-reduced-motion:reduce){.sf-panel,.sf-actions button,.sf-panel input,.sf-panel textarea{transition:none}}

@@ -11,11 +11,12 @@ import { ImagenService } from '../../../core/services/imagen';
 import { ProductoImagenService } from '../../../core/services/producto-imagen';
 import { ProductoImagen } from '../../../core/models/producto-imagen';
 import { finalize, from, concatMap, toArray } from 'rxjs';
+import { VariantesEditor } from '../variantes-editor/variantes-editor';
 
 @Component({
   selector: 'app-producto-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, VariantesEditor],
   templateUrl: './producto-form.html',
   styleUrl: './producto-form.css'
 })
@@ -23,6 +24,16 @@ export class ProductoForm implements OnInit {
   private readonly categoriaGestionService = inject(CategoriaGestionService);
   private readonly http = inject(HttpClient);
 
+  modoColorTalla = false;
+  coloresGaleria: {
+    idColor: number;
+    nombre: string;
+    codigoHex: string;
+    activo: boolean;
+  }[] = [];
+
+  colorAsignandoId: number | null = null;
+  errorColorFoto = '';
   readonly maximoFotos = 12;
   galeria: ProductoImagen[] = [];
   archivosGaleria: File[] = [];
@@ -50,6 +61,8 @@ export class ProductoForm implements OnInit {
   nuevo = false;
   destacado = false;
   estado = true;
+  tipoVariantes: string | null = null;
+  sistemaTallas: string | null = null;
 
   private readonly uploadsUrl = `${environment.apiUrl}/uploads/`;
 
@@ -96,6 +109,33 @@ export class ProductoForm implements OnInit {
       this.editando = true;
       this.cargarProducto(id);
       this.cargarGaleria(id);
+      this.productoService.buscarPorId(id).subscribe({
+        next: producto => {
+          const p = producto as Producto & {
+            tipoVariantes?: string | null
+          };
+
+          this.modoColorTalla =
+            p.tipoVariantes === 'COLOR_Y_TALLA';
+
+          if (this.modoColorTalla) {
+            this.productoImagenService.listarColores().subscribe({
+              next: colores => {
+                this.coloresGaleria = (colores ?? [])
+                  .filter(c => c.activo !== false);
+              },
+              error: () => {
+                this.errorColorFoto =
+                  'No se pudieron cargar los colores de esta tienda.';
+              }
+            });
+          }
+        },
+        error: () => {
+          this.errorColorFoto =
+            'No se pudo comprobar la modalidad del producto.';
+        }
+      });
     }
   }
 
@@ -119,6 +159,44 @@ export class ProductoForm implements OnInit {
     });
   }
 
+  asignarColorFoto(foto: ProductoImagen, event: Event): void {
+    if (!this.modoColorTalla || this.colorAsignandoId !== null) {
+      return;
+    }
+
+    const selector = event.target as HTMLSelectElement;
+    const anterior = foto.idColor ?? null;
+    const nuevoId = selector.value === ''
+      ? null
+      : Number(selector.value);
+
+    if (nuevoId !== null && !Number.isSafeInteger(nuevoId)) {
+      selector.value = anterior === null ? '' : String(anterior);
+      return;
+    }
+
+    this.colorAsignandoId = foto.idProductoImagen;
+    this.errorColorFoto = '';
+    this.mensajeGaleria = '';
+
+    this.productoImagenService
+      .asignarColor(foto.idProductoImagen, nuevoId)
+      .subscribe({
+        next: respuesta => {
+          foto.idColor = respuesta.idColor;
+          this.colorAsignandoId = null;
+          this.mensajeGaleria =
+            'Color de fotografía guardado correctamente.';
+        },
+        error: error => {
+          console.error('Error al asignar color:', error);
+          selector.value = anterior === null ? '' : String(anterior);
+          this.colorAsignandoId = null;
+          this.errorColorFoto =
+            'No se pudo asignar el color a esta fotografía.';
+        }
+      });
+  }
   seleccionarGaleria(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.errorGaleria = '';
@@ -208,6 +286,9 @@ export class ProductoForm implements OnInit {
         this.nuevo = producto.nuevo;
         this.destacado = producto.destacado;
         this.estado = producto.estado;
+        const conVariantes = producto as Producto & { tipoVariantes?: string | null; sistemaTallas?: string | null };
+        this.tipoVariantes = conVariantes.tipoVariantes ?? null;
+        this.sistemaTallas = conVariantes.sistemaTallas ?? null;
         this.cargando = false;
       },
       error: error => {

@@ -1,0 +1,103 @@
+<section class="sv-card" aria-label="Colores, tallas y variantes">
+  <div class="sv-head">
+    <div><span class="sv-kicker">05 · INVENTARIO</span><h2>Colores, tallas y variantes</h2>
+      <p>Configura cómo se vende este artículo. Las variantes tienen stock independiente.</p></div>
+    <span class="sv-stock">{{ stockTotal }} unidades</span>
+  </div>
+
+  @if (error) { <p class="sv-alert sv-error" role="alert">{{ error }}</p> }
+  @if (exito) { <p class="sv-alert sv-ok" role="status">{{ exito }}</p> }
+  @if (cargando) { <p class="sv-muted">Cargando inventario...</p> }
+  @else {
+    @if (!configurado && conInventario) {
+      <div class="sv-alert sv-warning">Este producto tiene inventario anterior. Para conservar ventas y reposiciones, su modalidad no se cambiará automáticamente. Sus variantes actuales se muestran abajo.</div>
+    } @else {
+      <div class="sv-grid">
+        <label class="sv-field">Modalidad de producto
+          <select [(ngModel)]="tipo" [disabled]="configurado || configurando">
+            @for (opcion of opcionesTipo; track opcion.value) { <option [value]="opcion.value">{{ opcion.label }}</option> }
+          </select>
+        </label>
+        @if (necesitaTalla) {
+          <label class="sv-field">Sistema de tallas
+            <select [(ngModel)]="sistema" [disabled]="configurado || configurando">
+              @for (opcion of opcionesSistema; track opcion) { <option [value]="opcion">{{ opcion }}</option> }
+            </select>
+          </label>
+        }
+      </div>
+      @if (!configurado) {
+        <button type="button" class="sv-button" (click)="guardarConfiguracion()" [disabled]="configurando">
+          {{ configurando ? 'Guardando...' : 'Guardar modalidad' }}
+        </button>
+      } @else {
+        <p class="sv-muted">Modalidad guardada. Para cambiarla después será necesaria una migración controlada.</p>
+      }
+    }
+
+    @if (configurado) {
+      @if (necesitaColor) {
+        <div class="sv-divider"></div>
+        <h3>Colores de esta tienda</h3>
+        <div class="sv-grid">
+          <div class="sv-field"><span>Crear color nuevo (opcional)</span>
+            <div class="sv-inline">
+              <input type="text" maxlength="60" placeholder="Ej. Vino" [(ngModel)]="nuevoNombreColor" aria-label="Nombre del color"/>
+              <input type="color" [(ngModel)]="nuevoHexColor" aria-label="Hexadecimal"/>
+              <button type="button" class="sv-secondary" (click)="crearColor()" [disabled]="creandoColor || !nuevoNombreColor.trim()">{{ creandoColor ? '...' : 'Agregar color' }}</button>
+            </div>
+          </div>
+        </div>
+      }
+      <app-variantes-matriz
+        [idProducto]="idProducto" [tipo]="tipo" [sistema]="sistema"
+        [colores]="colores" [tallas]="tallas" [variantes]="variantes"
+        (guardado)="recargar()" />
+    }
+    <div class="sv-divider"></div>
+    @if (tipo === 'COLOR_Y_TALLA' && coloresRegistrados.length > 0) {
+      <div class="sv-divider"></div>
+      <h3>Colores registrados en este producto</h3>
+      <p class="sv-muted">Si agregaste un color por error, puedes quitarlo cuando sus variantes tengan stock cero y no tengan fotos ni movimientos historicos. Esto no elimina el color de la tienda.</p>
+      <div class="sv-inline" style="flex-wrap:wrap; gap:10px; margin:12px 0;">
+        @for (color of coloresRegistrados; track color.idColor) {
+          <div style="display:flex; align-items:center; gap:8px; padding:8px; border:1px solid #e2e8f0; border-radius:9px;">
+            <span>{{ color.nombre }} - {{ color.stock }} unidades</span>
+            <button type="button" class="sv-secondary" (click)="quitarColorProducto(color)"
+              [disabled]="colorQuitandoId !== null || color.stock !== 0"
+              [title]="color.stock !== 0 ? 'Primero hay que regularizar el stock' : 'Quitar color solo de este producto'">
+              {{ colorQuitandoId === color.idColor ? 'Quitando...' : 'Quitar color' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+    @if (tipo === 'COLOR_Y_TALLA' && visibilidadColores.length > 0) {
+      <div class="sv-divider"></div>
+      <h3>Visibilidad de colores en la tienda publica</h3>
+      <p class="sv-muted">Oculta un color solo de este producto, aunque tenga stock. No se borran existencias, fotos ni ventas. Puedes volver a mostrarlo.</p>
+      <div class="sv-inline" style="flex-wrap:wrap;gap:10px;margin:12px 0">
+        @for (color of visibilidadColores; track color.idColor) {
+          <div style="display:flex;align-items:center;gap:8px;border:1px solid #dce2eb;border-radius:10px;padding:9px">
+            <span [style.background]="color.codigoHex" style="width:18px;height:18px;border-radius:50%;border:1px solid #bbb"></span>
+            <span>{{ color.nombre }} ({{ color.stock }} unidades)</span>
+            <span style="font-size:11px">{{ color.oculto ? 'Oculto' : 'Visible' }}</span>
+            <button type="button" class="sv-secondary" (click)="cambiarVisibilidadColor(color)"
+              [disabled]="cambiandoVisibilidadId !== null">
+              {{ cambiandoVisibilidadId === color.idColor ? 'Guardando...' : (color.oculto ? 'Mostrar' : 'Ocultar') }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+    <h3>Inventario actual <span>({{ variantes.length }} registros)</span></h3>
+    @if (!variantes.length) { <p class="sv-muted">Aún no existen combinaciones de inventario.</p> }
+    @else {
+      <div class="sv-table-wrap"><table class="sv-table"><thead><tr><th>ID</th><th>Color</th><th>Talla</th><th>Stock</th></tr></thead>
+        <tbody>@for (v of variantes; track v.idProductoTalla) {
+          <tr><td>#{{ v.idProductoTalla }}</td><td>{{ v.color || 'Sin color' }}</td>
+            <td>{{ v.talla || 'Sin talla' }}</td><td><strong>{{ v.stock }}</strong></td></tr>
+        }</tbody></table></div>
+    }
+  }
+</section>

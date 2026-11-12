@@ -239,6 +239,11 @@ export const routes: Routes = [
         component: HomeAdmin
       },
       {
+        path: 'personalizacion-footer',
+        loadComponent: () => import('./features/admin/personalizacion-footer/personalizacion-footer')
+          .then(m => m.PersonalizacionFooter)
+      },
+      {
         path: 'personalizacion-cabecera',
         loadComponent: () => import('./features/admin/personalizacion-cabecera/personalizacion-cabecera')
           .then(m => m.PersonalizacionCabecera)

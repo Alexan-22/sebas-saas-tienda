@@ -48,6 +48,39 @@ export class ProductoImagenService {
   // ==========================================
   // ELIMINAR IMAGEN
   // ==========================================
+  listarColores(): Observable<{
+    idColor: number;
+    nombre: string;
+    codigoHex: string;
+    activo: boolean;
+  }[]> {
+    return this.http.get<{
+      idColor: number;
+      nombre: string;
+      codigoHex: string;
+      activo: boolean;
+    }[]>(
+      `${environment.apiUrl}/api/v1/tiendas/admin/colores`
+    );
+  }
+
+  asignarColor(
+    idImagen: number,
+    idColor: number | null
+  ): Observable<{
+    idProductoImagen: number;
+    idColor: number | null;
+    mensaje: string;
+  }> {
+    return this.http.put<{
+      idProductoImagen: number;
+      idColor: number | null;
+      mensaje: string;
+    }>(
+      `${environment.apiUrl}/api/v1/tiendas/admin/imagenes-color/${idImagen}`,
+      { idColor }
+    );
+  }
   eliminar(idProductoImagen: number): Observable<string> {
     return this.http.delete(
       `${this.apiUrl}/admin/${idProductoImagen}`,

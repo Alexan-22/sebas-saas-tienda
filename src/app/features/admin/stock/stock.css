@@ -803,3 +803,12 @@
   }
 }
 
+
+/* Edicion manual de unidades: teclado y botones +/- */
+.quantity-control input[type="number"] {
+  width: 76px;
+  min-width: 64px;
+  text-align: center;
+  pointer-events: auto;
+  user-select: text;
+}
