@@ -1,4 +1,5 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
+import { CabeceraTiendaService, parametrosMenu } from '../../../core/services/cabecera-tienda.service';
 import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../../core/services/carrito';
 import { AuthService } from '../../../core/services/auth';
@@ -12,6 +13,10 @@ import { TiendaService } from '../../../core/services/tienda.service';
   styleUrl: './navbar.css'
 })
 export class Navbar {
+  readonly cabeceraService = inject(CabeceraTiendaService);
+  readonly parametrosMenu = parametrosMenu;
+  ngOnInit(): void { this.cabeceraService.asegurarCarga(); }
+
   menuAbierto = false;
   cuentaAbierta = false;
   constructor(

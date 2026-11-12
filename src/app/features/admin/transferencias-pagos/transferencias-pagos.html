@@ -1,0 +1,27 @@
+<section class="payments-page">
+ <header class="hero"><div class="hero-icon" aria-hidden="true">🧾</div><div class="hero-copy"><p class="eyebrow">PAGOS Y COBROS / VERIFICACIÓN</p><h1>Transferencias bancarias</h1><p>Revisa comprobantes y confirma los abonos que realmente llegaron a tu banco.</p></div><button type="button" class="refresh" (click)="cargarPagos()" [disabled]="cargando">↻ Actualizar</button></header>
+ @if (error) { <div class="notice error" role="alert">{{ error }}</div> }
+ @if (mensaje) { <div class="notice success" role="status">{{ mensaje }}</div> }
+ <div class="stats"><div class="stat"><span>Transferencias registradas</span><strong>{{ pagos.length }}</strong></div><div class="stat"><span>Pendientes de revisión</span><strong>{{ pendientes }}</strong></div><div class="stat"><span>Aprobadas</span><strong>{{ aprobados }}</strong></div></div>
+ <div class="filters" aria-label="Filtrar transferencias">
+ <button type="button" [class.active]="filtro === 'PENDIENTE'" (click)="cambiarFiltro('PENDIENTE')">Pendientes</button>
+ <button type="button" [class.active]="filtro === 'TODOS'" (click)="cambiarFiltro('TODOS')">Todas</button>
+ <button type="button" [class.active]="filtro === 'APROBADO'" (click)="cambiarFiltro('APROBADO')">Aprobadas</button>
+ <button type="button" [class.active]="filtro === 'RECHAZADO'" (click)="cambiarFiltro('RECHAZADO')">Rechazadas</button>
+ </div>
+ @if (cargando) { <p class="empty" role="status">Cargando transferencias...</p> }
+ @if (!cargando && filtrados.length === 0) { <p class="empty">No hay transferencias en este filtro.</p> }
+ <div class="payment-list">
+ @for (p of filtrados; track p.idVenta) {
+  <article class="payment-card">
+   <div class="payment-head"><div class="order-heading"><div class="order-icon" aria-hidden="true">↗</div><div><span class="order-kicker">TRANSFERENCIA BANCARIA</span><h2>Pedido #{{ p.idVenta }}</h2><p>{{ p.creadoEn | date:'medium' }}</p></div></div><div class="amount"><strong>S/ {{ p.importe | number:'1.2-2' }}</strong><span class="status" [class.pending]="p.estado === 'PENDIENTE'" [class.approved]="p.estado === 'APROBADO'" [class.rejected]="p.estado === 'RECHAZADO'">{{ p.estado }}</span></div></div>
+   <div class="payment-info"><div><small>CLIENTE</small><strong>{{ p.correoCliente }}</strong></div><div><small>BANCO / TITULAR</small><strong>{{ p.banco }} · {{ p.titular }}</strong></div><div><small>MONEDA</small><strong>{{ p.moneda }}</strong></div></div>
+   <div class="actions"><button type="button" (click)="verComprobante(p.idVenta)">{{ imagenes[p.idVenta] ? 'Ocultar comprobante' : 'Ver comprobante' }}</button><button type="button" (click)="verAuditoria(p.idVenta)">{{ auditoriaId === p.idVenta ? 'Ocultar auditoría' : 'Ver auditoría' }}</button></div>
+   @if (imagenes[p.idVenta]) { <div class="attachment"><img [src]="imagenes[p.idVenta]" alt="Comprobante del cliente" /><p>Comprueba el abono directamente en tu banca; la captura no acredita el ingreso.</p></div> }
+   @if (auditoriaId === p.idVenta) { <div class="audit"><h3>Historial de auditoría</h3>@if (eventos.length === 0) { <p>Sin eventos para mostrar.</p> } @for (e of eventos; track $index) { <p><strong>{{ e.ocurridoEn | date:'short' }}</strong> · {{ e.actorCorreo }} · {{ e.estadoAnterior }} → {{ e.estadoNuevo }} · {{ e.evento }} · {{ e.observacion }}</p> }</div> }
+   @if (p.estado === 'PENDIENTE') { <div class="decision"><button type="button" class="approve" (click)="aprobar(p)" [disabled]="operando !== null">{{ operando === p.idVenta ? 'Procesando...' : 'Aprobar pago verificado' }}</button><button type="button" class="reject" (click)="rechazar(p)" [disabled]="operando !== null">Rechazar</button></div> } @else { <p class="verified">Verificado por {{ p.verificadoPor || 'administrador' }} · {{ p.verificadoEn | date:'medium' }}</p> @if (p.motivoRechazo) { <p class="rejection-note">Motivo: {{ p.motivoRechazo }}</p> } }
+  </article>
+ }
+ </div>
+ <p class="footnote">Aprobar un pago requiere confirmar el ingreso real de fondos en la cuenta bancaria. Las operaciones se auditan en Spring Boot.</p>
+</section>

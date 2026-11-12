@@ -3,8 +3,8 @@
   display: block;
 }
 
-/* Reutilizar el diseño del perfil administrativo */
-@import url('../admin/perfil/perfil-admin.css');
+/* Reutilizar el diseÃ±o del perfil administrativo */
+
 
 .mi-cuenta-page {
   min-height: 70vh;

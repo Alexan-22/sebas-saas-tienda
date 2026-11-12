@@ -1,0 +1,30 @@
+<section class="page-bancos">
+  <header class="hero">
+    <div class="hero-icon" aria-hidden="true">🏦</div>
+    <div>
+      <p class="eyebrow">PAGOS Y COBROS / CONFIGURACIÓN</p>
+      <h1>Cuentas bancarias</h1>
+      <p>Administra los bancos donde recibirás transferencias. Cada cuenta pertenece únicamente a tu tienda.</p>
+    </div>
+  </header>
+  @if (error) { <div class="notice error" role="alert">{{ error }}</div> }
+  @if (mensaje) { <div class="notice success" role="status">{{ mensaje }}</div> }
+  @if (cargando) { <p class="loading" role="status">Consultando cuentas bancarias...</p> }
+  <div class="grid-bancos">
+    @for (b of bancos; track b.codigo) {
+      <article class="bank-card">
+        <div class="bank-header">
+          <div class="bank-mark" aria-hidden="true">{{ b.codigo === 'INTERBANK' ? 'IB' : b.codigo === 'SCOTIABANK' ? 'SB' : b.codigo }}</div>
+          <div class="bank-heading"><h2>{{ b.nombre }}</h2><span>Cuenta en soles (PEN)</span></div>
+          <span class="state" [class.enabled]="cuentas[b.codigo].habilitado">{{ cuentas[b.codigo].habilitado ? 'Activa' : 'Inactiva' }}</span>
+        </div>
+        <div class="field"><label [for]="'titular-' + b.codigo">Titular de la cuenta</label><input [id]="'titular-' + b.codigo" type="text" maxlength="140" autocomplete="off" [(ngModel)]="cuentas[b.codigo].titular" [disabled]="cargando || guardando !== null" placeholder="Nombre del titular" /></div>
+        <div class="field"><label [for]="'numero-' + b.codigo">Número de cuenta</label><input [id]="'numero-' + b.codigo" type="text" maxlength="30" inputmode="numeric" autocomplete="off" [(ngModel)]="cuentas[b.codigo].numeroCuenta" [disabled]="cargando || guardando !== null" placeholder="Solo números" /></div>
+        <div class="field"><label [for]="'cci-' + b.codigo">CCI <small>(opcional, 20 dígitos)</small></label><input [id]="'cci-' + b.codigo" type="text" maxlength="20" inputmode="numeric" autocomplete="off" [(ngModel)]="cuentas[b.codigo].cci" [disabled]="cargando || guardando !== null" placeholder="CCI para transferencias interbancarias" /></div>
+        <label class="switch-row"><input type="checkbox" [(ngModel)]="cuentas[b.codigo].habilitado" [disabled]="cargando || guardando !== null" /><span>Disponible para compradores de mi tienda</span></label>
+        <button class="save-button" type="button" [disabled]="cargando || guardando !== null" (click)="guardar(b.codigo)">{{ guardando === b.codigo ? 'Guardando...' : 'Guardar cuenta' }} <span aria-hidden="true">→</span></button>
+      </article>
+    }
+  </div>
+  <p class="footnote">Por seguridad, verifica cuidadosamente los números antes de habilitar una cuenta. La confirmación de los pagos se realiza en Transferencias pendientes.</p>
+</section>

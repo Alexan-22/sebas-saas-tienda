@@ -1,45 +1,307 @@
 <section class="configuracion">
-  <div class="cabecera">
-    <p class="eyebrow">MI TIENDA / CONFIGURACIÓN</p>
-    <h1>Identidad de mi tienda</h1>
-    <p>Personaliza la marca que verán tus clientes. Los cambios solo afectan a tu tienda.</p>
-  </div>
-  @if (error) { <div class="aviso error" role="alert">{{ error }}</div> }
-  @if (exito) { <div class="aviso exito" role="status">{{ exito }}</div> }
-  <div class="panel">
-    <h2>Logotipo comercial</h2>
-    @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
-      <img class="logo" [src]="logo" [alt]="tiendaService.tiendaActual()?.nombre || 'Logo de la tienda'" />
-    } @else { <div class="sin-logo">Sin logotipo; se mostrará el nombre comercial.</div> }
-    <label class="subir">{{ subiendoLogo ? 'Subiendo...' : 'Seleccionar nuevo logotipo' }}
-      <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarLogo($event)" [disabled]="subiendoLogo || guardando" />
-    </label>
-    <small>PNG, JPG o WebP. Máximo 2 MB. Recomendado: fondo transparente.</small>
-  </div>
-  <form class="panel" (ngSubmit)="guardar()" #form="ngForm">
-    <h2>Información y colores</h2>
-    <div class="campos">
-      <label>Nombre comercial
-        <input name="nombre" [(ngModel)]="datos.nombre" required maxlength="100" />
-      </label>
-      <label>Teléfono de contacto
-        <input name="telefonoSoporte" [(ngModel)]="datos.telefonoSoporte" maxlength="20" placeholder="+51 999 999 999" />
-      </label>
-      <label>WhatsApp
-        <input name="whatsapp" [(ngModel)]="datos.whatsapp" maxlength="20" placeholder="+51 999 999 999" />
-      </label>
-      <label>Descripción comercial
-        <textarea name="descripcionComercial" [(ngModel)]="datos.descripcionComercial" maxlength="500" rows="3"></textarea>
-      </label>
-      <label>Color principal
-        <div class="color"><input type="color" name="colorPrimario" [(ngModel)]="datos.colorPrimario" /> {{ datos.colorPrimario }}</div>
-      </label>
-      <label>Color secundario
-        <div class="color"><input type="color" name="colorSecundario" [(ngModel)]="datos.colorSecundario" /> {{ datos.colorSecundario }}</div>
-      </label>
+
+  <header class="cabecera">
+    <p class="eyebrow">MI NEGOCIO / PERSONALIZACIÓN</p>
+    <h1>Diseña tu tienda online</h1>
+    <p>
+      Personaliza la identidad de tu negocio y observa
+      el resultado antes de guardar.
+    </p>
+  </header>
+
+  @if (error) {
+    <div class="aviso error" role="alert">{{ error }}</div>
+  }
+
+  @if (exito) {
+    <div class="aviso exito" role="status">{{ exito }}</div>
+  }
+
+  @if (cargando) {
+    <div class="panel" role="status">
+      Cargando la identidad de tu tienda...
     </div>
-    <button type="submit" [disabled]="form.invalid || guardando || subiendoLogo">
-      {{ guardando ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN' }}
-    </button>
-  </form>
+  } @else {
+
+    <div class="editor-grid">
+
+      <div class="editor-controles">
+
+        <div class="panel">
+          <h2>Logotipo de la tienda</h2>
+
+          <div class="editor-logo-area">
+            @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
+              <img
+                class="logo"
+                [src]="logo"
+                [alt]="nombreVista"
+              />
+            } @else {
+              <div class="sin-logo">
+                Tu marca aparecerá aquí.
+              </div>
+            }
+          </div>
+
+          <label class="subir">
+            {{ subiendoLogo ? 'Subiendo logotipo...' : 'Cambiar logotipo' }}
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              [disabled]="guardando || subiendoLogo"
+              (change)="seleccionarLogo($event)"
+            />
+          </label>
+
+          <small>
+            PNG, JPG o WebP · Máximo 2 MB.
+            El logo se guarda al subirlo.
+          </small>
+        </div>
+
+        <form
+          class="panel"
+          (ngSubmit)="guardar()"
+          #form="ngForm"
+        >
+
+          <h2>Información comercial</h2>
+
+          <div class="campos">
+
+            <label class="editor-campo-completo">
+              Nombre de tu tienda
+              <input
+                name="nombre"
+                [(ngModel)]="datos.nombre"
+                maxlength="100"
+                required
+                placeholder="Ejemplo: Moda Gamarra"
+              />
+            </label>
+
+            <label>
+              Teléfono
+              <input
+                name="telefonoSoporte"
+                [(ngModel)]="datos.telefonoSoporte"
+                maxlength="20"
+                placeholder="999 999 999"
+              />
+            </label>
+
+            <label>
+              WhatsApp
+              <input
+                name="whatsapp"
+                [(ngModel)]="datos.whatsapp"
+                maxlength="20"
+                placeholder="999 999 999"
+              />
+            </label>
+
+            <label class="editor-campo-completo">
+              Descripción de tu negocio
+              <textarea
+                name="descripcionComercial"
+                [(ngModel)]="datos.descripcionComercial"
+                maxlength="500"
+                rows="3"
+                placeholder="Cuéntales a tus clientes qué vendes..."
+              ></textarea>
+            </label>
+
+          </div>
+
+          <div class="editor-separador"></div>
+
+          <h2>Colores de tu marca</h2>
+
+          <p class="editor-ayuda">
+            Elige una combinación o selecciona tus propios colores.
+          </p>
+
+          <div class="editor-paletas">
+            @for (paleta of paletas; track paleta.nombre) {
+              <button
+                type="button"
+                class="editor-paleta"
+                [class.editor-paleta-activa]="
+                  datos.colorPrimario === paleta.principal &&
+                  datos.colorSecundario === paleta.secundario
+                "
+                (click)="usarPaleta(paleta)"
+              >
+                <span
+                  class="editor-paleta-muestra"
+                  [style.backgroundColor]="paleta.principal"
+                ></span>
+                <span
+                  class="editor-paleta-muestra"
+                  [style.backgroundColor]="paleta.secundario"
+                ></span>
+                <span class="editor-paleta-nombre">
+                  {{ paleta.nombre }}
+                </span>
+              </button>
+            }
+          </div>
+
+          <div class="campos editor-colores">
+
+            <label>
+              Color principal
+              <div class="color">
+                <input
+                  type="color"
+                  name="colorPrimario"
+                  [(ngModel)]="datos.colorPrimario"
+                />
+                <span>{{ datos.colorPrimario }}</span>
+              </div>
+            </label>
+
+            <label>
+              Color secundario
+              <div class="color">
+                <input
+                  type="color"
+                  name="colorSecundario"
+                  [(ngModel)]="datos.colorSecundario"
+                />
+                <span>{{ datos.colorSecundario }}</span>
+              </div>
+            </label>
+
+          </div>
+
+          <div class="editor-acciones">
+            <button
+              type="button"
+              class="editor-restaurar"
+              (click)="restaurarVista()"
+              [disabled]="guardando || subiendoLogo"
+            >
+              Descartar cambios
+            </button>
+
+            <button
+              type="submit"
+              [disabled]="form.invalid || guardando || subiendoLogo"
+            >
+              {{ guardando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+      <aside class="editor-preview-panel">
+
+        <div class="editor-preview-cabecera">
+          <div>
+            <span class="editor-preview-etiqueta">
+              VISTA PREVIA EN VIVO
+            </span>
+            <h2>Así verá tu marca el cliente</h2>
+          </div>
+
+          <span class="editor-preview-estado">
+            Sin publicar
+          </span>
+        </div>
+
+        <div class="editor-browser">
+
+          <div class="editor-browser-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+            <small>Vista ilustrativa de tu tienda</small>
+          </div>
+
+          <div
+            class="editor-tienda-nav"
+            [style.backgroundColor]="principalVista"
+            [style.color]="textoSobrePrincipal"
+          >
+            <div class="editor-marca">
+              @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
+                <img [src]="logo" [alt]="nombreVista" />
+              }
+
+              <strong>{{ nombreVista }}</strong>
+            </div>
+
+            <span class="editor-tienda-enlaces">
+              Inicio · Productos · Ofertas
+            </span>
+          </div>
+
+          <div
+            class="editor-tienda-hero"
+            [style.backgroundColor]="secundarioVista"
+          >
+            <span class="editor-hero-kicker">
+              BIENVENIDOS A NUESTRA TIENDA
+            </span>
+
+            <h3>{{ nombreVista }}</h3>
+            <p>{{ descripcionVista }}</p>
+
+            <span
+              class="editor-hero-boton"
+              [style.backgroundColor]="principalVista"
+              [style.color]="textoSobrePrincipal"
+            >
+              Ver productos
+            </span>
+          </div>
+
+          <div class="editor-productos-muestra">
+            <h4>Productos destacados</h4>
+
+            <div class="editor-productos-grid">
+
+              <div class="editor-producto-muestra">
+                <div class="editor-producto-imagen">
+                  <span>FOTO</span>
+                </div>
+                <strong>Producto de ejemplo</strong>
+                <small>S/ 59.00</small>
+              </div>
+
+              <div class="editor-producto-muestra">
+                <div class="editor-producto-imagen editor-producto-imagen-dos">
+                  <span>FOTO</span>
+                </div>
+                <strong>Nueva colección</strong>
+                <small>S/ 79.00</small>
+              </div>
+
+            </div>
+          </div>
+
+          <div
+            class="editor-tienda-footer"
+            [style.backgroundColor]="principalVista"
+            [style.color]="textoSobrePrincipal"
+          >
+            {{ nombreVista }} · Tu tienda online
+          </div>
+
+        </div>
+
+        <p class="editor-preview-nota">
+          Los productos y el diseño de esta maqueta son ilustrativos.
+          El nombre y los colores se actualizan mientras editas.
+        </p>
+
+      </aside>
+
+    </div>
+
+  }
 </section>

@@ -90,6 +90,14 @@ export const routes: Routes = [
     import('./features/mi-cuenta/mi-cuenta')
       .then(m => m.MiCuenta)
 },
+  {
+    path: 'mis-compras/:id/seguimiento',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/seguimiento-page/seguimiento-page')
+        .then(m => m.SeguimientoPage)
+  },
+
 
   {
     path: 'mis-compras/:id',
@@ -149,18 +157,13 @@ export const routes: Routes = [
         path: 'productos/:id/editar',
         component: ProductoForm
       },
-      {
-        path: 'mayoristas',
-        loadComponent: () =>
-          import('./features/admin/mayoristas/mayoristas')
-            .then(m => m.Mayoristas)
-      },
+
       {
         path: 'stock',
         component: Stock
       },
 
-      
+
       // -------------------------------------------------
       // NEGOCIO - VENTAS
       // -------------------------------------------------
@@ -199,7 +202,8 @@ export const routes: Routes = [
       // -------------------------------------------------
       // B.2.2 - CONFIGURACION YAPE POR TIENDA
       // -------------------------------------------------
-      { path: 'transferencias', loadComponent: () => import('./features/transferencias-admin/transferencias-admin').then(m=>m.TransferenciasAdmin) },
+      { path: 'cuentas-bancarias', loadComponent: () => import('./features/admin/cuentas-bancarias/cuentas-bancarias').then(m => m.CuentasBancarias) },
+      { path: 'transferencias', loadComponent: () => import('./features/admin/transferencias-pagos/transferencias-pagos').then(m => m.TransferenciasPagos) },
       { path: 'pagos-yape', loadComponent: () => import('./features/admin/yape-pagos/yape-pagos').then(m => m.YapePagosAdmin) },
       { path: 'yape',
         loadComponent: () =>
@@ -214,6 +218,14 @@ export const routes: Routes = [
         path: 'usuarios',
         component: Usuarios
       },
+
+{
+        path: 'roles-permisos',
+        title: 'Roles y permisos | Sebas Collection',
+        loadComponent: () =>
+          import('./features/admin/roles-permisos/roles-permisos')
+            .then(m => m.RolesPermisos)
+      },
       {
         path: 'reportes',
         component: Reportes
@@ -225,6 +237,11 @@ export const routes: Routes = [
       {
         path: 'home',
         component: HomeAdmin
+      },
+      {
+        path: 'personalizacion-cabecera',
+        loadComponent: () => import('./features/admin/personalizacion-cabecera/personalizacion-cabecera')
+          .then(m => m.PersonalizacionCabecera)
       },
       {
         path: 'configuracion',
