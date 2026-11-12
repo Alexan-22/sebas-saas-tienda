@@ -7,12 +7,12 @@
         <span class="brand-word">{{ tiendaService.tiendaActual()?.nombre || 'TIENDA' }}</span>
       }
     </a>
-    <nav class="desktop-nav" aria-label="Catálogo principal">
-      <a routerLink="/tienda" class="nav-link">Todo</a>
-      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }" class="nav-link">Mujer</a>
-      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }" class="nav-link">Hombre</a>
-      <a routerLink="/tienda" [queryParams]="{ nuevo: true }" class="nav-link">Novedades</a>
-      <a routerLink="/tienda" [queryParams]="{ ofertas: true }" class="nav-link">Ofertas</a>
+    <nav class="desktop-nav" aria-label="CatÃ¡logo principal">
+      @for (item of cabeceraService.cabecera().menuItems; track item.clave) {
+        @if (item.visible) {
+          <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" class="nav-link">{{item.texto}}</a>
+        }
+      }
     </nav>
     <div class="nav-actions">
       <form class="search" (submit)="$event.preventDefault(); ejecutarBusqueda(buscar.value)">
@@ -35,11 +35,11 @@
         <input #buscarMovil type="search" placeholder="Buscar vestidos, camisas, prendas..." aria-label="Buscar prendas" />
         <button type="submit">Buscar</button>
       </form>
-      <a routerLink="/tienda" (click)="cerrarMenu()">Toda la tienda</a>
-      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }" (click)="cerrarMenu()">Mujer</a>
-      <a routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }" (click)="cerrarMenu()">Hombre</a>
-      <a routerLink="/tienda" [queryParams]="{ nuevo: true }" (click)="cerrarMenu()">Novedades</a>
-      <a routerLink="/tienda" [queryParams]="{ ofertas: true }" (click)="cerrarMenu()">Ofertas</a>
+      @for (item of cabeceraService.cabecera().menuItems; track item.clave) {
+        @if (item.visible) {
+          <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" (click)="cerrarMenu()">{{item.texto}}</a>
+        }
+      }
       <button type="button" (click)="irACuenta()">{{ authService.autenticado() ? 'Mi cuenta' : 'Iniciar sesión' }}</button>
       @if (authService.autenticado()) { <button type="button" (click)="cerrarSesion()">Cerrar sesión</button> }
     </nav>

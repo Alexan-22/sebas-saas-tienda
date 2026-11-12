@@ -1,16 +1,151 @@
 
+<!-- ======================================================
+     SEBAS COLLECTION SAAS
+     ADMIN LAYOUT - INTERFAZ PROFESIONAL
+     ====================================================== -->
+
+<!-- Biblioteca de iconos SVG reutilizables -->
+<svg
+  class="icon-library"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true">
+
+  <symbol id="ad-dashboard" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+  </symbol>
+
+  <symbol id="ad-home" viewBox="0 0 24 24">
+    <path d="m3 10 9-7 9 7"/>
+    <path d="M5 9v12h14V9"/>
+    <path d="M9 21v-8h6v8"/>
+  </symbol>
+
+  <symbol id="ad-box" viewBox="0 0 24 24">
+    <path d="m12 2 9 5-9 5-9-5 9-5Z"/>
+    <path d="M3 7v10l9 5 9-5V7"/>
+    <path d="M12 12v10"/>
+  </symbol>
+
+  <symbol id="ad-tags" viewBox="0 0 24 24">
+    <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z"/>
+    <circle cx="8" cy="8" r="1"/>
+  </symbol>
+
+  <symbol id="ad-stock" viewBox="0 0 24 24">
+    <path d="M4 7h16M4 12h16M4 17h16"/>
+    <path d="M7 5v4M12 10v4M17 15v4"/>
+  </symbol>
+
+  <symbol id="ad-orders" viewBox="0 0 24 24">
+    <rect x="4" y="4" width="16" height="17" rx="2"/>
+    <path d="M8 4V2h8v2M8 10h8M8 14h8M8 18h5"/>
+  </symbol>
+
+  <symbol id="ad-truck" viewBox="0 0 24 24">
+    <path d="M2 6h12v12H2z"/>
+    <path d="M14 10h4l4 4v4h-8"/>
+    <circle cx="6" cy="18" r="2"/>
+    <circle cx="18" cy="18" r="2"/>
+  </symbol>
+
+  <symbol id="ad-sales" viewBox="0 0 24 24">
+    <path d="M3 20h18M6 16v-5M12 16V5M18 16V9"/>
+    <path d="m4 8 6-4 5 3 5-4"/>
+  </symbol>
+
+  <symbol id="ad-card" viewBox="0 0 24 24">
+    <rect x="2" y="5" width="20" height="14" rx="2"/>
+    <path d="M2 10h20M6 15h4"/>
+  </symbol>
+
+  <symbol id="ad-bank" viewBox="0 0 24 24">
+    <path d="m3 9 9-6 9 6H3ZM4 21h16"/>
+    <path d="M6 10v8M10 10v8M14 10v8M18 10v8"/>
+  </symbol>
+
+  <symbol id="ad-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 7v5l4 2"/>
+  </symbol>
+
+  <symbol id="ad-phone" viewBox="0 0 24 24">
+    <rect x="6" y="2" width="12" height="20" rx="2"/>
+    <path d="M10 18h4M10 6h4"/>
+  </symbol>
+
+  <symbol id="ad-users" viewBox="0 0 24 24">
+    <circle cx="9" cy="8" r="3"/>
+    <path d="M3 20v-2a6 6 0 0 1 12 0v2"/>
+    <path d="M17 5a3 3 0 0 1 0 6M17 15a5 5 0 0 1 4 5"/>
+  </symbol>
+
+  <symbol id="ad-report" viewBox="0 0 24 24">
+    <path d="M4 20V4M4 20h17"/>
+    <path d="m7 15 4-4 4 2 5-7"/>
+  </symbol>
+
+  <symbol id="ad-settings" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    <path d="m5 5 2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>
+  </symbol>
+
+  <symbol id="ad-user" viewBox="0 0 24 24">
+    <circle cx="12" cy="8" r="4"/>
+    <path d="M4 21a8 8 0 0 1 16 0"/>
+  </symbol>
+
+  <symbol id="ad-store" viewBox="0 0 24 24">
+    <path d="M3 10 5 3h14l2 7"/>
+    <path d="M3 10v10h18V10M9 20v-7h6v7"/>
+    <path d="M3 10c0 4 6 4 6 0 0 4 6 4 6 0 0 4 6 4 6 0"/>
+  </symbol>
+
+  <symbol id="ad-logout" viewBox="0 0 24 24">
+    <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/>
+    <path d="M14 7l5 5-5 5M19 12H9"/>
+  </symbol>
+
+  <symbol id="ad-chevron" viewBox="0 0 24 24">
+    <path d="m6 9 6 6 6-6"/>
+  </symbol>
+
+  <symbol id="ad-menu" viewBox="0 0 24 24">
+    <path d="M4 6h16M4 12h16M4 18h16"/>
+  </symbol>
+
+  <symbol id="ad-close" viewBox="0 0 24 24">
+    <path d="M5 5l14 14M19 5 5 19"/>
+  </symbol>
+
+</svg>
+
 <div class="admin-shell">
 
-  <!-- =====================================================
-       SIDEBAR
-       ===================================================== -->
-  <aside class="admin-sidebar"
-         [class.mobile-open]="menuAbierto">
+  <!-- FONDO MÓVIL -->
+  @if (menuAbierto) {
+    <button
+      type="button"
+      class="sidebar-backdrop"
+      aria-label="Cerrar menú"
+      (click)="cerrarMenu()">
+    </button>
+  }
 
-    <!-- LOGO Y MARCA -->
+  <!-- ======================================================
+       SIDEBAR
+       ====================================================== -->
+  <aside
+    class="admin-sidebar"
+    [class.mobile-open]="menuAbierto">
+
+    <!-- MARCA -->
     <div class="admin-brand">
-      <a routerLink="/admin/dashboard"
-         (click)="cerrarMenu()">
+
+      <a routerLink="/admin/dashboard" (click)="cerrarMenu()">
 
         <div class="brand-icon-box">
           {{
@@ -20,343 +155,128 @@
           }}
         </div>
 
-        <div>
+        <div class="brand-copy">
           <strong>
             {{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}
           </strong>
-          <span>PANEL ADMINISTRATIVO</span>
+          <span>GESTIÓN DE TIENDA</span>
         </div>
+
       </a>
+
+      <button
+        type="button"
+        class="sidebar-close"
+        aria-label="Cerrar navegación"
+        (click)="cerrarMenu()">
+        <svg class="ui-icon"><use href="#ad-close"/></svg>
+      </button>
+
     </div>
 
-    <!-- =====================================================
-         NAVEGACION PRINCIPAL
-         ===================================================== -->
-    <nav class="admin-navigation">
+    <!-- NAVEGACIÓN -->
+    <nav class="admin-navigation" aria-label="Panel administrativo">
 
-      <!-- ===================================================
-           GENERAL
-           =================================================== -->
-      <span class="navigation-title">GENERAL</span>
+      <!-- GENERAL -->
+      <div class="nav-section">
 
-      <a routerLink="/admin/dashboard"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
+        <span class="navigation-title">
+          GENERAL
         </span>
 
-        Dashboard
-      </a>
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="nav-link">
 
-      <!-- ===================================================
-           CONTENIDO
-           =================================================== -->
-      <span class="navigation-title">CONTENIDO</span>
-
-      <a routerLink="/admin/home"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-        </span>
-
-        Página Principal
-      </a>
-
-      <!-- ===================================================
-           CATALOGO
-           =================================================== -->
-      <span class="navigation-title">CATÁLOGO</span>
-
-      <!-- PRODUCTOS -->
-      <a routerLink="/admin/productos"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-          </svg>
-        </span>
-
-        Productos
-      </a>
-
-      <!-- CATEGORIAS -->
-      <a routerLink="/admin/categorias"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-        </span>
-
-        Categorías
-      </a>
-
-      <!-- MAYORISTAS -->
-      <a routerLink="/admin/mayoristas"
-         routerLinkActive="active"
-         (click)="cerrarMenu()"
-         title="Ventas por mayor B2B">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <line x1="12" y1="1" x2="12" y2="23"></line>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-        </span>
-
-        <span>Ventas por mayor</span>
-      </a>
-
-      <!-- STOCK -->
-      <a routerLink="/admin/stock"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <line x1="8" y1="6" x2="21" y2="6"></line>
-            <line x1="8" y1="12" x2="21" y2="12"></line>
-            <line x1="8" y1="18" x2="21" y2="18"></line>
-            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-          </svg>
-        </span>
-
-        Stock y Tallas
-      </a>
-
-      <!-- ===================================================
-           NEGOCIO
-           =================================================== -->
-      <span class="navigation-title">NEGOCIO</span>
-
-      <!-- VENDER POS -->
-      <a routerLink="/admin/vender"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-        </span>
-
-        Vender (POS)
-      </a>
-
-      <!-- VENTAS Y PEDIDOS -->
-      <a routerLink="/admin/ventas"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <line x1="12" y1="1" x2="12" y2="23"></line>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-        </span>
-
-        Ventas y Pedidos
-      </a>
-
-      <!-- ===================================================
-           PAGOS SANDBOX - B.2.1
-           =================================================== -->
-      <a routerLink="/admin/pagos"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{ exact: true }"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2"
-               stroke-linecap="round"
-               stroke-linejoin="round">
-            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-            <path d="M2 10h20"></path>
-            <path d="M6 15h4"></path>
-          </svg>
-        </span>
-
-        Pagos
-      </a>
-
-      <!-- ===================================================
-           YAPE DE MI TIENDA - B.2.2
-           =================================================== -->
-      <a routerLink="/admin/transferencias" fragment="cuentas" (click)="cerrarMenu()">Mis cuentas bancarias</a>
-      <a routerLink="/admin/transferencias" fragment="pendientes" (click)="cerrarMenu()">Transferencias pendientes</a>
-      <a routerLink="/admin/pagos-yape" routerLinkActive="active" (click)="cerrarMenu()">
-        <span class="nav-icon">▣</span> Pagos Yape pendientes
-      </a>
-
-      <a routerLink="/admin/yape"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{ exact: true }"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2"
-               stroke-linecap="round"
-               stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="3"></rect>
-            <path d="M7 12h10"></path>
-            <path d="M12 7v10"></path>
-          </svg>
-        </span>
-
-        Yape de mi tienda
-      </a>
-
-      <!-- ===================================================
-           USUARIOS
-           =================================================== -->
-      <a routerLink="/admin/usuarios"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
-
-        <span class="nav-icon">
-          <svg width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-        </span>
-
-        Usuarios
-      </a>
-
-      <!-- ===================================================
-           REPORTES
-           =================================================== -->
-      <div class="reportes-nav-grupo">
-
-        <button type="button"
-                class="reportes-nav-boton"
-                [attr.aria-expanded]="menuReportesAbierto"
-                (click)="alternarReportes()">
-
-          <span class="nav-icon">▥</span>
-          <span>Reportes</span>
-
-          <span class="reportes-flecha">
-            {{ menuReportesAbierto ? '⌄' : '›' }}
+          <span class="nav-icon">
+            <svg><use href="#ad-dashboard"/></svg>
           </span>
+
+          <span>Dashboard</span>
+        </a>
+
+        <a
+          routerLink="/admin/home"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="nav-link">
+
+          <span class="nav-icon">
+            <svg><use href="#ad-home"/></svg>
+          </span>
+
+          <span>Página principal</span>
+        </a>
+
+      </div>
+
+      <!-- CATÁLOGO -->
+      <div class="nav-section">
+
+        <button
+          type="button"
+          class="section-toggle"
+          [class.section-selected]="esRutaActiva([
+            '/admin/productos',
+            '/admin/categorias',
+            '/admin/stock'
+          ])"
+          [attr.aria-expanded]="grupoAbierto('catalogo')"
+          (click)="alternarGrupo('catalogo')">
+
+          <span>CATÁLOGO</span>
+
+          <svg
+            class="chevron"
+            [class.rotado]="grupoAbierto('catalogo')">
+            <use href="#ad-chevron"/>
+          </svg>
+
         </button>
 
-        @if (menuReportesAbierto) {
-          <div class="reportes-submenu">
+        @if (grupoAbierto('catalogo')) {
 
-            <a routerLink="/admin/reportes"
-               [queryParams]="{ vista: 'ventas' }"
-               [class.active]="esReporteActivo('ventas')"
-               (click)="cerrarMenu()">
+          <div class="section-content">
 
-              <span>▸</span>
-              Ventas e ingresos
+            <a
+              routerLink="/admin/productos"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-box"/></svg>
+              </span>
+
+              <span>Productos</span>
             </a>
 
-            <a routerLink="/admin/reportes"
-               [queryParams]="{ vista: 'inventario' }"
-               [class.active]="esReporteActivo('inventario')"
-               (click)="cerrarMenu()">
+            <a
+              routerLink="/admin/categorias"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
 
-              <span>▸</span>
-              Productos e inventario
+              <span class="nav-icon">
+                <svg><use href="#ad-tags"/></svg>
+              </span>
+
+              <span>Categorías</span>
             </a>
 
-            <a routerLink="/admin/reportes"
-               [queryParams]="{ vista: 'canales' }"
-               [class.active]="esReporteActivo('canales')"
-               (click)="cerrarMenu()">
+            <a
+              routerLink="/admin/stock"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
 
-              <span>▸</span>
-              Medios de pago y canales
-            </a>
+              <span class="nav-icon">
+                <svg><use href="#ad-stock"/></svg>
+              </span>
 
-            <a routerLink="/admin/reportes"
-               [queryParams]="{ vista: 'clientes' }"
-               [class.active]="esReporteActivo('clientes')"
-               (click)="cerrarMenu()">
-
-              <span>▸</span>
-              Clientes y cuentas
+              <span>Stock y tallas</span>
             </a>
 
           </div>
@@ -364,74 +284,380 @@
 
       </div>
 
-      <!-- ===================================================
-           MI TIENDA
-           =================================================== -->
-      <span class="navigation-title">MI TIENDA</span>
+      <!-- OPERACIONES -->
+      <div class="nav-section">
 
-      <a routerLink="/admin/configuracion"
-         routerLinkActive="active"
-         (click)="cerrarMenu()">
+        <button
+          type="button"
+          class="section-toggle"
+          [class.section-selected]="esRutaActiva([
+            '/admin/pedidos',
+            '/admin/envios',
+            '/admin/ventas'
+          ])"
+          [attr.aria-expanded]="grupoAbierto('operaciones')"
+          (click)="alternarGrupo('operaciones')">
 
-        <span class="nav-icon">⚙</span>
+          <span>OPERACIONES</span>
 
-        Configuración de tienda
-      </a>
+          <svg
+            class="chevron"
+            [class.rotado]="grupoAbierto('operaciones')">
+            <use href="#ad-chevron"/>
+          </svg>
+
+        </button>
+
+        @if (grupoAbierto('operaciones')) {
+
+          <div class="section-content">
+
+            <a
+              routerLink="/admin/pedidos"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-orders"/></svg>
+              </span>
+
+              <span>Pedidos</span>
+            </a>
+
+            <a
+              routerLink="/admin/envios"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-truck"/></svg>
+              </span>
+
+              <span>Envíos</span>
+            </a>
+
+            <a
+              routerLink="/admin/ventas"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-sales"/></svg>
+              </span>
+
+              <span>Ventas</span>
+            </a>
+
+          </div>
+        }
+
+      </div>
+
+      <!-- PAGOS -->
+      <div class="nav-section">
+
+        <button
+          type="button"
+          class="section-toggle"
+          [class.section-selected]="esRutaActiva([
+            '/admin/pagos',
+            '/admin/transferencias',
+            '/admin/pagos-yape',
+            '/admin/yape'
+          ])"
+          [attr.aria-expanded]="grupoAbierto('pagos')"
+          (click)="alternarGrupo('pagos')">
+
+          <span>PAGOS Y COBROS</span>
+
+          <svg
+            class="chevron"
+            [class.rotado]="grupoAbierto('pagos')">
+            <use href="#ad-chevron"/>
+          </svg>
+
+        </button>
+
+        @if (grupoAbierto('pagos')) {
+
+          <div class="section-content">
+
+            <a
+              routerLink="/admin/pagos"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-card"/></svg>
+              </span>
+
+              <span>Resumen de pagos</span>
+            </a>
+
+            <a
+              routerLink="/admin/cuentas-bancarias" routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link"
+              [class.active]="router.url.startsWith(
+                '/admin/transferencias#cuentas'
+              )">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-bank"/></svg>
+              </span>
+
+              <span>Cuentas bancarias</span>
+            </a>
+
+            <a
+              routerLink="/admin/transferencias" routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link"
+              [class.active]="router.url.startsWith(
+                '/admin/transferencias#pendientes'
+              )">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-clock"/></svg>
+              </span>
+
+              <span>Transferencias pendientes</span>
+            </a>
+
+            <a
+              routerLink="/admin/pagos-yape"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-phone"/></svg>
+              </span>
+
+              <span>Pagos Yape pendientes</span>
+            </a>
+
+            <a
+              routerLink="/admin/yape"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-settings"/></svg>
+              </span>
+
+              <span>Yape de mi tienda</span>
+            </a>
+
+          </div>
+        }
+
+      </div>
+
+      <!-- REPORTES -->
+      <div class="nav-section">
+
+        <button
+          type="button"
+          class="section-toggle"
+          [class.section-selected]="esRutaActiva(['/admin/reportes'])"
+          [attr.aria-expanded]="menuReportesAbierto"
+          (click)="alternarReportes()">
+
+          <span>REPORTES</span>
+
+          <svg
+            class="chevron"
+            [class.rotado]="menuReportesAbierto">
+            <use href="#ad-chevron"/>
+          </svg>
+
+        </button>
+
+        @if (menuReportesAbierto) {
+
+          <div class="section-content">
+
+            <a
+              routerLink="/admin/reportes"
+              [queryParams]="{ vista: 'ventas' }"
+              [class.active]="esReporteActivo('ventas')"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-sales"/></svg>
+              </span>
+
+              <span>Ventas e ingresos</span>
+            </a>
+
+            <a
+              routerLink="/admin/reportes"
+              [queryParams]="{ vista: 'inventario' }"
+              [class.active]="esReporteActivo('inventario')"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-stock"/></svg>
+              </span>
+
+              <span>Productos e inventario</span>
+            </a>
+
+            <a
+              routerLink="/admin/reportes"
+              [queryParams]="{ vista: 'canales' }"
+              [class.active]="esReporteActivo('canales')"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-report"/></svg>
+              </span>
+
+              <span>Pagos y canales</span>
+            </a>
+
+            <a
+              routerLink="/admin/reportes"
+              [queryParams]="{ vista: 'clientes' }"
+              [class.active]="esReporteActivo('clientes')"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-users"/></svg>
+              </span>
+
+              <span>Clientes y cuentas</span>
+            </a>
+
+          </div>
+        }
+
+      </div>
+
+      <!-- ADMINISTRACIÓN -->
+      <div class="nav-section">
+
+        <button
+          type="button"
+          class="section-toggle"
+          [class.section-selected]="esRutaActiva([
+            '/admin/usuarios',
+            '/admin/configuracion',
+            '/admin/perfil'
+          ])"
+          [attr.aria-expanded]="grupoAbierto('administracion')"
+          (click)="alternarGrupo('administracion')">
+
+          <span>ADMINISTRACIÓN</span>
+
+          <svg
+            class="chevron"
+            [class.rotado]="grupoAbierto('administracion')">
+            <use href="#ad-chevron"/>
+          </svg>
+
+        </button>
+
+        @if (grupoAbierto('administracion')) {
+
+          <div class="section-content">
+
+            <a
+              routerLink="/admin/usuarios"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-users"/></svg>
+              </span>
+
+              <span>Usuarios</span>
+            </a>
+
+            <a
+              routerLink="/admin/configuracion"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-settings"/></svg>
+              </span>
+
+              <span>Configuración de tienda</span>
+            </a>
+      <a routerLink="/admin/personalizacion-cabecera" routerLinkActive="active" (click)="cerrarMenu()"><span class="nav-icon">â˜°</span> MenÃº y Promo Bar</a>
+
+            <a
+              routerLink="/admin/perfil"
+              routerLinkActive="active"
+              (click)="cerrarMenu()"
+              class="nav-link">
+
+              <span class="nav-icon">
+                <svg><use href="#ad-user"/></svg>
+              </span>
+
+              <span>Mi perfil</span>
+            </a>
+
+          </div>
+        }
+
+      </div>
 
     </nav>
 
-    <!-- =====================================================
-         FOOTER DEL SIDEBAR
-         ===================================================== -->
+    <!-- PIE DE SIDEBAR -->
     <div class="sidebar-footer">
 
-      <a routerLink="/"
-         class="store-link">
+      <a
+        routerLink="/"
+        (click)="cerrarMenu()"
+        class="store-link">
 
-        <svg width="14"
-             height="14"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
+        <svg class="ui-icon">
+          <use href="#ad-store"/>
         </svg>
 
-        Ver Tienda Online
+        <span>Ver tienda online</span>
       </a>
 
-      <button type="button"
-              class="btn-logout"
-              (click)="cerrarSesion()">
+      <button
+        type="button"
+        class="btn-logout"
+        (click)="cerrarSesion()">
 
-        <svg width="14"
-             height="14"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
+        <svg class="ui-icon">
+          <use href="#ad-logout"/>
         </svg>
 
-        Cerrar Sesión
+        <span>Cerrar sesión</span>
       </button>
 
     </div>
 
   </aside>
 
-  <!-- =====================================================
+  <!-- ======================================================
        CONTENIDO PRINCIPAL
-       ===================================================== -->
+       ====================================================== -->
   <div class="admin-main">
 
-    <!-- =====================================================
-         TOPBAR
-         ===================================================== -->
+    <!-- BARRA SUPERIOR -->
     <header class="admin-topbar">
 
       <div class="topbar-left">
@@ -439,13 +665,18 @@
         <button
           type="button"
           class="mobile-menu-button"
-          (click)="toggleMenu()"
-          aria-label="Abrir menú">
-          ☰
+          aria-label="Abrir menú"
+          [attr.aria-expanded]="menuAbierto"
+          (click)="toggleMenu()">
+
+          <svg class="ui-icon">
+            <use href="#ad-menu"/>
+          </svg>
+
         </button>
 
         <div class="topbar-titles">
-          <span>PANEL DE CONTROL</span>
+          <span>ESPACIO DE TRABAJO</span>
 
           <strong>
             {{ tiendaService.tiendaActual()?.nombre || 'MI TIENDA' }}
@@ -454,26 +685,52 @@
 
       </div>
 
-      <!-- USUARIO / PERFIL -->
-      <div class="admin-user-profile">
+      <div class="topbar-actions">
 
-        <div class="user-meta">
-          <span class="user-role">ADMINISTRADOR</span>
+        <a
+          routerLink="/"
+          class="topbar-store"
+          title="Abrir tienda online">
 
-          <strong>
-            {{ authService.obtenerCorreo() || 'Administrador' }}
-          </strong>
-        </div>
+          <svg class="ui-icon">
+            <use href="#ad-store"/>
+          </svg>
 
-        <div class="user-avatar-badge">A</div>
+          <span>Ver tienda</span>
+        </a>
+
+        <div class="topbar-divider"></div>
+
+        <a
+          routerLink="/admin/perfil"
+          class="admin-user-profile"
+          title="Administrar mi perfil">
+
+          <div class="user-meta">
+            <span class="user-role">
+              ADMINISTRADOR
+            </span>
+
+            <strong>
+              {{ authService.obtenerCorreo() || 'Mi cuenta' }}
+            </strong>
+          </div>
+
+          <div class="user-avatar-badge">
+            {{
+              (authService.obtenerCorreo() || 'A')
+                .charAt(0)
+                .toUpperCase()
+            }}
+          </div>
+
+        </a>
 
       </div>
 
     </header>
 
-    <!-- =====================================================
-         VISTAS DINAMICAS
-         ===================================================== -->
+    <!-- COMPONENTE DE CADA PÁGINA -->
     <main class="admin-content-area">
       <router-outlet></router-outlet>
     </main>

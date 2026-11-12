@@ -28,7 +28,6 @@ import { Dashboard } from './features/admin/dashboard/dashboard';
 import { Productos } from './features/admin/productos/productos';
 import { ProductoForm } from './features/admin/producto-form/producto-form';
 import { Stock } from './features/admin/stock/stock';
-import { Vender } from './features/admin/vender/vender';
 import { Ventas } from './features/admin/ventas/ventas';
 import { Usuarios } from './features/admin/usuarios/usuarios';
 import { Reportes } from './features/admin/reportes/reportes';
@@ -83,6 +82,23 @@ export const routes: Routes = [
     component: MisCompras,
     canActivate: [authGuard]
   },
+
+{
+  path: 'mi-cuenta',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/mi-cuenta/mi-cuenta')
+      .then(m => m.MiCuenta)
+},
+  {
+    path: 'mis-compras/:id/seguimiento',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/seguimiento-page/seguimiento-page')
+        .then(m => m.SeguimientoPage)
+  },
+
+
   {
     path: 'mis-compras/:id',
     component: DetalleCompra,
@@ -98,6 +114,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
 
     children: [
+
+{
+  path: 'perfil',
+  loadComponent: () =>
+    import('./features/admin/perfil/perfil-admin')
+      .then(m => m.PerfilAdmin)
+},
+
 
       // -------------------------------------------------
       // DASHBOARD
@@ -133,28 +157,37 @@ export const routes: Routes = [
         path: 'productos/:id/editar',
         component: ProductoForm
       },
-      {
-        path: 'mayoristas',
-        loadComponent: () =>
-          import('./features/admin/mayoristas/mayoristas')
-            .then(m => m.Mayoristas)
-      },
+
       {
         path: 'stock',
         component: Stock
       },
 
+
       // -------------------------------------------------
-      // NEGOCIO
+      // NEGOCIO - VENTAS
       // -------------------------------------------------
-      {
-        path: 'vender',
-        component: Vender
-      },
       {
         path: 'ventas',
         component: Ventas
       },
+
+      // -------------------------------------------------
+      // NEGOCIO - PEDIDOS ONLINE
+      // -------------------------------------------------
+      {
+        path: 'pedidos',
+        loadComponent: () =>
+          import('./features/admin/pedidos/pedidos')
+            .then(m => m.Pedidos)
+      },
+      {
+  path: 'envios',
+  loadComponent: () =>
+    import('./features/admin/envios/envios')
+      .then(m => m.Envios)
+},
+
 
       // -------------------------------------------------
       // B.2.1 - ADMINISTRACION DE PAGOS SANDBOX
@@ -169,7 +202,8 @@ export const routes: Routes = [
       // -------------------------------------------------
       // B.2.2 - CONFIGURACION YAPE POR TIENDA
       // -------------------------------------------------
-      { path: 'transferencias', loadComponent: () => import('./features/transferencias-admin/transferencias-admin').then(m=>m.TransferenciasAdmin) },
+      { path: 'cuentas-bancarias', loadComponent: () => import('./features/admin/cuentas-bancarias/cuentas-bancarias').then(m => m.CuentasBancarias) },
+      { path: 'transferencias', loadComponent: () => import('./features/admin/transferencias-pagos/transferencias-pagos').then(m => m.TransferenciasPagos) },
       { path: 'pagos-yape', loadComponent: () => import('./features/admin/yape-pagos/yape-pagos').then(m => m.YapePagosAdmin) },
       { path: 'yape',
         loadComponent: () =>
@@ -184,6 +218,14 @@ export const routes: Routes = [
         path: 'usuarios',
         component: Usuarios
       },
+
+{
+        path: 'roles-permisos',
+        title: 'Roles y permisos | Sebas Collection',
+        loadComponent: () =>
+          import('./features/admin/roles-permisos/roles-permisos')
+            .then(m => m.RolesPermisos)
+      },
       {
         path: 'reportes',
         component: Reportes
@@ -195,6 +237,11 @@ export const routes: Routes = [
       {
         path: 'home',
         component: HomeAdmin
+      },
+      {
+        path: 'personalizacion-cabecera',
+        loadComponent: () => import('./features/admin/personalizacion-cabecera/personalizacion-cabecera')
+          .then(m => m.PersonalizacionCabecera)
       },
       {
         path: 'configuracion',

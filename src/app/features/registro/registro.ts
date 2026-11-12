@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
+import { TiendaService } from '../../core/services/tienda.service';
 
 @Component({
   selector: 'app-registro',
@@ -22,6 +23,7 @@ export class Registro {
   mensaje = '';
 
   constructor(
+    public readonly tiendaService: TiendaService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -39,22 +41,31 @@ export class Registro {
     const formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formatoCorreo.test(correo)) {
-      this.error = 'Ingresa un correo válido.';
+      this.error = 'Ingresa un correo vÃƒÂ¡lido.';
       return;
     }
 
     if (this.password.length < 8) {
-      this.error = 'La contraseña debe tener al menos 8 caracteres.';
+      this.error = 'La contraseÃƒÂ±a debe tener al menos 8 caracteres.';
       return;
     }
 
+        if (!/[A-Z]/.test(this.password)) {
+      this.error = 'Al menos una mayúscula es obligatoria.';
+      return;
+    }
+
+    if (!/[0-9]/.test(this.password)) {
+      this.error = 'La contraseña debe contener un número.';
+      return;
+    }
     if (this.password.length > 100) {
-      this.error = 'La contraseña no puede superar los 100 caracteres.';
+      this.error = 'La contraseÃƒÂ±a no puede superar los 100 caracteres.';
       return;
     }
 
     if (this.password !== this.confirmarPassword) {
-      this.error = 'Las contraseñas no coinciden.';
+      this.error = 'Las contraseÃƒÂ±as no coinciden.';
       return;
     }
 

@@ -45,7 +45,7 @@ interface CategoriaReporte {
 }
 
 interface CanalReporte {
-  nombre: 'ONLINE' | 'PRESENCIAL';
+  nombre: 'ONLINE';
   cantidad: number;
   total: number;
   porcentaje: number;
@@ -81,7 +81,6 @@ export class Reportes implements OnInit {
 
   // FILTROS
   periodo = 'TODO';
-  canal = 'TODOS';
 
   // ESTADO
   cargando = true;
@@ -165,7 +164,6 @@ export class Reportes implements OnInit {
   }
 
   aplicarPeriodo(): void { this.aplicarFiltros(); }
-  aplicarCanal(): void { this.aplicarFiltros(); }
 
   private aplicarFiltros(): void {
     const ahora = new Date();
@@ -175,10 +173,7 @@ export class Reportes implements OnInit {
       if (Number.isNaN(fecha.getTime())) return false;
 
       const cumplePeriodo = this.cumplePeriodo(fecha, ahora);
-      const tipoVenta = this.obtenerTipoVenta(venta);
-      const cumpleCanal = this.canal === 'TODOS' || tipoVenta === this.canal;
-
-      return cumplePeriodo && cumpleCanal && this.esVentaContabilizable(venta);
+      return cumplePeriodo && this.esVentaContabilizable(venta);
     });
 
     this.generarProductosVendidos();
@@ -260,11 +255,7 @@ export class Reportes implements OnInit {
     return resultado;
   }
 
-  private obtenerTipoVenta(venta: Venta): 'ONLINE' | 'PRESENCIAL' {
-    if (venta.tipoVenta === 'PRESENCIAL') return 'PRESENCIAL';
-    if (venta.tipoVenta === 'ONLINE') return 'ONLINE';
-    return venta.idClientePresencial ? 'PRESENCIAL' : 'ONLINE';
-  }
+  private obtenerTipoVenta(_venta: Venta): 'ONLINE' { return 'ONLINE'; }
 
   private idsVentasFiltradas(): Set<number> {
     return new Set(this.ventasFiltradas.map(venta => venta.idVenta));
@@ -340,7 +331,7 @@ export class Reportes implements OnInit {
   }
 
   private generarCanales(): void {
-    const mapa = new Map<'ONLINE' | 'PRESENCIAL', CanalReporte>();
+    const mapa = new Map<'ONLINE', CanalReporte>();
 
     for (const venta of this.ventasFiltradas) {
       const nombre = this.obtenerTipoVenta(venta);
@@ -425,17 +416,11 @@ export class Reportes implements OnInit {
       .map(v => 'web-' + v.idUsuario)).size;
   }
 
-  get compradoresPresenciales(): number {
-    return new Set(this.ventasFiltradas
-      .filter(v => this.obtenerTipoVenta(v) === 'PRESENCIAL' && v.idClientePresencial != null)
-      .map(v => 'pos-' + v.idClientePresencial)).size;
-  }
-
   get rankingClientes(): Array<{ clave: string; nombre: string; tipo: string; compras: number; total: number }> {
     const mapa = new Map<string, { clave: string; nombre: string; tipo: string; compras: number; total: number }>();
     for (const venta of this.ventasFiltradas) {
-      const tipo = this.obtenerTipoVenta(venta);
-      const id = tipo === 'ONLINE' ? venta.idUsuario : venta.idClientePresencial;
+      const tipo = 'ONLINE';
+      const id = venta.idUsuario;
       if (id == null) continue;
       const clave = `${tipo}-${id}`;
       const nombre = `${venta.nombreCliente ?? ''} ${venta.apellidoCliente ?? ''}`.trim() || `Cliente ${id}`;
@@ -470,17 +455,11 @@ export class Reportes implements OnInit {
       .reduce((acc, v) => acc + Number(v.total ?? 0), 0);
   }
 
-  get ingresoPresencial(): number {
-    return this.ventasFiltradas.filter(v => this.obtenerTipoVenta(v) === 'PRESENCIAL')
-      .reduce((acc, v) => acc + Number(v.total ?? 0), 0);
-  }
-
   get totalVentas(): number { return this.ventasFiltradas.length; }
   get ingresosTotales(): number { return this.ventasFiltradas.reduce((total, venta) => total + Number(venta.total ?? 0), 0); }
   get ventaPromedio(): number { return this.totalVentas > 0 ? this.ingresosTotales / this.totalVentas : 0; }
   get unidadesVendidas(): number { return this.detallesPeriodo().reduce((total, detalle) => total + Number(detalle.cantidad ?? 0), 0); }
   get ventasOnline(): number { return this.ventasFiltradas.filter(venta => this.obtenerTipoVenta(venta) === 'ONLINE').length; }
-  get ventasPresenciales(): number { return this.ventasFiltradas.filter(venta => this.obtenerTipoVenta(venta) === 'PRESENCIAL').length; }
 
   get totalUsuarios(): number { return this.usuarios.length; }
   get usuariosActivos(): number { return this.usuarios.filter(usuario => usuario.estado).length; }
@@ -523,14 +502,12 @@ export class Reportes implements OnInit {
     autoTable(pdf, {
       startY: 71,
       theme: 'grid',
-      head: [['Ventas', 'Ingresos', 'Unidades', 'Promedio', 'Online', 'Presencial']],
+      head: [['Pedidos web', 'Importe registrado', 'Unidades', 'Ticket promedio']],
       body: [[
         this.totalVentas.toString(),
         this.formatearMonedaPDF(this.ingresosTotales),
         this.unidadesVendidas.toString(),
-        this.formatearMonedaPDF(this.ventaPromedio),
-        this.ventasOnline.toString(),
-        this.ventasPresenciales.toString()
+        this.formatearMonedaPDF(this.ventaPromedio)
       ]],
       styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, halign: 'center' },
       headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' }
@@ -693,7 +670,7 @@ export class Reportes implements OnInit {
 
     const fechaArchivo = this.obtenerFechaArchivo();
     const periodoArchivo = this.periodo.toLowerCase().replace(/_/g, '-');
-    const canalArchivo = this.canal.toLowerCase();
+    const canalArchivo = 'ecommerce';
 
     pdf.save(`reporte-general-${periodoArchivo}-${canalArchivo}-${fechaArchivo}.pdf`);
   }
@@ -714,12 +691,7 @@ export class Reportes implements OnInit {
   }
 
   private obtenerNombreCanal(): string {
-    const canales: Record<string, string> = {
-      TODOS: 'Todos los canales',
-      ONLINE: 'Online',
-      PRESENCIAL: 'Presencial'
-    };
-    return canales[this.canal] ?? 'Todos los canales';
+    return 'E-commerce';
   }
 
   private formatearMonedaPDF(valor: number): string {
@@ -765,7 +737,6 @@ export class Reportes implements OnInit {
       ['Unidades vendidas', this.unidadesVendidas],
       ['Venta promedio', this.ventaPromedio],
       ['Ventas online', this.ventasOnline],
-      ['Ventas presenciales', this.ventasPresenciales],
       [],
       ['INVENTARIO', 'VALOR'],
       ['Stock total', this.stockTotal],
@@ -790,9 +761,8 @@ export class Reportes implements OnInit {
     const ventas = this.ventasFiltradas.map(venta => ({
       'ID Venta': venta.idVenta,
       'Fecha': this.formatearFechaExcel(venta.fechaVenta),
-      'Canal': this.obtenerTipoVenta(venta),
+      'Canal': 'ONLINE',
       'ID Usuario': venta.idUsuario ?? '',
-      'ID Cliente presencial': venta.idClientePresencial ?? '',
       'Nombre': venta.nombreCliente ?? '',
       'Apellido': venta.apellidoCliente ?? '',
       'Correo': venta.correoCliente ?? '',
@@ -806,13 +776,13 @@ export class Reportes implements OnInit {
 
     const hojaVentas = XLSX.utils.json_to_sheet(ventas.length > 0 ? ventas : [{ 'Sin datos': 'No existen ventas para el filtro seleccionado' }]);
     hojaVentas['!cols'] = [
-      { wch: 11 }, { wch: 20 }, { wch: 14 }, { wch: 12 }, { wch: 21 },
-      { wch: 22 }, { wch: 22 }, { wch: 30 }, { wch: 18 }, { wch: 20 },
-      { wch: 17 }, { wch: 17 }, { wch: 20 }, { wch: 14 }
+      { wch: 11 }, { wch: 20 }, { wch: 14 }, { wch: 12 },
+      { wch: 22 }, { wch: 22 }, { wch: 30 }, { wch: 18 },
+      { wch: 20 }, { wch: 17 }, { wch: 17 }, { wch: 20 }, { wch: 14 }
     ];
     if (ventas.length > 0) {
-      hojaVentas['!autofilter'] = { ref: hojaVentas['!ref'] ?? 'A1:N1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaVentas, 13, ventas.length + 1);
+      hojaVentas['!autofilter'] = { ref: hojaVentas['!ref'] ?? 'A1:M1' };
+      this.aplicarFormatoColumnaMonedaExcel(hojaVentas, 12, ventas.length + 1);
     }
     XLSX.utils.book_append_sheet(libro, hojaVentas, 'Ventas');
 
@@ -931,7 +901,7 @@ export class Reportes implements OnInit {
     XLSX.utils.book_append_sheet(libro, hojaUsuarios, 'Usuarios');
 
     const periodoArchivo = this.periodo.toLowerCase().replace(/_/g, '-');
-    const canalArchivo = this.canal.toLowerCase();
+    const canalArchivo = 'ecommerce';
     const fechaArchivo = this.obtenerFechaArchivo();
 
     XLSX.writeFile(

@@ -1,4 +1,3 @@
-import { SeguimientoPedido } from './seguimiento-pedido';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -11,7 +10,7 @@ import { Footer } from '../../shared/components/footer/footer';
 @Component({
   selector: 'app-detalle-compra',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, RouterLink, PromoBar, Navbar, Footer, SeguimientoPedido],
+  imports: [DatePipe, DecimalPipe, RouterLink, PromoBar, Navbar, Footer],
   templateUrl: './detalle-compra.html',
   styleUrl: './detalle-compra.css'
 })

@@ -1,4 +1,5 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
+import { CabeceraTiendaService, parametrosMenu } from '../../../core/services/cabecera-tienda.service';
 import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../../core/services/carrito';
 import { AuthService } from '../../../core/services/auth';
@@ -12,6 +13,10 @@ import { TiendaService } from '../../../core/services/tienda.service';
   styleUrl: './navbar.css'
 })
 export class Navbar {
+  readonly cabeceraService = inject(CabeceraTiendaService);
+  readonly parametrosMenu = parametrosMenu;
+  ngOnInit(): void { this.cabeceraService.asegurarCarga(); }
+
   menuAbierto = false;
   cuentaAbierta = false;
   constructor(
@@ -39,10 +44,24 @@ export class Navbar {
   get correoUsuario(): string { return this.authService.obtenerCorreo() ?? 'Mi cuenta'; }
   get inicialUsuario(): string { return this.correoUsuario.charAt(0).toUpperCase(); }
   get esAdmin(): boolean { return this.authService.obtenerRol()?.toUpperCase() === 'ADMIN'; }
-  irACuenta(): void {
-    this.cerrarMenu(); this.cerrarCuenta();
-    void this.router.navigate([!this.authService.autenticado() ? '/login' : this.esAdmin ? '/admin/dashboard' : '/mis-compras']);
+  
+irACuenta(): void {
+  this.cerrarMenu();
+  this.cerrarCuenta();
+
+  if (!this.authService.autenticado()) {
+    void this.router.navigate(['/login']);
+    return;
   }
+
+  if (this.esAdmin) {
+    void this.router.navigate(['/admin/perfil']);
+    return;
+  }
+
+  void this.router.navigate(['/mi-cuenta']);
+}
+
   irAMisCompras(): void { this.cerrarCuenta(); this.cerrarMenu(); void this.router.navigate(['/mis-compras']); }
   irAAdmin(): void { this.cerrarCuenta(); this.cerrarMenu(); void this.router.navigate(['/admin/dashboard']); }
   cerrarSesion(): void {

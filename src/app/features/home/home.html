@@ -1,40 +1,75 @@
 <app-promo-bar></app-promo-bar>
 <app-navbar></app-navbar>
 <main>
-  <section class="hero" aria-label="Colecciones destacadas">
-    @if (cargandoBanners) {
-      <div class="hero-empty"><p>Cargando novedades...</p></div>
-    } @else if (obtenerBannerActual(); as banner) {
-      <div class="hero-slide">
-        @if (imagenBannerUrl(banner); as src) {
-          <img class="hero-image" [src]="src" [alt]="banner.titulo || 'Moda'" fetchpriority="high" />
-        }
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-          @if (banner.etiqueta) { <span class="eyebrow">{{ banner.etiqueta }}</span> }
-          <h1>{{ banner.titulo }}</h1>
-          @if (banner.descripcion) { <p>{{ banner.descripcion }}</p> }
-          <a class="hero-button" [href]="enlaceBanner(banner)">{{ banner.textoBoton || 'Explorar colección' }}</a>
-        </div>
-        @if (banners.length > 1) {
-          <button class="arrow prev" type="button" aria-label="Banner anterior" (click)="bannerAnterior()">‹</button>
-          <button class="arrow next" type="button" aria-label="Siguiente banner" (click)="siguienteBanner()">›</button>
-          <div class="dots">
-            @for (item of banners; track item.idBanner; let i = $index) {
-              <button type="button" [class.selected]="i === bannerActual" [attr.aria-label]="'Ir al banner ' + (i + 1)" (click)="irABanner(i)"></button>
+
+<section class="hero" aria-label="Banners de la tienda">
+
+  @if (cargandoBanners) {
+    <div class="hero-empty">
+      <p>Cargando banners...</p>
+    </div>
+
+  } @else if (banners.length > 0) {
+
+    <div class="hero-slide">
+
+      <div
+        class="hero-track"
+        [style.transform]="'translateX(-' + (bannerActual * 100) + '%)'">
+
+        @for (banner of banners; track banner.idBanner) {
+          <div class="hero-item">
+            @if (imagenBannerUrl(banner); as src) {
+              <img
+                class="hero-image"
+                [src]="src"
+                [alt]="banner.titulo || 'Banner de la tienda'">
             }
           </div>
         }
+
       </div>
-    } @else {
-      <div class="hero-empty"><div class="hero-content">
-        <span class="eyebrow">Nueva temporada</span>
-        <h1>Tu estilo, tu esencia.</h1>
-        <p>Descubre prendas para mujer y hombre que acompañan cada momento.</p>
-        <a class="hero-button" routerLink="/tienda">Explorar tienda</a>
-      </div></div>
-    }
-  </section>
+
+      @if (banners.length > 1) {
+        <button
+          class="arrow prev"
+          type="button"
+          aria-label="Anterior"
+          (click)="bannerAnterior()">
+          ‹
+        </button>
+
+        <button
+          class="arrow next"
+          type="button"
+          aria-label="Siguiente"
+          (click)="siguienteBanner()">
+          ›
+        </button>
+
+        <div class="dots">
+          @for (banner of banners; track banner.idBanner; let i = $index) {
+            <button
+              type="button"
+              [class.selected]="i === bannerActual"
+              [attr.aria-label]="'Banner ' + (i + 1)"
+              (click)="irABanner(i)">
+            </button>
+          }
+        </div>
+      }
+
+    </div>
+
+  } @else {
+    <div class="hero-empty">
+      <p>Pronto tendremos novedades.</p>
+    </div>
+  }
+
+</section>
+
+  
 
   <section class="department-section section-wrap" aria-label="Explorar moda">
     <div class="section-heading centered">

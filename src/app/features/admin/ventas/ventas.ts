@@ -1,4 +1,3 @@
-import { GestionEnvios } from './gestion-envios';
 import {
   ChangeDetectorRef,
   Component,
@@ -30,7 +29,7 @@ import {
 
   imports: [
     CommonModule,
-    FormsModule, GestionEnvios
+    FormsModule
   ],
 
   templateUrl: './ventas.html',
@@ -48,7 +47,6 @@ export class Ventas implements OnInit {
 
   busqueda = '';
 
-  filtroTipoVenta = '';
 
   filtroPago = '';
 
@@ -109,8 +107,7 @@ export class Ventas implements OnInit {
           ventas: Venta[]
         ) => {
 
-          this.ventas =
-            ventas ?? [];
+          this.ventas = ventas ?? [];
 
           this.ventas.sort(
             (
@@ -203,10 +200,6 @@ export class Ventas implements OnInit {
               .trim()
               .toLowerCase();
 
-          const tipoVenta =
-            venta.tipoVenta
-              ?.toUpperCase() ?? '';
-
           const medioPago =
             venta.medioPago
               ?.toUpperCase() ?? '';
@@ -222,11 +215,6 @@ export class Ventas implements OnInit {
             correo.includes(texto) ||
             documento.includes(texto);
 
-          const coincideTipo =
-            !this.filtroTipoVenta ||
-            tipoVenta ===
-              this.filtroTipoVenta;
-
           const coincidePago =
             !this.filtroPago ||
             medioPago ===
@@ -239,7 +227,6 @@ export class Ventas implements OnInit {
 
           return (
             coincideBusqueda &&
-            coincideTipo &&
             coincidePago &&
             coincideEstado
           );
@@ -256,7 +243,6 @@ export class Ventas implements OnInit {
 
     this.busqueda = '';
 
-    this.filtroTipoVenta = '';
 
     this.filtroPago = '';
 
@@ -426,17 +412,6 @@ export class Ventas implements OnInit {
   }
 
 
-  get ventasPresenciales(): number {
-
-    return this.ventas.filter(
-      (
-        venta: Venta
-      ) =>
-        venta.tipoVenta
-          ?.toUpperCase() ===
-        'PRESENCIAL'
-    ).length;
-  }
 
 
   get ventasEfectivo(): number {
@@ -527,38 +502,8 @@ export class Ventas implements OnInit {
   }
 
 
-  informacionCliente(
-    venta: Venta
-  ): string {
-
-    if (
-      venta.tipoVenta ===
-        'PRESENCIAL'
-    ) {
-
-      const documento =
-        (
-          `${venta.tipoDocumento ?? ''} ` +
-          `${venta.numeroDocumento ?? ''}`
-        ).trim();
-
-      if (documento) {
-
-        return documento;
-      }
-
-      if (venta.correoCliente) {
-
-        return venta.correoCliente;
-      }
-
-      return 'Cliente presencial';
-    }
-
-    return (
-      venta.correoCliente ??
-      'Sin correo'
-    );
+  informacionCliente(venta: Venta): string {
+    return venta.correoCliente ?? 'Sin correo';
   }
 
 
@@ -566,16 +511,8 @@ export class Ventas implements OnInit {
   // ETIQUETA TIPO DE VENTA
   // =========================================================
 
-  tipoVentaTexto(
-    venta: Venta
-  ): string {
-
-    return (
-      venta.tipoVenta ===
-        'PRESENCIAL'
-        ? 'Presencial'
-        : 'Online'
-    );
+  tipoVentaTexto(_venta: Venta): string {
+    return 'Online';
   }
 
 

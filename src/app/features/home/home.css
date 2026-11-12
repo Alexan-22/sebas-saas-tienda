@@ -25,8 +25,8 @@
 .department-section{padding-top:90px;padding-bottom:75px}
 .department-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
 .department-tile{display:block;position:relative;min-height:520px;overflow:hidden;color:#fff;text-decoration:none;background-position:center;background-size:cover}
-.department-tile.mujer{background-image:url('/images/home/sebas-mujer.jpg');background-color:#8c817a}
-.department-tile.hombre{background-image:url('/images/home/sebas-hombre.jpg');background-color:#5d5d5a}
+.department-tile.mujer{background:linear-gradient(145deg,#b9a49b,#64524d)}
+.department-tile.hombre{background:linear-gradient(145deg,#858987,#373d3c)}
 .department-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 .department-tile:hover .department-image{transform:scale(1.04)}
 .department-shade{position:absolute;inset:0;background:linear-gradient(0deg,#000b,transparent 70%)}
@@ -54,3 +54,146 @@
 .whatsapp{position:fixed;bottom:24px;right:24px;z-index:30;background:#237e4a;color:#fff;padding:14px 18px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:bold;box-shadow:0 8px 25px #0003}
 @media(max-width:900px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.department-tile{min-height:390px}}
 @media(max-width:600px){.section-wrap{width:min(100% - 28px,1360px)}.hero-slide,.hero-empty{height:490px}.hero-content{left:26px;right:26px;padding:0}.hero-content h1{font-size:49px}.arrow{display:none}.department-section{padding-top:55px;padding-bottom:45px}.department-grid{gap:10px}.department-tile{min-height:300px}.department-copy{bottom:22px;left:14px}.department-copy h3{font-size:35px}.department-copy strong{font-size:9px}.department-copy>span{font-size:9px}.collection-grid,.collection-grid.collection-grid-two{grid-template-columns:1fr}.collection-card,.collection-grid-one .collection-card{height:380px}.heading-row{align-items:start}.view-all{font-size:10px}.product-grid{gap:12px}.benefits{grid-template-columns:1fr}.section-heading h2{font-size:34px}}
+
+/* ============================================
+   CARRUSEL: IMAGEN NATURAL SIN OSCURECIMIENTO
+   ============================================ */
+
+.hero {
+  width: 100%;
+  background: transparent;
+  color: inherit;
+}
+
+.hero-slide {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-image {
+  position: relative;
+  inset: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: none;
+  opacity: 1;
+  transform: none;
+}
+
+.hero-overlay,
+.hero-content,
+.hero-button {
+  display: none;
+}
+
+/* Conservamos controles del carrusel */
+.hero-slide .arrow {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hero-slide .dots {
+  position: absolute;
+  z-index: 5;
+  bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .hero-slide {
+    height: auto;
+    min-height: 0;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+/* Carrusel horizontal fluido */
+
+.hero {
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-slide {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-track {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  transition: transform 650ms cubic-bezier(.22, 1, .36, 1);
+  will-change: transform;
+}
+
+.hero-item {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+}
+
+.hero-item .hero-image {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: none;
+  opacity: 1;
+}
+
+.hero-overlay,
+.hero-content {
+  display: none;
+}
+
+.hero-slide .arrow {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hero-slide .dots {
+  position: absolute;
+  z-index: 5;
+  bottom: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-track {
+    transition: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-slide {
+    height: auto;
+    min-height: 0;
+  }
+
+  .hero-item .hero-image {
+    height: auto;
+  }
+}
+
+

@@ -1,0 +1,218 @@
+﻿
+<section class="pedidos-page">
+
+  <header class="pedidos-header">
+    <div>
+      <span class="subtitulo">GESTIÓN E-COMMERCE</span>
+      <h1>Pedidos Online</h1>
+      <p>Seguimiento de compras, clientes y entregas de tu tienda.</p>
+    </div>
+
+    <button type="button" (click)="cargarPedidos()">
+      Actualizar pedidos
+    </button>
+  </header>
+
+  <div class="pedidos-stats">
+    <article>
+      <span>Total pedidos</span>
+      <strong>{{ totalPedidos }}</strong>
+    </article>
+
+    <article>
+      <span>Por atender</span>
+      <strong>{{ pendientes }}</strong>
+    </article>
+
+    <article>
+      <span>Enviados</span>
+      <strong>{{ enviados }}</strong>
+    </article>
+
+    <article>
+      <span>Entregados</span>
+      <strong>{{ entregados }}</strong>
+    </article>
+  </div>
+
+  <div class="pedidos-panel">
+
+    <div class="pedidos-filtros">
+      <input
+        type="search"
+        [(ngModel)]="busqueda"
+        (ngModelChange)="aplicarFiltros()"
+        placeholder="Buscar pedido, cliente o correo"
+      >
+
+      <select
+        [(ngModel)]="filtroEstado"
+        (ngModelChange)="aplicarFiltros()"
+      >
+        <option value="">Todos los estados</option>
+
+        @for (estado of estados; track estado) {
+          <option [value]="estado">{{ estado }}</option>
+        }
+      </select>
+    </div>
+
+    @if (cargando) {
+      <p>Cargando pedidos...</p>
+
+    } @else if (error) {
+      <p role="alert">{{ error }}</p>
+
+    } @else if (pedidosFiltrados.length === 0) {
+      <p>No hay pedidos para los filtros seleccionados.</p>
+
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Pedido</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Estado pedido</th>
+              <th>Pago</th>
+              <th>Total</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (pedido of pedidosFiltrados; track pedido.idVenta) {
+              <tr>
+                <td>
+                  <strong>#{{ pedido.idVenta }}</strong>
+                </td>
+
+                <td>
+                  {{ pedido.fechaVenta | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+                <td>
+                  {{ pedido.nombreCliente }}
+                  {{ pedido.apellidoCliente || '' }}
+                </td>
+
+                <td>
+                  <span class="estado">
+                    {{ pedido.estadoPedido || pedido.estado }}
+                  </span>
+                </td>
+
+                <td>{{ pedido.medioPago }}</td>
+
+                <td>
+                  S/ {{ pedido.total | number:'1.2-2' }}
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    (click)="abrirDetalle(pedido)"
+                  >
+                    Ver pedido
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- MODAL DEL DETALLE DEL PEDIDO -->
+  @if (pedidoSeleccionado) {
+    <div class="modal-fondo" (click)="cerrarDetalle()">
+      <section
+        class="modal-pedido"
+        (click)="$event.stopPropagation()"
+      >
+
+        <header class="modal-encabezado">
+          <h2>Pedido #{{ pedidoSeleccionado.idVenta }}</h2>
+
+          <button
+            type="button"
+            (click)="cerrarDetalle()"
+          >
+            Cerrar
+          </button>
+        </header>
+
+        @if (cargandoDetalle) {
+          <p>Cargando detalle...</p>
+
+        } @else if (errorDetalle) {
+          <p role="alert">{{ errorDetalle }}</p>
+
+        } @else if (detalle) {
+
+          <p>
+            <strong>Cliente:</strong>
+            {{ detalle.nombreCliente }}
+            {{ detalle.apellidoCliente || '' }}
+          </p>
+
+          <p>
+            <strong>Estado:</strong>
+            {{ detalle.estadoPedido }}
+          </p>
+
+          <p>
+            <strong>Medio de pago:</strong>
+            {{ detalle.medioPago }}
+          </p>
+
+          @if (detalle.direccionEnvio) {
+            <div class="direccion">
+              <h3>Dirección de envío</h3>
+
+              <p>
+                {{ detalle.direccionEnvio.direccionExacta }},
+                {{ detalle.direccionEnvio.distrito }},
+                {{ detalle.direccionEnvio.provincia }},
+                {{ detalle.direccionEnvio.departamento }}
+              </p>
+
+              <p>
+                Referencia:
+                {{ detalle.direccionEnvio.referencia || 'Sin referencia' }}
+              </p>
+            </div>
+          }
+
+          <h3>Productos del pedido</h3>
+
+          @for (
+            item of detalle.detalles;
+            track item.idDetalleVenta
+          ) {
+            <div class="linea-producto">
+              <span>
+                {{ item.productoTalla.producto.nombre }}
+                —
+                {{ item.productoTalla.talla.nombreTalla }}
+                × {{ item.cantidad }}
+              </span>
+
+              <strong>
+                S/ {{ item.subtotal | number:'1.2-2' }}
+              </strong>
+            </div>
+          }
+
+          <p class="total">
+            Total: S/ {{ detalle.total | number:'1.2-2' }}
+          </p>
+        }
+
+      </section>
+    </div>
+  }
+
+</section>

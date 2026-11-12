@@ -1,0 +1,340 @@
+:host {
+  display: block;
+  color: #1c2740;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.tracking-page {
+  min-height: 75vh;
+  padding: 35px 20px 85px;
+  background:
+    radial-gradient(
+      circle at 92% 4%,
+      rgba(91, 112, 220, .10),
+      transparent 34%
+    ),
+    #f5f7fb;
+}
+
+.tracking-container {
+  width: min(100%, 1100px);
+  margin: auto;
+}
+
+.tracking-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+  font-size: 12px;
+  color: #8993a4;
+}
+
+.tracking-breadcrumb a {
+  color: #59677d;
+  text-decoration: none;
+}
+
+.tracking-breadcrumb a:hover {
+  color: #465bc5;
+}
+
+.tracking-breadcrumb strong {
+  color: #26334b;
+}
+
+/* HERO */
+
+.tracking-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  align-items: center;
+  gap: 35px;
+  min-height: 290px;
+  overflow: hidden;
+  padding: 42px 48px;
+  margin-bottom: 32px;
+  background: linear-gradient(120deg, #111b35, #354c99);
+  color: #fff;
+  border-radius: 26px;
+  box-shadow: 0 22px 50px rgba(27, 44, 89, .13);
+}
+
+.tracking-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.tracking-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: #cbd7ff;
+  font-size: 10px;
+  letter-spacing: .18em;
+  font-weight: 800;
+}
+
+.tracking-tag-dot {
+  width: 8px;
+  height: 8px;
+  background: #7cf0be;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(124, 240, 190, .5);
+}
+
+.tracking-hero h1 {
+  max-width: 520px;
+  margin: 0 0 13px;
+  font-size: clamp(29px, 4vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -.045em;
+  font-weight: 850;
+}
+
+.tracking-hero p {
+  max-width: 460px;
+  margin: 0;
+  color: #d5ddf6;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.tracking-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.tracking-hero-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 18px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.tracking-hero-actions a:hover {
+  transform: translateY(-2px);
+}
+
+.tracking-back {
+  background: #fff;
+  color: #263f90;
+}
+
+.tracking-detail {
+  border: 1px solid rgba(255, 255, 255, .35);
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+}
+
+/* ICONO CAMION */
+
+.tracking-illustration {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 195px;
+}
+
+.tracking-illustration-circle {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .075);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+
+.tracking-truck {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 250px);
+  filter: drop-shadow(0 15px 18px rgba(4, 13, 40, .2));
+  animation: flotar 3.5s ease-in-out infinite;
+}
+
+.tracking-truck svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tracking-illustration-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #e8edff;
+}
+
+.tracking-illustration-label span {
+  font-size: 9px;
+  letter-spacing: .25em;
+}
+
+.tracking-illustration-label strong {
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+/* TITULO */
+
+.tracking-order-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 0 0 20px;
+}
+
+.tracking-order-title p {
+  margin: 0 0 7px;
+  color: #5869bc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .15em;
+}
+
+.tracking-order-title h2 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: -.035em;
+  color: #192239;
+}
+
+.tracking-order-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #e9eeff;
+  color: #485fc8;
+}
+
+.tracking-order-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* TARJETA DEL SEGUIMIENTO */
+
+.tracking-card {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #e2e8f2;
+  border-radius: 22px;
+  box-shadow: 0 12px 42px rgba(34, 55, 105, .045);
+}
+
+/* AYUDA */
+
+.tracking-help {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-top: 22px;
+  padding: 22px 25px;
+  background: #edf2ff;
+  border: 1px solid #dbe5ff;
+  border-radius: 17px;
+}
+
+.tracking-help-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  background: #fff;
+  color: #4a61bb;
+  border-radius: 13px;
+}
+
+.tracking-help-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tracking-help h3 {
+  margin: 0 0 6px;
+  color: #233454;
+  font-size: 15px;
+}
+
+.tracking-help p {
+  margin: 0;
+  color: #64728b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@media (max-width: 760px) {
+  .tracking-page {
+    padding: 22px 14px 55px;
+  }
+
+  .tracking-hero {
+    grid-template-columns: 1fr;
+    padding: 30px 24px;
+    gap: 12px;
+    border-radius: 19px;
+  }
+
+  .tracking-illustration {
+    min-height: 130px;
+  }
+
+  .tracking-illustration-circle {
+    width: 160px;
+    height: 160px;
+  }
+
+  .tracking-truck {
+    max-width: 180px;
+  }
+
+  .tracking-hero h1 {
+    font-size: 31px;
+  }
+
+  .tracking-card {
+    padding: 17px;
+    border-radius: 16px;
+  }
+
+  .tracking-help {
+    align-items: flex-start;
+    padding: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tracking-truck {
+    animation: none;
+  }
+
+  .tracking-hero-actions a {
+    transition: none;
+  }
+}

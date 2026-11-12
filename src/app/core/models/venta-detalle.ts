@@ -2,9 +2,8 @@ import { ProductoTalla } from './producto-talla';
 
 export interface Venta {
   idVenta: number;
-  tipoVenta: 'ONLINE' | 'PRESENCIAL';
+  tipoVenta: 'ONLINE' | null;
   idUsuario: number | null;
-  idClientePresencial: number | null;
   nombreCliente: string;
   apellidoCliente: string | null;
   correoCliente: string | null;
@@ -39,7 +38,7 @@ export interface DireccionEnvioResponse {
 export interface DetalleCompraResponse {
   idVenta: number;
   fechaVenta: string;
-  tipoVenta: 'ONLINE' | 'PRESENCIAL';
+  tipoVenta: 'ONLINE' | null;
   subtotal: number;
   costoDelivery: number;
   total: number;
@@ -47,7 +46,6 @@ export interface DetalleCompraResponse {
   estadoPedido: string;
   medioPago: string;
   idUsuario: number | null;
-  idClientePresencial: number | null;
   nombreCliente: string;
   apellidoCliente: string | null;
   correoCliente: string | null;

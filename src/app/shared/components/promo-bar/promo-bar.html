@@ -1,1 +1,16 @@
-<div class="promo-bar" role="note">NUEVAS COLECCIONES · MODA MUJER Y HOMBRE · DESCUBRE TU ESTILO</div>
+@if (configuracion().promoActiva && configuracion().promoMensajes.length) {
+  <div class="promo-bar" role="region" aria-label="Promociones de la tienda"
+       [style.backgroundColor]="color()" [style.color]="colorTexto()">
+    @if (modoDesplazamiento() && movimiento()) {
+      <div class="promo-ventana">
+        <div class="promo-cinta" [style.--promo-duracion]="duracion() + 's'">
+          <span class="promo-texto-cinta">{{ textoContinuo() }}</span>
+        </div>
+      </div>
+    } @else {
+      <span class="promo-texto" aria-live="off">
+        {{ modoDesplazamiento() ? textoContinuo() : mensaje() }}
+      </span>
+    }
+  </div>
+}

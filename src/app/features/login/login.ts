@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
+import { TiendaService } from '../../core/services/tienda.service';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ export class Login implements OnInit {
   returnUrl = '/';
 
   constructor(
+    public readonly tiendaService: TiendaService,
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
@@ -39,7 +41,7 @@ export class Login implements OnInit {
   iniciarSesion(): void {
     this.error = '';
     if (!this.correo.trim() || !this.password) {
-      this.error = 'Ingresa tu correo y contraseña.';
+      this.error = 'Ingresa tu correo y contraseÃƒÂ±a.';
       return;
     }
 
@@ -55,7 +57,7 @@ export class Login implements OnInit {
       error: (error) => {
         console.error('Error login:', error);
         this.cargando = false;
-        this.error = typeof error.error === 'string' ? error.error : 'Correo o contraseña incorrectos.';
+        this.error = typeof error.error === 'string' ? error.error : 'Correo o contraseÃƒÂ±a incorrectos.';
       }
     });
   }
