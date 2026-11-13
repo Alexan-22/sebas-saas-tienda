@@ -44,6 +44,11 @@ export class FooterTiendaService {
       catchError(e => { this.cargado = false; return throwError(() => e); })
     ).subscribe({error: () => { /* El footer predeterminado permanece visible */ }});
   }
+  actualizarPublico(): void {
+    this.cargado = false;
+    this.cargarPublico();
+  }
+
   consultarAdmin(): Observable<FooterConfig> {
     return this.http.get<FooterConfig>(`${this.base}/admin/footer`).pipe(
       tap(v => {this.configuracion.set(v); this.cargado = true;})

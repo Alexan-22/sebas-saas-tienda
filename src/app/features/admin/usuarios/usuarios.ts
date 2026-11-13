@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioAdmin } from '../../../core/models/usuario-admin';
 import { UsuarioService } from '../../../core/services/usuario';
+import { RbacService } from '../../../core/services/rbac.service';
 
 @Component({
   selector: 'app-usuarios',
@@ -20,10 +21,17 @@ export class Usuarios implements OnInit {
   cargando = true;
   error = '';
   procesandoId: number | null = null;
+  empleadoSeleccionado: UsuarioAdmin | null = null;
+  nuevaClave = '';
+  confirmarClave = '';
+  errorClave = '';
+  mensajeClave = '';
+  guardandoClave = false;
 
   constructor(
     private usuarioService: UsuarioService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private rbac: RbacService
   ) {}
 
   ngOnInit(): void {
@@ -144,6 +152,61 @@ export class Usuarios implements OnInit {
   // =========================================================
   // ESTADÍSTICAS
   // =========================================================
+  abrirRestablecimiento(usuario: UsuarioAdmin): void {
+    if (this.guardandoClave || usuario.rol !== 'EMPLEADO') {
+      return;
+    }
+
+    this.cerrarRestablecimiento();
+    this.mensajeClave = '';
+    this.empleadoSeleccionado = usuario;
+  }
+
+  cerrarRestablecimiento(): void {
+    this.empleadoSeleccionado = null;
+    this.nuevaClave = '';
+    this.confirmarClave = '';
+    this.errorClave = '';
+  }
+
+  restablecerContrasena(): void {
+    const empleado = this.empleadoSeleccionado;
+    if (!empleado || this.guardandoClave) {
+      return;
+    }
+
+    if (this.nuevaClave.length < 10 || !this.nuevaClave.trim()
+        || new TextEncoder().encode(this.nuevaClave).length > 72) {
+      this.errorClave = 'Usa al menos 10 caracteres y un máximo de 72 bytes.';
+      return;
+    }
+
+    if (this.nuevaClave !== this.confirmarClave) {
+      this.errorClave = 'Las contraseñas deben coincidir.';
+      return;
+    }
+
+    this.errorClave = '';
+    this.guardandoClave = true;
+    const solicitud = this.rbac.restablecerContrasena(empleado.idUsuario, this.nuevaClave);
+    this.nuevaClave = '';
+    this.confirmarClave = '';
+
+    solicitud.subscribe({
+      next: () => {
+        this.guardandoClave = false;
+        this.cerrarRestablecimiento();
+        this.mensajeClave = 'Contraseña actualizada. El empleado debe volver a iniciar sesión.';
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.guardandoClave = false;
+        this.errorClave = 'No se pudo actualizar la contraseña. Inténtalo de nuevo.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
   get totalUsuarios(): number {
     return this.usuarios.length;
   }

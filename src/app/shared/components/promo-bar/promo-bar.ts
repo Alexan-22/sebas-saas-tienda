@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { CabeceraTiendaService, intervaloPromo, duracionDesplazamiento, textoContraste } from '../../../core/services/cabecera-tienda.service';
+import { Component, computed, effect, inject, input, OnInit, signal } from '@angular/core';
+import { CabeceraConfig, CabeceraTiendaService, intervaloPromo, duracionDesplazamiento, textoContraste } from '../../../core/services/cabecera-tienda.service';
 import { TiendaService } from '../../../core/services/tienda.service';
 
 @Component({ selector: 'app-promo-bar', standalone: true, imports: [],
@@ -7,9 +7,10 @@ import { TiendaService } from '../../../core/services/tienda.service';
 export class PromoBar implements OnInit {
   readonly cabeceraService = inject(CabeceraTiendaService);
   readonly tiendaService = inject(TiendaService);
-  readonly configuracion = this.cabeceraService.cabecera;
+  readonly vistaPrevia = input<CabeceraConfig>();
+  readonly configuracion = computed(() => this.vistaPrevia() ?? this.cabeceraService.cabecera());
   readonly indice = signal(0);
-  readonly color = computed(() => this.tiendaService.tiendaActual()?.colorPrimario || '#171717');
+  readonly color = this.tiendaService.colorPrimario;
   readonly colorTexto = computed(() => textoContraste(this.color()));
   readonly mensaje = computed(() => {
     const textos = this.configuracion().promoMensajes;
@@ -32,5 +33,7 @@ export class PromoBar implements OnInit {
     });
   }
 
-  ngOnInit(): void { this.cabeceraService.asegurarCarga(); }
+  ngOnInit(): void {
+    if (!this.vistaPrevia()) this.cabeceraService.asegurarCarga();
+  }
 }

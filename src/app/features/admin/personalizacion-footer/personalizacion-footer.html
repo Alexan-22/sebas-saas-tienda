@@ -31,9 +31,9 @@
         <label>Descripción <textarea [(ngModel)]="formulario.newsletterDescripcion" maxlength="200" rows="2"></textarea></label>
         <label>Texto legal <input [(ngModel)]="formulario.textoLegal" maxlength="180" /></label>
       </section>
-      <div class="sf-actions"><button type="button" class="sf-secondary" (click)="restaurar()" [disabled]="guardando">Descartar cambios</button><button type="button" class="sf-primary" [disabled]="guardando" (click)="guardar()">{{guardando ? 'Guardando...' : 'Guardar footer'}}</button></div>
+      <div class="sf-actions"><button type="button" class="sf-secondary" (click)="restaurar()" [disabled]="guardando">Descartar cambios</button><button type="button" class="sf-primary" [disabled]="guardando" (click)="guardar()">{{guardando ? 'Guardando...' : 'Guardar borrador'}}</button></div>
     </div>
-    <aside class="sf-preview"><span>VISTA PREVIA</span><div class="sf-mini"><h2>{{nombre}}</h2><p>{{formulario.descripcion}}</p><h3>EXPLORA</h3><small>Toda la tienda · Mujer · Hombre · Novedades</small><h3>REDES SOCIALES</h3><div class="sf-chips">@if (formulario.facebookUrl) {<span>Facebook</span>} @if (formulario.instagramUrl) {<span>Instagram</span>} @if (formulario.tiktokUrl) {<span>TikTok</span>} @if (!formulario.facebookUrl && !formulario.instagramUrl && !formulario.tiktokUrl) {<small>Aún no configuradas</small>}</div><p>{{formulario.textoContacto}}</p></div><p>El color de la marca se conserva en botones y acentos. Guarda para publicar.</p></aside>
+    <aside class="sf-preview"><span>VISTA PREVIA</span><div class="sf-mini"><h2>{{nombre}}</h2><p>{{formulario.descripcion}}</p><h3>EXPLORA</h3><small>Toda la tienda · Mujer · Hombre · Novedades</small><h3>REDES SOCIALES</h3><div class="sf-chips">@if (formulario.facebookUrl) {<span>Facebook</span>} @if (formulario.instagramUrl) {<span>Instagram</span>} @if (formulario.tiktokUrl) {<span>TikTok</span>} @if (!formulario.facebookUrl && !formulario.instagramUrl && !formulario.tiktokUrl) {<small>Aún no configuradas</small>}</div><p>{{formulario.textoContacto}}</p></div><p>El color de la marca se conserva en botones y acentos. Publica el borrador desde el Editor de tienda.</p></aside>
     </div>
   }
 </section>

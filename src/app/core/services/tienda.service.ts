@@ -1,6 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
+import type { TemaEditor } from './editor-tienda.service';
 import { environment } from '../../../environments/environment';
 
 export interface TiendaConfig {
@@ -36,14 +37,28 @@ export class TiendaService {
     );
   }
 
+  private readonly tema = signal<TemaEditor | null | undefined>(undefined);
+  readonly colorPrimario = computed(() => this.tema()?.primario ?? this.tiendaActual()?.colorPrimario ?? '#171717');
+
+  aplicarTema(tema?: TemaEditor | null): void {
+    this.tema.set(tema);
+    const config = this.tiendaActual();
+    if (config) this.aplicarConfiguracion(config);
+  }
+
   private aplicarConfiguracion(config: TiendaConfig): void {
     this.tiendaActual.set(config);
-    const color = /^#[0-9a-fA-F]{6}$/.test(config.colorPrimario || '')
-      ? config.colorPrimario : '#171717';
+    const primario = this.tema()?.primario ?? config.colorPrimario;
+    const color = /^#[0-9a-fA-F]{6}$/.test(primario) ? primario : '#171717';
     document.documentElement.style.setProperty('--color-primario', color);
-    const secundario = /^#[0-9a-fA-F]{6}$/.test(config.colorSecundario || '')
-      ? config.colorSecundario! : '#FFFFFF';
+    const valorSecundario = this.tema()?.secundario ?? config.colorSecundario ?? '';
+    const secundario = /^#[0-9a-fA-F]{6}$/.test(valorSecundario) ? valorSecundario : '#ffffff';
     document.documentElement.style.setProperty('--color-secundario', secundario);
+    const fuentes = { SANS: 'Arial, Helvetica, sans-serif', SERIF: 'Georgia, serif', MONO: 'monospace' };
+    const tema = this.tema();
+    const fuente = tema ? fuentes[tema.tipografia] : undefined;
+    document.documentElement.style.setProperty('--fuente-tienda', fuente ?? 'Arial, Helvetica, sans-serif');
+    document.documentElement.style.setProperty('--fuente-titulos', fuente ?? 'Georgia, serif');
   }
 
   cargarConfiguracion(): Observable<TiendaConfig> {

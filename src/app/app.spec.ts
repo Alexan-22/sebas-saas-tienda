@@ -27,6 +27,9 @@ describe('App - Sebas Collection', () => {
     TestBed.inject(HttpTestingController).expectOne('/api/v1/tiendas/config').flush({
       id: 1, nombre: 'Tienda de prueba', subdominio: 'fixture', colorPrimario: '#171717', logoUrl: null
     });
+    TestBed.inject(HttpTestingController).expectOne('/api/home/public/diseno').flush({
+      tema: { primario: '#334455', secundario: '#ddeeff', tipografia: 'SERIF' }
+    });
     await fixture.whenStable();
     fixture.detectChanges();
     TestBed.inject(HttpTestingController).verify();
@@ -36,6 +39,8 @@ describe('App - Sebas Collection', () => {
     const routerOutlet = compiled.querySelector('router-outlet');
 
     expect(routerOutlet).not.toBeNull();
+    expect(document.documentElement.style.getPropertyValue('--color-primario')).toBe('#334455');
+    expect(document.documentElement.style.getPropertyValue('--fuente-tienda')).toBe('Georgia, serif');
   });
 
 });

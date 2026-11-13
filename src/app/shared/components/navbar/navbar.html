@@ -7,17 +7,35 @@
         <span class="brand-word">{{ tiendaService.tiendaActual()?.nombre || 'TIENDA' }}</span>
       }
     </a>
-    <nav class="desktop-nav" aria-label="CatÃ¡logo principal">
-      @for (item of cabeceraService.cabecera().menuItems; track item.clave) {
+    <nav class="desktop-nav" aria-label="Catálogo principal">
+      @for (item of cabecera().menuItems; track item.clave) {
         @if (item.visible) {
-          <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" class="nav-link">{{item.texto}}</a>
+          @if (item.submenus?.length) {
+            <details class="nav-grupo">
+              <summary class="nav-link">{{ item.texto }}</summary>
+              <div class="nav-submenu">
+                <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)">Ver todo</a>
+                @for (sub of item.submenus; track $index) {
+                  <a routerLink="/tienda" [queryParams]="{ ...parametrosMenu(item.clave), q: sub.busqueda }">{{ sub.texto }}</a>
+                }
+              </div>
+            </details>
+          } @else {
+            <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" class="nav-link">{{ item.texto }}</a>
+          }
         }
       }
     </nav>
     <div class="nav-actions">
       <form class="search" (submit)="$event.preventDefault(); ejecutarBusqueda(buscar.value)">
         <input #buscar type="search" placeholder="Buscar prendas..." aria-label="Buscar prendas" />
-        <button type="submit" aria-label="Buscar">⌕</button>
+        <button type="submit" aria-label="Buscar">
+          <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="m16 16 4 4" />
+          </svg>
+        </button>
       </form>
       <button class="account" type="button" (click)="irACuenta()" aria-label="Mi cuenta">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3.5-7 8-7s8 2 8 7"/></svg>
@@ -26,18 +44,22 @@
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16l-1.5 13h-13L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
         @if (carritoService.cantidadTotal() > 0) { <span class="bag-count">{{ carritoService.cantidadTotal() }}</span> }
       </a>
-      <button class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuAbierto" [attr.aria-label]="menuAbierto ? 'Cerrar menú' : 'Abrir menú'">{{ menuAbierto ? '✕' : '☰' }}</button>
+      <button #menuToggle class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuAbierto" [attr.aria-label]="menuAbierto ? 'Cerrar menú' : 'Abrir menú'">{{ menuAbierto ? '✕' : '☰' }}</button>
     </div>
   </div>
   @if (menuAbierto) {
-    <nav class="mobile-nav" aria-label="Navegación móvil">
+    <nav class="mobile-nav" aria-label="Navegación móvil" (keydown.escape)="cerrarMenu(); menuToggle.focus()">
       <form (submit)="$event.preventDefault(); ejecutarBusqueda(buscarMovil.value)">
         <input #buscarMovil type="search" placeholder="Buscar vestidos, camisas, prendas..." aria-label="Buscar prendas" />
         <button type="submit">Buscar</button>
       </form>
-      @for (item of cabeceraService.cabecera().menuItems; track item.clave) {
+      @for (item of cabecera().menuItems; track item.clave) {
         @if (item.visible) {
-          <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" (click)="cerrarMenu()">{{item.texto}}</a>
+          <a routerLink="/tienda" [queryParams]="parametrosMenu(item.clave)" (click)="cerrarMenu()">{{ item.texto }}</a>
+          @for (sub of item.submenus; track $index) {
+            <a class="mobile-submenu" routerLink="/tienda" (click)="cerrarMenu()"
+              [queryParams]="{ ...parametrosMenu(item.clave), q: sub.busqueda }">{{ sub.texto }}</a>
+          }
         }
       }
       <button type="button" (click)="irACuenta()">{{ authService.autenticado() ? 'Mi cuenta' : 'Iniciar sesión' }}</button>

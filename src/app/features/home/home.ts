@@ -1,9 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ProductoService } from '../../core/services/producto';
 import { HomeContenidoService } from '../../core/services/home-contenido';
 import { TiendaService } from '../../core/services/tienda.service';
+import { ContenidoEditor, EditorTiendaService, SECCIONES_HOME } from '../../core/services/editor-tienda.service';
 import { Producto } from '../../core/models/producto';
 import { HomeBanner, HomeColeccion } from '../../core/models/home-contenido';
 import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
@@ -14,11 +16,16 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, PromoBar, Navbar, Footer, ProductCard],
+  imports: [RouterLink, NgTemplateOutlet, PromoBar, Navbar, Footer, ProductCard],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class Home implements OnInit, OnDestroy {
+  readonly vistaPrevia = input<ContenidoEditor>();
+  readonly diseno = signal<ContenidoEditor | null>(null);
+  readonly disenoCargado = signal(false);
+  readonly seccionesPorDefecto = SECCIONES_HOME;
+  private readonly editor = inject(EditorTiendaService);
   private readonly uploadsUrl = `${environment.apiUrl}/uploads/`;
   private intervaloCarrusel: ReturnType<typeof setInterval> | null = null;
   productos: Producto[] = [];
@@ -39,11 +46,44 @@ export class Home implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    if (this.vistaPrevia()) {
+      this.aplicarDiseno(this.vistaPrevia() ?? null);
+    } else {
+      this.editor.publicado().subscribe({
+        next: diseno => {
+          this.aplicarDiseno(diseno);
+        },
+        error: () => this.aplicarDiseno(null)
+      });
+    }
     this.cargarProductos();
-    this.cargarBanners();
-    this.cargarColecciones();
+
   }
   ngOnDestroy(): void { this.detenerCarrusel(); }
+
+  private aplicarDiseno(diseno: ContenidoEditor | null): void {
+    this.diseno.set(diseno);
+    this.disenoCargado.set(true);
+    const portada = diseno?.portada;
+    if (!portada) {
+      this.cargarBanners();
+      this.cargarColecciones();
+      return;
+    }
+
+    this.banners = portada.banners.filter(banner => banner.visible).sort((a, b) => a.orden - b.orden)
+      .map(banner => ({
+        idBanner: banner.id, imagen: banner.escritorio, imagenMovil: banner.movil,
+        orden: banner.orden, estado: true, titulo: banner.titulo ?? '', etiqueta: null,
+        descripcion: null, textoBoton: null, enlaceBoton: null
+      }));
+    this.colecciones = portada.colecciones.filter(coleccion => coleccion.visible)
+      .sort((a, b) => a.orden - b.orden)
+      .map(coleccion => ({ ...coleccion, idColeccion: coleccion.id, estado: true }));
+    this.cargandoBanners = false;
+    this.cargandoColecciones = false;
+    this.iniciarCarrusel();
+  }
 
   cargarProductos(): void {
     this.cargando = true;

@@ -51,12 +51,26 @@
                 <button type="button" (click)="mover(i,1)" [disabled]="i===formulario.menuItems.length-1" aria-label="Bajar enlace">↓</button>
               </div>
             </div>
+            @if (item.submenus; as submenus) {
+              @for (sub of submenus; track $index; let j = $index) {
+                <div class="fila-mensaje">
+                  <input [(ngModel)]="sub.texto" maxlength="24" placeholder="Nombre del submenú"
+                    [attr.aria-label]="'Nombre del submenú ' + (j + 1) + ' de ' + item.texto" />
+                  <input [(ngModel)]="sub.busqueda" maxlength="80" placeholder="Búsqueda en el catálogo"
+                    [attr.aria-label]="'Búsqueda del submenú ' + (j + 1) + ' de ' + item.texto" />
+                  <button type="button" class="quitar" (click)="submenus.splice(j, 1)"
+                    [attr.aria-label]="'Quitar submenú ' + (j + 1)">✕</button>
+                </div>
+              }
+            }
+            <button type="button" class="agregar" (click)="agregarSubmenu(item)"
+              [disabled]="(item.submenus?.length ?? 0) >= 8">Añadir submenú a {{ item.texto }}</button>
           }
           <p class="ayuda">Los íconos de búsqueda, cuenta y carrito permanecen siempre visibles.</p>
         </section>
         <div class="acciones">
           <button type="button" class="descartar" (click)="restaurar()" [disabled]="guardando">Descartar cambios</button>
-          <button type="button" class="guardar" (click)="guardar()" [disabled]="guardando">{{guardando ? 'Guardando...' : 'Guardar personalización'}}</button>
+          <button type="button" class="guardar" (click)="guardar()" [disabled]="guardando">{{guardando ? 'Guardando...' : 'Guardar borrador'}}</button>
         </div>
       </div>
       <aside class="vista-panel">
@@ -86,7 +100,7 @@
             <span class="mini-boton" [style.backgroundColor]="color" [style.color]="contraste">Ver productos</span>
           </div>
         </div>
-        <p class="nota-vista">Modo: {{ formulario.promoModo === 'ROTACION' ? 'Rotación' : 'Desplazamiento' }} · {{duracion}}. Los cambios se publican al guardar.</p>
+        <p class="nota-vista">Modo: {{ formulario.promoModo === 'ROTACION' ? 'Rotación' : 'Desplazamiento' }} · {{duracion}}. Publica el borrador desde el Editor de tienda.</p>
       </aside>
     </div>
   }

@@ -6,7 +6,17 @@ import { environment } from '../../../environments/environment';
 export type VelocidadPromo = 'ESTATICA' | 'LENTA' | 'RAPIDA' | 'MUY_RAPIDA';
 export type ModoPromo = 'ROTACION' | 'DESPLAZAMIENTO';
 export type ClaveMenu = 'TODO' | 'MUJER' | 'HOMBRE' | 'NOVEDADES' | 'OFERTAS';
-export interface MenuCabecera { clave: ClaveMenu; texto: string; visible: boolean; }
+export interface SubmenuCabecera {
+  texto: string;
+  busqueda: string;
+}
+
+export interface MenuCabecera {
+  clave: ClaveMenu;
+  texto: string;
+  visible: boolean;
+  submenus?: SubmenuCabecera[] | null;
+}
 export interface CabeceraConfig {
   promoActiva: boolean;
   promoModo: ModoPromo;
@@ -76,6 +86,11 @@ export class CabeceraTiendaService {
       shareReplay({ bufferSize: 1, refCount: false })
     );
     this.solicitud.subscribe({ error: () => { /* Se conserva vista predeterminada */ } });
+  }
+
+  actualizarPublico(): void {
+    this.solicitud = undefined;
+    this.asegurarCarga();
   }
 
   consultarAdmin(): Observable<CabeceraConfig> {

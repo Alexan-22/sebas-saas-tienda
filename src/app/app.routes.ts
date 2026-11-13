@@ -43,6 +43,12 @@ export const routes: Routes = [
     component: Home
   },
   {
+    path: 'vista-previa-tienda',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/editor-tienda/vista-previa')
+      .then(m => m.VistaPreviaTienda)
+  },
+  {
     path: 'producto/:id',
     component: ProductDetail
   },
@@ -234,6 +240,16 @@ export const routes: Routes = [
       // -------------------------------------------------
       // CONFIGURACION DE TIENDA
       // -------------------------------------------------
+      {
+        path: 'editor-tienda/portada',
+        loadComponent: () => import('./features/admin/editor-tienda/editor-portada')
+          .then(m => m.EditorPortada)
+      },
+      {
+        path: 'editor-tienda',
+        loadComponent: () => import('./features/admin/editor-tienda/editor-tienda')
+          .then(m => m.EditorTienda)
+      },
       {
         path: 'home',
         component: HomeAdmin

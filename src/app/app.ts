@@ -1,4 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { catchError, of, switchMap } from 'rxjs';
+import { EditorTiendaService } from './core/services/editor-tienda.service';
 import { RouterOutlet } from '@angular/router';
 import { TiendaService } from './core/services/tienda.service';
 
@@ -28,12 +30,18 @@ import { TiendaService } from './core/services/tienda.service';
 })
 export class AppComponent implements OnInit {
   private readonly tiendaService = inject(TiendaService);
+  private readonly editor = inject(EditorTiendaService);
   readonly estado = signal<'cargando' | 'lista' | 'error'>('cargando');
   ngOnInit(): void { this.reintentar(); }
   reintentar(): void {
     this.estado.set('cargando');
-    this.tiendaService.cargarConfiguracion().subscribe({
-      next: () => this.estado.set('lista'),
+    this.tiendaService.cargarConfiguracion().pipe(
+      switchMap(() => this.editor.publicado().pipe(catchError(() => of(null))))
+    ).subscribe({
+      next: diseno => {
+        this.tiendaService.aplicarTema(diseno?.tema);
+        this.estado.set('lista');
+      },
       error: error => {
         console.error('Configuración de tienda:', error);
         this.estado.set('error');
