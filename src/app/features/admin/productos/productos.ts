@@ -46,7 +46,7 @@ export class Productos implements OnInit {
     this.cargando = true;
     this.error = '';
 
-    this.productoService.listar().subscribe({
+    this.productoService.listarAdmin().subscribe({
 
       next: productos => {
         this.productos = productos ?? [];

@@ -1,0 +1,454 @@
+
+/* =========================================================
+   SEBAS COLLECTION | ADMINISTRACIÓN DE PAGOS YAPE
+   Diseño empresarial y responsive
+   ========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
+  color: #172033;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+/* Contenedor principal */
+:host > section {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 28px !important;
+}
+
+/* Encabezado */
+:host h1 {
+  color: #111827;
+  font-size: 25px;
+  font-weight: 850;
+  letter-spacing: -.5px;
+}
+
+:host h1 + p {
+  margin-top: 7px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Botón actualizar */
+:host button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+:host button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+:host section > div:first-child > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  border: 0;
+  border-radius: 10px;
+  background: #172554;
+  padding: 11px 20px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  box-shadow: 0 4px 10px rgba(23, 37, 84, .12);
+}
+
+:host section > div:first-child > button:hover:not(:disabled) {
+  background: #263b78;
+  transform: translateY(-1px);
+}
+
+/* Alertas */
+:host [role="alert"] {
+  border: 1px solid #fecaca;
+  border-radius: 11px;
+  background: #fef2f2;
+  padding: 14px 16px;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+:host section > p.mt-4:not([role="alert"]) {
+  border: 1px solid #bbf7d0;
+  border-radius: 11px;
+  background: #f0fdf4;
+  padding: 14px 16px;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Mensajes de carga y lista vacía */
+:host section > p.mt-5 {
+  margin-top: 24px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  padding: 28px 18px;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Lista de pagos */
+:host .grid.gap-4 {
+  gap: 20px;
+}
+
+/* Tarjeta individual */
+:host article {
+  overflow: hidden;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  background: #fff;
+  padding: 22px !important;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+:host article:hover {
+  border-color: #c7d2fe !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .065);
+}
+
+/* Información del pedido */
+:host article h2 {
+  margin-bottom: 9px;
+  color: #172554;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+:host article p {
+  line-height: 1.6;
+}
+
+:host article p.text-slate-600,
+:host article p.text-slate-500 {
+  color: #64748b;
+  font-size: 12px;
+}
+
+:host article p.text-xl {
+  color: #0f172a;
+  font-size: 25px;
+  font-weight: 850;
+  letter-spacing: -.5px;
+}
+
+/* Botón auditoría */
+:host article > button.mt-3.text-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  border: 1px solid #e0e7ff;
+  border-radius: 9px;
+  background: #f5f7ff;
+  padding: 9px 13px;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+:host article > button.mt-3.text-sm:hover {
+  border-color: #a5b4fc;
+  background: #eef2ff;
+}
+
+/* =========================================================
+   COMPROBANTE YAPE
+   ========================================================= */
+
+/* Área del componente de comprobante */
+:host ::ng-deep app-yape-comprobante-admin {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 16px;
+}
+
+/* Imágenes del comprobante */
+:host ::ng-deep app-yape-comprobante-admin img {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  max-height: 850px;
+  height: auto;
+  margin: 14px auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  object-fit: contain;
+  object-position: center;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, .09);
+}
+
+/* Enlaces para abrir o descargar comprobantes */
+:host ::ng-deep app-yape-comprobante-admin a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 5px 5px 5px 0;
+  border: 1px solid #c7d2fe;
+  border-radius: 9px;
+  background: #eef2ff;
+  padding: 10px 14px;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+:host ::ng-deep app-yape-comprobante-admin a:hover {
+  background: #e0e7ff;
+}
+
+/* Botones del componente de comprobante */
+:host ::ng-deep app-yape-comprobante-admin button {
+  min-height: 38px;
+  border-radius: 9px;
+  padding: 9px 13px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+/* Contenido visual del comprobante */
+:host ::ng-deep app-yape-comprobante-admin picture,
+:host ::ng-deep app-yape-comprobante-admin figure {
+  display: block;
+  width: 100%;
+  margin: 12px auto;
+  text-align: center;
+}
+
+:host ::ng-deep app-yape-comprobante-admin iframe {
+  display: block;
+  width: 100%;
+  min-height: 650px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* =========================================================
+   AUDITORÍA
+   ========================================================= */
+
+:host article ul {
+  margin-top: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 16px 20px;
+  list-style: none;
+}
+
+:host article ul li {
+  position: relative;
+  margin-bottom: 10px;
+  padding-left: 17px;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+:host article ul li:last-child {
+  margin-bottom: 0;
+}
+
+:host article ul li::before {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6366f1;
+  content: "";
+}
+
+/* Aviso de verificación */
+:host article p.text-amber-900 {
+  margin-top: 18px;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: #fffbeb;
+  padding: 12px 14px;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Acciones */
+:host article .flex.flex-wrap.gap-3 {
+  gap: 10px;
+  margin-top: 13px;
+}
+
+:host article .flex.flex-wrap.gap-3 button {
+  min-height: 42px;
+  border-radius: 9px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+:host article .flex.flex-wrap.gap-3 button:first-child {
+  background: #15803d;
+  box-shadow: 0 3px 8px rgba(21, 128, 61, .13);
+}
+
+:host article .flex.flex-wrap.gap-3 button:first-child:hover:not(:disabled) {
+  background: #166534;
+}
+
+:host article .flex.flex-wrap.gap-3 button:last-child {
+  border: 1px solid #fecaca;
+  background: #fff;
+  color: #dc2626;
+}
+
+:host article .flex.flex-wrap.gap-3 button:last-child:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+/* Información de pago verificado */
+:host article p.mt-3.text-slate-600 {
+  margin-top: 16px;
+  border-radius: 9px;
+  background: #f1f5f9;
+  padding: 11px 13px;
+  color: #475569;
+  font-size: 12px;
+}
+
+:host article p.text-red-700 {
+  border-radius: 9px;
+  background: #fef2f2;
+  padding: 10px 13px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  :host > section {
+    padding: 22px !important;
+  }
+
+  :host article {
+    padding: 18px !important;
+  }
+
+  :host ::ng-deep app-yape-comprobante-admin img {
+    max-width: 100%;
+    max-height: 750px;
+  }
+}
+
+/* =========================================================
+   MÓVILES
+   ========================================================= */
+
+@media (max-width: 600px) {
+  :host > section {
+    padding: 15px !important;
+  }
+
+  :host h1 {
+    font-size: 21px;
+  }
+
+  :host section > div:first-child {
+    align-items: stretch;
+  }
+
+  :host section > div:first-child > button {
+    width: 100%;
+  }
+
+  :host article {
+    padding: 15px !important;
+    border-radius: 13px !important;
+  }
+
+  :host article h2 {
+    font-size: 16px;
+  }
+
+  :host article p.text-xl {
+    font-size: 22px;
+  }
+
+  :host article > div:first-child {
+    gap: 14px;
+  }
+
+  :host article > div:first-child > div:last-child {
+    width: 100%;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+    text-align: left;
+  }
+
+  :host ::ng-deep app-yape-comprobante-admin {
+    margin-top: 15px;
+    padding: 10px;
+  }
+
+  :host ::ng-deep app-yape-comprobante-admin img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 75vh;
+    margin: 10px auto;
+    border-radius: 9px;
+  }
+
+  :host ::ng-deep app-yape-comprobante-admin iframe {
+    min-height: 480px;
+  }
+
+  :host article .flex.flex-wrap.gap-3 {
+    flex-direction: column;
+  }
+
+  :host article .flex.flex-wrap.gap-3 button {
+    width: 100%;
+  }
+
+  :host article ul {
+    padding: 13px;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  :host *,
+  :host *::before,
+  :host *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

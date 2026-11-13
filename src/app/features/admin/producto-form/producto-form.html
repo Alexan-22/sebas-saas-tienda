@@ -252,16 +252,42 @@
   }
 
     @if (editando && idProducto) {
+      <app-variantes-editor
+        [idProducto]="idProducto"
+        [tipoActual]="tipoVariantes"
+        [sistemaActual]="sistemaTallas" />
+    }
+    @if (editando && idProducto) {
       <section class="panel-card galeria-admin-panel" aria-label="Galería del producto">
         <div class="panel-header"><h3>Galería adicional</h3><span>{{ (imagen ? 1 : 0) + galeria.length }} / {{ maximoFotos }} fotografías</span></div>
         <p class="help-text">La portada se administra arriba. Agrega aquí más fotografías. Admite hasta 12 en total, incluida la portada.</p>
         @if (cargandoGaleria) { <p class="help-text">Cargando galería...</p> }
         @if (errorGaleria) { <p class="inline-error" role="alert">{{ errorGaleria }}</p> }
         @if (mensajeGaleria) { <p class="galeria-ok" role="status">{{ mensajeGaleria }}</p> }
+        @if (modoColorTalla && errorColorFoto) {
+          <p class="inline-error" role="alert">{{ errorColorFoto }}</p>
+        }
         <div class="galeria-admin-grid">
           @for (foto of galeria; track foto.idProductoImagen) {
             <article class="galeria-admin-item">
               <img [src]="fotoUrl(foto.imagen)" [alt]="'Fotografía ' + foto.orden" loading="lazy">
+              @if (modoColorTalla) {
+                <label class="block text-xs font-semibold mt-2 mb-1">
+                  Color de esta fotografía
+                </label>
+                <select
+                  class="w-full rounded-lg border border-slate-300 bg-white p-2 text-xs"
+                  [value]="foto.idColor ?? ''"
+                  (change)="asignarColorFoto(foto, $event)"
+                  [disabled]="colorAsignandoId !== null || subiendoGaleria">
+                  <option value="">General - todos los colores</option>
+                  @for (color of coloresGaleria; track color.idColor) {
+                    <option [value]="color.idColor">
+                      {{ color.nombre }}
+                    </option>
+                  }
+                </select>
+              }
               <button type="button" (click)="eliminarFoto(foto)" [disabled]="eliminandoFoto !== null || subiendoGaleria" [attr.aria-label]="'Eliminar fotografía ' + foto.orden">Eliminar</button>
             </article>
           }

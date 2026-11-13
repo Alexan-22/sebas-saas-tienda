@@ -9,6 +9,40 @@
     </div>
   </header>
 
+  @if (mensajeClave) {
+    <p class="clave-aviso" role="status">{{ mensajeClave }}</p>
+  }
+
+  @if (empleadoSeleccionado; as empleado) {
+    <form class="clave-form" (ngSubmit)="restablecerContrasena()" [attr.aria-busy]="guardandoClave">
+      <h2>Restablecer contraseña</h2>
+      <p>{{ nombreCompleto(empleado) }} · {{ empleado.correo }}</p>
+      <p>Al confirmar, las sesiones anteriores del empleado se cerrarán.</p>
+
+      <label for="nueva-clave">Nueva contraseña</label>
+      <input id="nueva-clave" name="nuevaClave" type="password" autocomplete="new-password"
+        [(ngModel)]="nuevaClave" required minlength="10" maxlength="72" [disabled]="guardandoClave" />
+
+      <label for="confirmar-clave">Confirmar nueva contraseña</label>
+      <input id="confirmar-clave" name="confirmarClave" type="password" autocomplete="new-password"
+        [(ngModel)]="confirmarClave" required minlength="10" maxlength="72" [disabled]="guardandoClave" />
+
+      @if (errorClave) {
+        <p role="alert">{{ errorClave }}</p>
+      }
+
+      <div class="clave-acciones">
+        <button type="submit" class="btn-toggle-status" [disabled]="guardandoClave">
+          {{ guardandoClave ? 'Guardando…' : 'Confirmar restablecimiento' }}
+        </button>
+        <button type="button" class="btn-toggle-status" [disabled]="guardandoClave"
+          (click)="cerrarRestablecimiento()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  }
+
   <!-- TARJETAS DE ESTADÍSTICAS (KPIs) -->
   <section class="stats-grid">
     <article class="stat-card purple">
@@ -144,6 +178,12 @@
                 </td>
 
                 <td class="text-right">
+                  @if (usuario.rol === 'EMPLEADO') {
+                    <button type="button" class="btn-toggle-status"
+                      [disabled]="guardandoClave" (click)="abrirRestablecimiento(usuario)">
+                      Restablecer contraseña
+                    </button>
+                  }
                   <button
                     type="button"
                     class="btn-toggle-status"

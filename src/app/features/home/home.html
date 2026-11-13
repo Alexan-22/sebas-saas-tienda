@@ -1,6 +1,29 @@
-<app-promo-bar></app-promo-bar>
-<app-navbar></app-navbar>
-<main>
+@if (disenoCargado()) {
+  <app-promo-bar [vistaPrevia]="diseno()?.cabecera"></app-promo-bar>
+  <app-navbar [vistaPrevia]="diseno()?.cabecera"></app-navbar>
+  <main>
+    @for (seccion of diseno()?.seccionesHome ?? seccionesPorDefecto; track seccion) {
+      @switch (seccion) {
+        @case ('BANNERS') { <ng-container *ngTemplateOutlet="hero" /> }
+        @case ('CATEGORIAS') { <ng-container *ngTemplateOutlet="categorias" /> }
+        @case ('COLECCIONES') { <ng-container *ngTemplateOutlet="coleccionesDestacadas" /> }
+        @case ('PRODUCTOS') { <ng-container *ngTemplateOutlet="productosDestacados" /> }
+        @case ('CIERRE') { <ng-container *ngTemplateOutlet="cierre" /> }
+        @case ('BENEFICIOS') { <ng-container *ngTemplateOutlet="beneficios" /> }
+      }
+    }
+
+    @if (tiendaService.telefonoWhatsApp(); as numero) {
+      <a class="whatsapp" [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer"
+        aria-label="Contactar por WhatsApp">WhatsApp</a>
+    }
+  </main>
+  <app-footer [vistaPrevia]="diseno()?.footer"></app-footer>
+} @else {
+  <p class="status" role="status">Cargando tienda…</p>
+}
+
+<ng-template #hero>
 
 <section class="hero" aria-label="Banners de la tienda">
 
@@ -20,10 +43,12 @@
         @for (banner of banners; track banner.idBanner) {
           <div class="hero-item">
             @if (imagenBannerUrl(banner); as src) {
-              <img
-                class="hero-image"
-                [src]="src"
-                [alt]="banner.titulo || 'Banner de la tienda'">
+              <picture>
+                @if (imagenUrl(banner.imagenMovil); as movil) {
+                  <source media="(max-width: 767px)" [srcset]="movil">
+                }
+                <img class="hero-image" [src]="src" [alt]="banner.titulo || 'Banner de la tienda'">
+              </picture>
             }
           </div>
         }
@@ -71,6 +96,9 @@
 
   
 
+</ng-template>
+
+<ng-template #categorias>
   <section class="department-section section-wrap" aria-label="Explorar moda">
     <div class="section-heading centered">
       <span class="eyebrow dark">Encuentra tu estilo</span>
@@ -95,6 +123,9 @@
     </div>
   </section>
 
+</ng-template>
+
+<ng-template #coleccionesDestacadas>
   @if (!cargandoColecciones && colecciones.length > 0) {
     <section class="section-wrap collection-section">
       <div class="section-heading centered">
@@ -120,6 +151,9 @@
     </section>
   }
 
+</ng-template>
+
+<ng-template #productosDestacados>
   <section class="product-section section-wrap" id="productos">
     <div class="section-heading heading-row">
       <div><span class="eyebrow dark">Nuestra selección</span><h2>Novedades que inspiran</h2></div>
@@ -139,10 +173,12 @@
       </div>
     }
   </section>
+</ng-template>
+
+<ng-template #cierre>
   <section class="closing-banner"><span>Moda para tu día a día</span><h2>Viste lo que eres.</h2><a routerLink="/tienda">Descubrir el catálogo →</a></section>
-  <section class="benefits section-wrap" aria-label="Ventajas"><p>Estilo para cada ocasión</p><p>Encuentra tu talla</p><p>Novedades de temporada</p></section>
-  @if (tiendaService.telefonoWhatsApp(); as numero) {
-    <a class="whatsapp" [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">WhatsApp</a>
-  }
-</main>
-<app-footer></app-footer>
+</ng-template>
+
+<ng-template #beneficios>
+  <section class="benefits section-wrap" [style.border-color]="diseno()?.tema?.secundario" aria-label="Ventajas"><p>Estilo para cada ocasión</p><p>Encuentra tu talla</p><p>Novedades de temporada</p></section>
+</ng-template>

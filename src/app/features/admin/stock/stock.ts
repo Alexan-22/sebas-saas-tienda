@@ -1,6 +1,7 @@
 import { environment } from '../../../../environments/environment';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Producto } from '../../../core/models/producto';
 import { ProductoTalla, Talla } from '../../../core/models/producto-talla';
@@ -16,7 +17,7 @@ interface ProductoInventario {
 @Component({
   selector: 'app-stock',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './stock.html',
   styleUrl: './stock.css'
 })
@@ -105,7 +106,7 @@ export class Stock implements OnInit {
         this.inventario = this.productos.map((producto, index) => ({
           producto,
           tallas: [...(resultados[index] ?? [])].sort(
-            (a, b) => this.ordenTalla(a.talla.nombreTalla) - this.ordenTalla(b.talla.nombreTalla)
+            (a, b) => this.ordenTalla(a.talla?.nombreTalla ?? 'SIN_TALLA') - this.ordenTalla(b.talla?.nombreTalla ?? 'SIN_TALLA')
           )
         }));
 
@@ -145,7 +146,18 @@ export class Stock implements OnInit {
   // =========================================================
   // ABRIR FORMULARIO PARA ASIGNAR TALLA
   // =========================================================
+  esProductoConVariantes(producto: Producto): boolean {
+    const modo = (
+      producto as Producto & { tipoVariantes?: string | null }
+    ).tipoVariantes;
+
+    return typeof modo === 'string' && modo.trim().length > 0;
+  }
   abrirAsignacion(item: ProductoInventario): void {
+    if (this.esProductoConVariantes(item.producto)) {
+      this.error = 'Usa el editor de matriz para este producto.';
+      return;
+    }
     if (this.productoAsignandoId === item.producto.idProducto) {
       this.cancelarAsignacion();
       return;
@@ -197,7 +209,7 @@ export class Stock implements OnInit {
     }
 
     const idsAsignados = new Set(
-      item.tallas.map(productoTalla => productoTalla.talla.idTalla)
+      item.tallas.map(productoTalla => productoTalla.talla?.idTalla)
     );
 
     return this.tallasDisponibles
@@ -216,6 +228,10 @@ export class Stock implements OnInit {
   // ASIGNAR NUEVA TALLA
   // =========================================================
   asignarTalla(item: ProductoInventario): void {
+    if (this.esProductoConVariantes(item.producto)) {
+      window.alert('Usa la matriz de variantes desde Editar producto.');
+      return;
+    }
     if (this.nuevaTallaId === null) {
       window.alert('Selecciona una talla.');
       return;
@@ -241,7 +257,7 @@ export class Stock implements OnInit {
       next: productoTalla => {
         item.tallas.push(productoTalla);
         item.tallas.sort(
-          (a, b) => this.ordenTalla(a.talla.nombreTalla) - this.ordenTalla(b.talla.nombreTalla)
+          (a, b) => this.ordenTalla(a.talla?.nombreTalla ?? 'SIN_TALLA') - this.ordenTalla(b.talla?.nombreTalla ?? 'SIN_TALLA')
         );
 
         this.guardandoNuevaTalla = false;

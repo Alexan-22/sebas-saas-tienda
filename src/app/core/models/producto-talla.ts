@@ -8,6 +8,7 @@ export interface Talla {
 
 export interface ProductoTalla {
   idProductoTalla: number;
+  idColor?: number | null;
   producto: Producto;
   talla: Talla;
   stock: number;

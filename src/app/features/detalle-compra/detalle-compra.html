@@ -35,16 +35,28 @@
         <!-- CABECERA -->
         <header class="flex flex-col justify-between gap-6 border-b-2 border-slate-900 pb-8 sm:flex-row">
           <div>
-            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-sm font-black text-white shadow">
-              TS
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl text-sm font-black text-white shadow overflow-hidden"
+                 [style.backgroundColor]="tiendaService.tiendaActual()?.colorPrimario || '#4f46e5'">
+              @if (tiendaService.tiendaActual()?.logoUrl; as logo) {
+                <img [src]="logo" [alt]="tiendaService.tiendaActual()?.nombre || 'Logotipo'" class="h-full w-full object-contain bg-white">
+              } @else {
+                {{ (tiendaService.tiendaActual()?.nombre || 'MT').slice(0,2).toUpperCase() }}
+              }
             </div>
-            <h1 class="mt-4 text-2xl font-black uppercase tracking-tight text-slate-900">Tienda Sebas</h1>
-            <p class="text-[9px] font-black uppercase tracking-widest text-indigo-600">Polvos Azules · Fashion Store</p>
-            <p class="mt-3 text-xs text-slate-500">Lima, Perú · Comprobante Electrónico</p>
+            <h1 class="mt-4 text-2xl font-black uppercase tracking-tight text-slate-900">
+              {{ tiendaService.tiendaActual()?.nombre || 'Mi tienda' }}
+            </h1>
+            @if (tiendaService.tiendaActual()?.descripcionComercial; as descripcion) {
+              <p class="text-[9px] font-black uppercase tracking-widest text-indigo-600">{{ descripcion }}</p>
+            }
+            @if (tiendaService.tiendaActual()?.telefonoSoporte; as telefono) {
+              <p class="mt-2 text-xs text-slate-500">Contacto: {{ telefono }}</p>
+            }
+            <p class="mt-3 text-xs text-slate-500">Resumen de pedido · No acredita pago ni es comprobante fiscal</p>
           </div>
 
           <div class="sm:text-right">
-            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Comprobante de Venta</span>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Resumen de pedido</span>
             <p class="text-3xl font-black text-slate-900 mt-1">#{{ compra?.idVenta }}</p>
             <span class="inline-block mt-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
               {{ estadoTexto }}
@@ -104,7 +116,7 @@
             <div class="grid gap-3 border-b border-slate-100 py-4 sm:grid-cols-[1fr_80px_110px_110px] sm:items-center text-xs">
               <div>
                 <strong class="text-slate-900 font-black uppercase block">{{ detalle.productoTalla.producto.nombre }}</strong>
-                <span class="text-indigo-600 font-bold text-[10px]">Talla: {{ detalle.productoTalla.talla.nombreTalla }}</span>
+                <div class="flex flex-wrap gap-x-3 gap-y-1 text-indigo-600 font-bold text-[10px]"><span>Color: {{ nombreColorDetalle(detalle) }}</span><span>Talla: {{ detalle.productoTalla.talla?.nombreTalla || 'Unica' }}</span></div>
               </div>
               <div class="flex justify-between sm:block text-slate-600 sm:text-center font-bold">
                 <span class="sm:hidden text-slate-400">Cantidad:</span> {{ detalle.cantidad }}
@@ -125,15 +137,15 @@
           <div class="flex justify-between text-slate-600"><span>Subtotal</span><strong>S/ {{ subtotal | number:'1.2-2' }}</strong></div>
           <div class="flex justify-between text-slate-600"><span>Costo de Envío</span><strong>S/ {{ costoDelivery | number:'1.2-2' }}</strong></div>
           <div class="flex justify-between pt-3 border-t-2 border-slate-900 text-sm font-black text-slate-900">
-            <span class="uppercase">Total Final</span>
+            <span class="uppercase">Total del pedido</span>
             <strong class="text-indigo-600 text-xl">S/ {{ total | number:'1.2-2' }}</strong>
           </div>
         </section>
 
         <!-- PIE DE PÁGINA -->
         <footer class="mt-12 border-t border-slate-200 pt-6 text-center text-slate-400 text-[10px]">
-          <p class="font-black uppercase tracking-wider text-slate-700">¡Gracias por tu compra en Tienda Sebas!</p>
-          <p class="mt-1">Lima, Perú · Soporte y consultas vía WhatsApp</p>
+          <p class="font-black uppercase tracking-wider text-slate-700">¡Gracias por tu pedido en {{ tiendaService.tiendaActual()?.nombre || 'Mi tienda' }}!</p>
+          <p class="mt-1">Soporte: {{ tiendaService.tiendaActual()?.telefonoSoporte || tiendaService.tiendaActual()?.whatsapp || 'Consulta a la tienda' }}</p>
         </footer>
       </article>
     }

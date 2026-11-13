@@ -21,6 +21,7 @@ import {
 import {
   VentaService
 } from '../../../core/services/venta';
+import { ProductoImagenService } from '../../../core/services/producto-imagen';
 
 
 @Component({
@@ -40,6 +41,35 @@ export class Ventas implements OnInit {
   // =========================================================
   // VENTAS
   // =========================================================
+
+  // Catalogo de colores del tenant. Solo lectura; no cambia inventario.
+  cargarColores(): void {
+    this.productoImagenService.listarColores().subscribe({
+      next: (colores) => {
+        this.coloresPorId = Object.fromEntries(
+          (colores ?? []).map(c => [c.idColor, c.nombre])
+        );
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.warn('No se pudo cargar el catalogo de colores', error);
+      }
+    });
+  }
+
+  nombreColorDetalle(idColor: number | null | undefined): string {
+    if (idColor == null) return 'Sin color';
+    return this.coloresPorId[idColor] || `Color #${idColor}`;
+  }
+
+  estadoPagoTexto(estado: string | null | undefined): string {
+    const valor = (estado || '').toUpperCase();
+    if (valor === 'PAGO_PENDIENTE' || valor === 'PENDIENTE') {
+      return 'Pendiente de verificacion';
+    }
+    return estado || 'Sin informar';
+  }
+  coloresPorId: Record<number, string> = {};
 
   ventas: Venta[] = [];
 
@@ -75,6 +105,7 @@ export class Ventas implements OnInit {
 
   constructor(
     private ventaService: VentaService,
+    private productoImagenService: ProductoImagenService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -86,6 +117,7 @@ export class Ventas implements OnInit {
   ngOnInit(): void {
 
     this.cargarVentas();
+    this.cargarColores();
   }
 
 
@@ -440,15 +472,10 @@ export class Ventas implements OnInit {
   }
 
 
-  get ventasTarjeta(): number {
-
+  get ventasTransferencia(): number {
     return this.ventas.filter(
-      (
-        venta: Venta
-      ) =>
-        venta.medioPago
-          ?.toUpperCase() ===
-        'TARJETA'
+      (venta: Venta) =>
+        venta.medioPago?.toUpperCase() === 'TRANSFERENCIA'
     ).length;
   }
 

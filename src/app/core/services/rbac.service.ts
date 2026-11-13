@@ -127,6 +127,10 @@ export class RbacService {
   // ASIGNACION DE ROLES
   // ==========================================
 
+  restablecerContrasena(usuarioId: number, password: string): Observable<void> {
+    return this.http.patch<void>(`${this.api}/empleados/${usuarioId}/contrasena`, { password });
+  }
+
   rolesDeEmpleado(
     usuarioId: number
   ): Observable<RolAsignadoRbac[]> {

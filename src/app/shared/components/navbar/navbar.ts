@@ -1,5 +1,5 @@
-import { Component, HostListener, inject } from '@angular/core';
-import { CabeceraTiendaService, parametrosMenu } from '../../../core/services/cabecera-tienda.service';
+import { Component, HostListener, computed, inject, input } from '@angular/core';
+import { CabeceraConfig, CabeceraTiendaService, parametrosMenu } from '../../../core/services/cabecera-tienda.service';
 import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../../core/services/carrito';
 import { AuthService } from '../../../core/services/auth';
@@ -14,8 +14,12 @@ import { TiendaService } from '../../../core/services/tienda.service';
 })
 export class Navbar {
   readonly cabeceraService = inject(CabeceraTiendaService);
+  readonly vistaPrevia = input<CabeceraConfig>();
+  readonly cabecera = computed(() => this.vistaPrevia() ?? this.cabeceraService.cabecera());
   readonly parametrosMenu = parametrosMenu;
-  ngOnInit(): void { this.cabeceraService.asegurarCarga(); }
+  ngOnInit(): void {
+    if (!this.vistaPrevia()) this.cabeceraService.asegurarCarga();
+  }
 
   menuAbierto = false;
   cuentaAbierta = false;

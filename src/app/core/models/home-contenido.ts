@@ -1,5 +1,6 @@
 export interface HomeBanner {
   idBanner: number;
+  imagenMovil?: string | null;
   etiqueta: string | null;
   titulo: string;
   descripcion: string | null;

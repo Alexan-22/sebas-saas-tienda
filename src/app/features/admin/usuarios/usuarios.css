@@ -2,6 +2,35 @@
   display: block;
 }
 
+.clave-form {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #ddd6fe;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.clave-form input {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #a8a29e;
+  border-radius: 8px;
+}
+
+.clave-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clave-aviso {
+  margin-bottom: 16px;
+  color: #166534;
+}
+
 .usuarios-page {
   width: 100%;
 }
