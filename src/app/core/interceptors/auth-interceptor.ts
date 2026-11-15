@@ -27,6 +27,8 @@ function tokenExpirado(token: string): boolean {
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   if (!esApiPropia(request.url)) return next(request);
+  const ruta = new URL(request.url,window.location.origin).pathname;
+  if(['/api/auth/login','/api/auth/registro','/api/auth/google','/api/auth/password/forgot','/api/auth/password/reset'].includes(ruta))return next(request.clone({headers:request.headers.delete('Authorization')}));
   const auth = inject(AuthService);
   const router = inject(Router);
   const token = auth.obtenerToken();

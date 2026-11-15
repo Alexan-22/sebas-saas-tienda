@@ -1,27 +1,55 @@
+
 @if (disenoCargado()) {
-  <app-promo-bar [vistaPrevia]="diseno()?.cabecera"></app-promo-bar>
-  <app-navbar [vistaPrevia]="diseno()?.cabecera"></app-navbar>
+  <app-promo-bar
+    [vistaPrevia]="diseno()?.cabecera">
+  </app-promo-bar>
+
+  <app-navbar
+    [vistaPrevia]="diseno()?.cabecera">
+  </app-navbar>
+
   <main>
     @for (seccion of diseno()?.seccionesHome ?? seccionesPorDefecto; track seccion) {
       @switch (seccion) {
-        @case ('BANNERS') { <ng-container *ngTemplateOutlet="hero" /> }
-        @case ('CATEGORIAS') { <ng-container *ngTemplateOutlet="categorias" /> }
-        @case ('COLECCIONES') { <ng-container *ngTemplateOutlet="coleccionesDestacadas" /> }
-        @case ('PRODUCTOS') { <ng-container *ngTemplateOutlet="productosDestacados" /> }
-        @case ('CIERRE') { <ng-container *ngTemplateOutlet="cierre" /> }
-        @case ('BENEFICIOS') { <ng-container *ngTemplateOutlet="beneficios" /> }
+        @case ('BANNERS') {
+          <ng-container *ngTemplateOutlet="hero" />
+        }
+        @case ('COLECCIONES') {
+          <ng-container *ngTemplateOutlet="coleccionesDestacadas" />
+        }
+        @case ('PRODUCTOS') {
+          <ng-container *ngTemplateOutlet="productosDestacados" />
+        }
+        @case ('CIERRE') {
+          <ng-container *ngTemplateOutlet="cierre" />
+        }
+        @case ('BENEFICIOS') {
+          <ng-container *ngTemplateOutlet="beneficios" />
+        }
       }
     }
 
     @if (tiendaService.telefonoWhatsApp(); as numero) {
-      <a class="whatsapp" [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer"
-        aria-label="Contactar por WhatsApp">WhatsApp</a>
+      <a
+        class="whatsapp"
+        [href]="'https://wa.me/' + numero"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contactar por WhatsApp">
+        WhatsApp
+      </a>
     }
   </main>
-  <app-footer [vistaPrevia]="diseno()?.footer"></app-footer>
+
+  <app-footer
+    [vistaPrevia]="diseno()?.footer">
+  </app-footer>
 } @else {
-  <p class="status" role="status">Cargando tienda…</p>
+  <p class="status" role="status">
+    Cargando tienda…
+  </p>
 }
+
 
 <ng-template #hero>
 
@@ -98,32 +126,7 @@
 
 </ng-template>
 
-<ng-template #categorias>
-  <section class="department-section section-wrap" aria-label="Explorar moda">
-    <div class="section-heading centered">
-      <span class="eyebrow dark">Encuentra tu estilo</span>
-      <h2>Moda para cada ocasión</h2>
-      <p>Dos universos, una misma esencia.</p>
-    </div>
-    <div class="department-grid">
-      <a class="department-tile mujer" routerLink="/tienda" [queryParams]="{ generoNombre: 'Mujer' }">
-        @if (coleccionMujer; as coleccion) {
-          @if (imagenColeccionUrl(coleccion); as src) { <img class="department-image" [src]="src" alt="Colección Mujer" loading="lazy" /> }
-        }
-        <div class="department-shade"></div>
-        <div class="department-copy"><span>Estilo y elegancia</span><h3>MUJER</h3><strong>Descubrir prendas <span aria-hidden="true">→</span></strong></div>
-      </a>
-      <a class="department-tile hombre" routerLink="/tienda" [queryParams]="{ generoNombre: 'Hombre' }">
-        @if (coleccionHombre; as coleccion) {
-          @if (imagenColeccionUrl(coleccion); as src) { <img class="department-image" [src]="src" alt="Colección Hombre" loading="lazy" /> }
-        }
-        <div class="department-shade"></div>
-        <div class="department-copy"><span>Esenciales modernos</span><h3>HOMBRE</h3><strong>Explorar colección <span aria-hidden="true">→</span></strong></div>
-      </a>
-    </div>
-  </section>
 
-</ng-template>
 
 <ng-template #coleccionesDestacadas>
   @if (!cargandoColecciones && colecciones.length > 0) {

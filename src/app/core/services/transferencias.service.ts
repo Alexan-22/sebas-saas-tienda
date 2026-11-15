@@ -1,3 +1,4 @@
+import { leerPagosCompletos } from '../../shared/export/pagos-completos';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -51,6 +52,8 @@ export interface EventoTransferencia {
 }
 @Injectable({ providedIn:'root' })
 export class TransferenciasService {
+  listarParaReportes():Observable<PagoTransferencia[]>{return leerPagosCompletos<PagoTransferencia>(this.http,this.base+'/pagos/admin/reportes');}
+
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/transferencias`;
   cuentasPublicas(): Observable<CuentaBancaria[]> {

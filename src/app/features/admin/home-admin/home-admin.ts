@@ -356,12 +356,6 @@ nuevaColeccion(): void {
 
     coleccion.titulo = (coleccion.titulo ?? '').trim();
 
-    if (!coleccion.titulo) {
-      this.error = 'Ingresa un título para la colección.';
-      this.actualizarVista();
-      return;
-    }
-
     if (!Number.isInteger(Number(coleccion.orden)) ||
         Number(coleccion.orden) < 1) {
       this.error = 'El orden debe ser mayor a cero.';

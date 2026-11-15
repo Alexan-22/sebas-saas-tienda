@@ -34,6 +34,8 @@ import { Reportes } from './features/admin/reportes/reportes';
 import { HomeAdmin } from './features/admin/home-admin/home-admin';
 
 export const routes: Routes = [
+  {path:'recuperar-acceso',loadComponent:()=>import('./features/recuperar-acceso/recuperar-acceso').then(m=>m.RecuperarAcceso)},
+
 
   // =====================================================
   // TIENDA PUBLICA

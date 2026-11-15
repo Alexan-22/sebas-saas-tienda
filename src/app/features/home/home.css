@@ -22,18 +22,6 @@
 .prev{left:14px}.next{right:14px}
 .dots{position:absolute;z-index:5;bottom:23px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
 .dots button{width:25px;height:4px;border:0;background:#ffffff70;cursor:pointer}.dots button.selected{background:#fff}
-.department-section{padding-top:90px;padding-bottom:75px}
-.department-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-.department-tile{display:block;position:relative;min-height:520px;overflow:hidden;color:#fff;text-decoration:none;background-position:center;background-size:cover}
-.department-tile.mujer{background:linear-gradient(145deg,#b9a49b,#64524d)}
-.department-tile.hombre{background:linear-gradient(145deg,#858987,#373d3c)}
-.department-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
-.department-tile:hover .department-image{transform:scale(1.04)}
-.department-shade{position:absolute;inset:0;background:linear-gradient(0deg,#000b,transparent 70%)}
-.department-copy{position:absolute;bottom:40px;left:36px;right:18px}
-.department-copy>span{font-size:11px;letter-spacing:.2em;text-transform:uppercase}
-.department-copy h3{font:400 clamp(40px,5vw,65px) Georgia,serif;margin:8px 0 14px}
-.department-copy strong{font-size:11px;text-transform:uppercase;letter-spacing:.13em;border-bottom:1px solid #fff;padding-bottom:7px}
 .collection-section,.product-section{padding-top:35px;padding-bottom:85px}
 .collection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
 .collection-grid.collection-grid-two{grid-template-columns:repeat(2,minmax(0,1fr))}

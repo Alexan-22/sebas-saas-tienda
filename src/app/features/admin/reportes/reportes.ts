@@ -1,3 +1,15 @@
+import { ReportesPdfService } from './reportes-pdf.service';
+import { ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize, timeout } from 'rxjs';
+import { CsvExportService } from '../../../shared/export/csv-export.service';
+import { SeparadorCsv } from '../../../shared/export/csv-export';
+import { enPeriodo, fechaHoraLima, fechaLima } from '../../../shared/export/fecha-lima';
+import { crearReporteCsv, GRUPOS_REPORTES_CSV, requierePagos, TipoReporteCsv, ventaContabilizable } from './reportes-csv';
+import { YapePagosService } from '../../../core/services/yape-pagos.service';
+import { TransferenciasService } from '../../../core/services/transferencias.service';
+import { ContraEntregaService } from '../../../core/services/contraentrega';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TiendaService } from '../../../core/services/tienda.service';
@@ -5,9 +17,6 @@ import { TiendaService } from '../../../core/services/tienda.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
 
 import { Venta, DetalleVenta } from '../../../core/models/venta-detalle';
 import { Producto } from '../../../core/models/producto';
@@ -59,6 +68,22 @@ interface CanalReporte {
   styleUrl: './reportes.css'
 })
 export class Reportes implements OnInit {
+  private readonly csv = inject(CsvExportService);
+  private readonly pdf = inject(ReportesPdfService);
+  private readonly yape = inject(YapePagosService);
+  private readonly transferencias = inject(TransferenciasService);
+  private readonly contraentrega = inject(ContraEntregaService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+  readonly gruposReportesCsv = GRUPOS_REPORTES_CSV;
+  reporteCsv: TipoReporteCsv = 'ventas';
+  separadorCsv: SeparadorCsv = ';';
+  cargandoCsv = false;
+  errorCsv = '';
+  errorPdf = '';
+  mensajeCsv = '';
+  private referenciaFiltro = new Date();
+  private consultadoEn = new Date();
   private readonly ruta = inject(ActivatedRoute);
   private readonly navegacion = inject(Router);
   private readonly tiendaService = inject(TiendaService);
@@ -104,6 +129,7 @@ export class Reportes implements OnInit {
       const vista = params.get('vista');
       if (vista === 'ventas' || vista === 'inventario' || vista === 'canales' || vista === 'clientes') {
         this.pestanaActiva = vista;
+        this.reporteCsv = this.csvPorPestana(vista);
       }
     });
     this.cargarReportes();
@@ -120,6 +146,7 @@ export class Reportes implements OnInit {
   }
 
   cargarReportes(): void {
+    if (this.cargandoCsv || (this.cargando && this.ventas.length > 0)) return;
     this.cargando = true;
     this.error = '';
 
@@ -138,6 +165,7 @@ export class Reportes implements OnInit {
         console.error('Error cargando reportes:', error);
         this.error = 'No se pudo cargar la información de reportes.';
         this.cargando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -152,13 +180,16 @@ export class Reportes implements OnInit {
         this.detalles = respuesta.detalles ?? [];
         this.inventario = respuesta.inventario ?? [];
         this.stockIncompleto = false;
+        this.consultadoEn = new Date();
         this.aplicarFiltros();
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: error => {
         console.error('Error cargando detalle o inventario de reportes:', error);
         this.error = 'No se pudieron cargar los detalles de ventas o el inventario de esta tienda.';
         this.cargando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -166,93 +197,42 @@ export class Reportes implements OnInit {
   aplicarPeriodo(): void { this.aplicarFiltros(); }
 
   private aplicarFiltros(): void {
-    const ahora = new Date();
-
-    this.ventasFiltradas = this.ventas.filter(venta => {
-      const fecha = new Date(venta.fechaVenta);
-      if (Number.isNaN(fecha.getTime())) return false;
-
-      const cumplePeriodo = this.cumplePeriodo(fecha, ahora);
-      return cumplePeriodo && this.esVentaContabilizable(venta);
-    });
-
+    this.referenciaFiltro = new Date();
+    this.ventasFiltradas = this.ventas.filter(v => enPeriodo(v.fechaVenta,this.periodo,this.referenciaFiltro) && ventaContabilizable(v));
     this.generarProductosVendidos();
     this.generarMediosPago();
     this.generarCategorias();
     this.generarCanales();
   }
 
-  private esVentaContabilizable(venta: Venta): boolean {
-    const estado = String(venta.estado ?? '').toUpperCase();
-    const pedido = String(venta.estadoPedido ?? '').toUpperCase();
-    // No sumar pedidos anulados a los importes comerciales.
-    return !['CANCELADO', 'CANCELADA', 'ANULADO', 'ANULADA'].includes(estado)
-      && !['CANCELADO', 'CANCELADA', 'ANULADO', 'ANULADA'].includes(pedido);
+  fechaVisible(valor:string):string { return fechaHoraLima(valor) || 'Fecha no válida'; }
+
+  private csvPorPestana(vista:PestanaReporte):TipoReporteCsv {
+    return ({ventas:'ventas',inventario:'inventario',canales:'pagos',clientes:'clientes'} as const)[vista];
   }
 
-  private cumplePeriodo(fecha: Date, ahora: Date): boolean {
-    if (this.periodo === 'TODO') return true;
-
-    const inicioHoy = this.inicioDia(ahora);
-    const finHoy = this.finDia(ahora);
-
-    if (this.periodo === 'HOY') return fecha >= inicioHoy && fecha <= finHoy;
-
-    if (this.periodo === 'AYER') {
-      const inicioAyer = new Date(inicioHoy);
-      inicioAyer.setDate(inicioAyer.getDate() - 1);
-      const finAyer = new Date(inicioAyer);
-      finAyer.setHours(23, 59, 59, 999);
-      return fecha >= inicioAyer && fecha <= finAyer;
-    }
-
-    if (this.periodo === '7') {
-      const limite = new Date(inicioHoy);
-      limite.setDate(limite.getDate() - 6);
-      return fecha >= limite && fecha <= finHoy;
-    }
-
-    if (this.periodo === '15') {
-      const limite = new Date(inicioHoy);
-      limite.setDate(limite.getDate() - 14);
-      return fecha >= limite && fecha <= finHoy;
-    }
-
-    if (this.periodo === '30') {
-      const limite = new Date(inicioHoy);
-      limite.setDate(limite.getDate() - 29);
-      return fecha >= limite && fecha <= finHoy;
-    }
-
-    if (this.periodo === 'MES') {
-      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1, 0, 0, 0, 0);
-      return fecha >= inicioMes && fecha <= finHoy;
-    }
-
-    if (this.periodo === 'ANIO') {
-      const inicioAnio = new Date(ahora.getFullYear(), 0, 1, 0, 0, 0, 0);
-      return fecha >= inicioAnio && fecha <= finHoy;
-    }
-
-    if (this.periodo === 'ULTIMO_ANIO') {
-      const limite = new Date(inicioHoy);
-      limite.setFullYear(limite.getFullYear() - 1);
-      return fecha >= limite && fecha <= finHoy;
-    }
-
-    return true;
-  }
-
-  private inicioDia(fecha: Date): Date {
-    const resultado = new Date(fecha);
-    resultado.setHours(0, 0, 0, 0);
-    return resultado;
-  }
-
-  private finDia(fecha: Date): Date {
-    const resultado = new Date(fecha);
-    resultado.setHours(23, 59, 59, 999);
-    return resultado;
+  exportarCSV():void {
+    if(this.cargando||this.error||this.cargandoCsv||this.stockIncompleto)return;
+    this.errorCsv='';this.mensajeCsv='';
+    const tipo=this.reporteCsv,separador=this.separadorCsv;
+    const datos={ventas:[...this.ventas],detalles:[...this.detalles],productos:[...this.productos],inventario:[...this.inventario],usuarios:[...this.usuarios]};
+    const contexto={periodo:this.periodo,referencia:new Date(this.referenciaFiltro),consultadoEn:new Date(this.consultadoEn),generadoEn:new Date()};
+    const preparar=(pagos?:{yape:import('../../../core/services/yape-pagos.service').PagoYapeManual[];transferencias:import('../../../core/services/transferencias.service').PagoTransferencia[];contraentrega:import('../../../core/services/contraentrega').CobroContraEntrega[]})=>{
+      try {
+        if(pagos)contexto.consultadoEn=new Date();
+        const tabla=crearReporteCsv(tipo,{...datos,...pagos},contexto);
+        this.csv.descargar('reporte-'+tipo.replaceAll('_','-')+'-'+contexto.periodo.toLowerCase().replaceAll('_','-')+'-'+fechaLima(contexto.generadoEn).slice(0,10)+'.csv',tabla.cabeceras,tabla.filas,separador);
+        this.mensajeCsv='CSV preparado: '+tabla.filas.length+' filas. Importes registrados y cobros se exportan por separado.';
+      }catch(e){this.errorCsv=e instanceof Error?e.message:'No se pudo preparar el CSV.';}
+    };
+    if(!requierePagos(tipo)){preparar();return;}
+    this.cargandoCsv=true;
+    forkJoin({yape:this.yape.listarParaReportes(),transferencias:this.transferencias.listarParaReportes(),contraentrega:this.contraentrega.listarParaReportes()})
+      .pipe(timeout(30000),takeUntilDestroyed(this.destroyRef),finalize(()=>{this.cargandoCsv=false;if(!this.destroyRef.destroyed)this.cdr.markForCheck();}))
+      .subscribe({next:preparar,error:e=>{
+        const estados:Record<number,string>={400:'Datos de consulta inválidos.',401:'La sesión venció. Inicia sesión nuevamente.',403:'No tienes permiso para consultar los pagos.',404:'No está disponible una fuente de pagos.',409:'Los registros cambiaron. Actualiza antes de exportar.',503:'Servicio no disponible. No se descargó un reporte parcial.'};
+        this.errorCsv=e instanceof HttpErrorResponse?(estados[e.status]??'No se pudieron consultar todas las fuentes de pagos.'):'Se agotó el tiempo de consulta. No se descargó un reporte parcial.';
+      }});
   }
 
   private obtenerTipoVenta(_venta: Venta): 'ONLINE' { return 'ONLINE'; }
@@ -438,7 +418,7 @@ export class Reportes implements OnInit {
   get ventasPorDia(): Array<{ fecha: string; ventas: number; total: number; porcentaje: number }> {
     const mapa = new Map<string, { fecha: string; ventas: number; total: number; porcentaje: number }>();
     for (const venta of this.ventasFiltradas) {
-      const fecha = String(venta.fechaVenta ?? '').slice(0, 10);
+      const fecha = fechaHoraLima(venta.fechaVenta).slice(0, 10);
       if (!fecha) continue;
       const actual = mapa.get(fecha) ?? { fecha, ventas: 0, total: 0, porcentaje: 0 };
       actual.ventas++;
@@ -473,483 +453,20 @@ export class Reportes implements OnInit {
   get productoMasVendido(): ProductoVendido | null { return this.productosVendidos.length > 0 ? this.productosVendidos[0] : null; }
 
   exportarPDF(): void {
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const anchoPagina = pdf.internal.pageSize.getWidth();
-    const fechaGeneracion = new Date().toLocaleString('es-PE');
-    const periodo = this.obtenerNombrePeriodo();
-    const canal = this.obtenerNombreCanal();
-
-    pdf.setFillColor(124, 58, 237);
-    pdf.rect(0, 0, anchoPagina, 34, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(18);
-    pdf.text(this.nombreTienda.slice(0, 45), 14, 15);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
-    pdf.text('REPORTE DE VENTAS E INDICADORES', 14, 23);
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(8);
-    pdf.text(`Periodo: ${periodo}`, 14, 43);
-    pdf.text(`Canal: ${canal}`, 14, 48);
-    pdf.text(`Generado: ${fechaGeneracion}`, 14, 53);
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(12);
-    pdf.text('RESUMEN GENERAL', 14, 66);
-
-    autoTable(pdf, {
-      startY: 71,
-      theme: 'grid',
-      head: [['Pedidos web', 'Importe registrado', 'Unidades', 'Ticket promedio']],
-      body: [[
-        this.totalVentas.toString(),
-        this.formatearMonedaPDF(this.ingresosTotales),
-        this.unidadesVendidas.toString(),
-        this.formatearMonedaPDF(this.ventaPromedio)
-      ]],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, halign: 'center' },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' }
-    });
-
-    let posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-
-    this.verificarEspacioPDF(pdf, posicionY, 35);
-    if (posicionY > 245) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('MEDIOS DE PAGO', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'striped',
-      head: [['Medio', 'Ventas', 'Total', 'Participacion']],
-      body: this.mediosPago.length > 0
-        ? this.mediosPago.map(medio => [medio.nombre, medio.cantidad.toString(), this.formatearMonedaPDF(medio.total), `${medio.porcentaje.toFixed(0)}%`])
-        : [['Sin datos', '0', 'S/ 0.00', '0%']],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3 },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'center' } },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-
-    if (posicionY > 245) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('VENTAS POR CANAL', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'striped',
-      head: [['Canal', 'Ventas', 'Total', 'Participacion']],
-      body: this.canales.length > 0
-        ? this.canales.map(item => [item.nombre, item.cantidad.toString(), this.formatearMonedaPDF(item.total), `${item.porcentaje.toFixed(0)}%`])
-        : [['Sin datos', '0', 'S/ 0.00', '0%']],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3 },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'center' } },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-
-    if (posicionY > 240) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('VENTAS POR CATEGORIA', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'striped',
-      head: [['Categoria', 'Unidades', 'Ingresos']],
-      body: this.categorias.length > 0
-        ? this.categorias.map(categoria => [categoria.nombre, categoria.cantidad.toString(), this.formatearMonedaPDF(categoria.ingresos)])
-        : [['Sin datos', '0', 'S/ 0.00']],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3 },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' } },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-
-    if (posicionY > 235) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('PRODUCTOS VENDIDOS', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'striped',
-      head: [['#', 'Producto', 'Categoria', 'Unidades', 'Ingresos']],
-      body: this.productosVendidos.length > 0
-        ? this.productosVendidos.map((producto, index) => [(index + 1).toString(), producto.nombre, producto.categoria, producto.cantidad.toString(), this.formatearMonedaPDF(producto.ingresos)])
-        : [['-', 'Sin datos', '-', '0', 'S/ 0.00']],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, overflow: 'linebreak' },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      columnStyles: {
-        0: { cellWidth: 12, halign: 'center' },
-        1: { cellWidth: 60 },
-        2: { cellWidth: 45 },
-        3: { cellWidth: 24, halign: 'center' },
-        4: { halign: 'right' }
-      },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-    if (posicionY > 235) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('ESTADO DEL INVENTARIO', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'grid',
-      head: [['Stock total', 'Stock bajo', 'Sin stock', 'Productos activos']],
-      body: [[this.stockTotal.toString(), this.stockBajo.toString(), this.sinStock.toString(), this.productosActivos.toString()]],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, halign: 'center' },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-    if (posicionY > 235) { pdf.addPage(); posicionY = 20; }
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.text('CUENTAS REGISTRADAS', 14, posicionY);
-
-    autoTable(pdf, {
-      startY: posicionY + 5,
-      theme: 'grid',
-      head: [['Clientes online', 'Usuarios totales', 'Cuentas activas']],
-      body: [[this.totalClientes.toString(), this.totalUsuarios.toString(), this.usuariosActivos.toString()]],
-      styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, halign: 'center' },
-      headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
-      margin: { left: 14, right: 14, bottom: 20 }
-    });
-
-    if (this.productoMasVendido) {
-      posicionY = this.obtenerUltimaPosicionPDF(pdf) + 12;
-      if (posicionY > 250) { pdf.addPage(); posicionY = 20; }
-
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(11);
-      pdf.text('PRODUCTO LÍDER DEL FILTRO', 14, posicionY);
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(9);
-      pdf.text(`${this.productoMasVendido.nombre} - ${this.productoMasVendido.cantidad} unidades vendidas`, 14, posicionY + 7);
-    }
-
-    const totalPaginas = pdf.getNumberOfPages();
-
-    for (let pagina = 1; pagina <= totalPaginas; pagina++) {
-      pdf.setPage(pagina);
-      const altoPagina = pdf.internal.pageSize.getHeight();
-
-      pdf.setDrawColor(220, 220, 220);
-      pdf.line(14, altoPagina - 14, anchoPagina - 14, altoPagina - 14);
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
-      pdf.setTextColor(130, 130, 130);
-
-      pdf.text(`${this.nombreTienda} - Reporte administrativo`.slice(0, 85), 14, altoPagina - 8);
-      pdf.text(`Página ${pagina} de ${totalPaginas}`, anchoPagina - 14, altoPagina - 8, { align: 'right' });
-    }
-
-    const fechaArchivo = this.obtenerFechaArchivo();
-    const periodoArchivo = this.periodo.toLowerCase().replace(/_/g, '-');
-    const canalArchivo = 'ecommerce';
-
-    pdf.save(`reporte-general-${periodoArchivo}-${canalArchivo}-${fechaArchivo}.pdf`);
-  }
-
-  private obtenerNombrePeriodo(): string {
-    const periodos: Record<string, string> = {
-      HOY: 'Hoy',
-      AYER: 'Ayer',
-      '7': 'Últimos 7 días',
-      '15': 'Últimos 15 días',
-      '30': 'Últimos 30 días',
-      MES: 'Este mes',
-      ANIO: 'Este año',
-      ULTIMO_ANIO: 'Último año',
-      TODO: 'Todo el período'
-    };
-    return periodos[this.periodo] ?? 'Todo el período';
-  }
-
-  private obtenerNombreCanal(): string {
-    return 'E-commerce';
-  }
-
-  private formatearMonedaPDF(valor: number): string {
-    return `S/ ${Number(valor ?? 0).toFixed(2)}`;
-  }
-
-  private obtenerUltimaPosicionPDF(pdf: jsPDF): number {
-    const documento = pdf as jsPDF & { lastAutoTable?: { finalY?: number } };
-    return documento.lastAutoTable?.finalY ?? 20;
-  }
-
-  private verificarEspacioPDF(pdf: jsPDF, posicionY: number, espacioNecesario: number): void {
-    const altoPagina = pdf.internal.pageSize.getHeight();
-    if (posicionY + espacioNecesario > altoPagina - 20) {
-      pdf.addPage();
-    }
-  }
-
-  private obtenerFechaArchivo(): string {
-    const fecha = new Date();
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
-  }
-
-  exportarExcel(): void {
-    const libro = XLSX.utils.book_new();
-    const periodo = this.obtenerNombrePeriodo();
-    const canal = this.obtenerNombreCanal();
-    const generado = new Date().toLocaleString('es-PE');
-
-    const resumen = [
-      [`${this.nombreTienda} - REPORTE DE VENTAS`],
-      [],
-      ['Período', periodo],
-      ['Canal', canal],
-      ['Generado', generado],
-      [],
-      ['INDICADOR', 'VALOR'],
-      ['Ventas totales', this.totalVentas],
-      ['Ingresos', this.ingresosTotales],
-      ['Unidades vendidas', this.unidadesVendidas],
-      ['Venta promedio', this.ventaPromedio],
-      ['Ventas online', this.ventasOnline],
-      [],
-      ['INVENTARIO', 'VALOR'],
-      ['Stock total', this.stockTotal],
-      ['Stock bajo', this.stockBajo],
-      ['Sin stock', this.sinStock],
-      ['Productos activos', this.productosActivos],
-      [],
-      ['USUARIOS', 'VALOR'],
-      ['Clientes online', this.totalClientes],
-      ['Usuarios totales', this.totalUsuarios],
-      ['Cuentas activas', this.usuariosActivos],
-      [],
-      ['Producto líder', this.productoMasVendido?.nombre ?? 'Sin datos'],
-      ['Unidades del producto líder', this.productoMasVendido?.cantidad ?? 0]
-    ];
-
-    const hojaResumen = XLSX.utils.aoa_to_sheet(resumen);
-    hojaResumen['!cols'] = [{ wch: 30 }, { wch: 28 }];
-    this.aplicarFormatoMonedaExcel(hojaResumen, ['B9', 'B11']);
-    XLSX.utils.book_append_sheet(libro, hojaResumen, 'Resumen');
-
-    const ventas = this.ventasFiltradas.map(venta => ({
-      'ID Venta': venta.idVenta,
-      'Fecha': this.formatearFechaExcel(venta.fechaVenta),
-      'Canal': 'ONLINE',
-      'ID Usuario': venta.idUsuario ?? '',
-      'Nombre': venta.nombreCliente ?? '',
-      'Apellido': venta.apellidoCliente ?? '',
-      'Correo': venta.correoCliente ?? '',
-      'Tipo documento': venta.tipoDocumento ?? '',
-      'Número documento': venta.numeroDocumento ?? '',
-      'Medio de pago': venta.medioPago ?? '',
-      'Estado venta': venta.estado ?? '',
-      'Estado pedido': venta.estadoPedido ?? '',
-      'Total': Number(venta.total ?? 0)
-    }));
-
-    const hojaVentas = XLSX.utils.json_to_sheet(ventas.length > 0 ? ventas : [{ 'Sin datos': 'No existen ventas para el filtro seleccionado' }]);
-    hojaVentas['!cols'] = [
-      { wch: 11 }, { wch: 20 }, { wch: 14 }, { wch: 12 },
-      { wch: 22 }, { wch: 22 }, { wch: 30 }, { wch: 18 },
-      { wch: 20 }, { wch: 17 }, { wch: 17 }, { wch: 20 }, { wch: 14 }
-    ];
-    if (ventas.length > 0) {
-      hojaVentas['!autofilter'] = { ref: hojaVentas['!ref'] ?? 'A1:M1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaVentas, 12, ventas.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaVentas, 'Ventas');
-
-    const detallesFiltrados = this.detallesPeriodo();
-    const detalles = detallesFiltrados.map(detalle => ({
-      'ID Detalle': detalle.idDetalleVenta,
-      'ID Venta': detalle.idVenta,
-      'Producto': detalle.productoTalla?.producto?.nombre ?? 'Sin producto',
-      'Categoría': detalle.productoTalla?.producto?.categoria?.nombreCategoria ?? 'Sin categoría',
-      'Cantidad': Number(detalle.cantidad ?? 0),
-      'Precio unitario': Number(detalle.precioUnitario ?? 0),
-      'Subtotal': Number(detalle.subtotal ?? 0)
-    }));
-
-    const hojaDetalles = XLSX.utils.json_to_sheet(detalles.length > 0 ? detalles : [{ 'Sin datos': 'No existen detalles para el filtro seleccionado' }]);
-    hojaDetalles['!cols'] = [
-      { wch: 12 }, { wch: 11 }, { wch: 34 }, { wch: 22 },
-      { wch: 12 }, { wch: 16 }, { wch: 14 }
-    ];
-    if (detalles.length > 0) {
-      hojaDetalles['!autofilter'] = { ref: hojaDetalles['!ref'] ?? 'A1:G1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaDetalles, 5, detalles.length + 1);
-      this.aplicarFormatoColumnaMonedaExcel(hojaDetalles, 6, detalles.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaDetalles, 'Detalle Ventas');
-
-    const productos = this.productosVendidos.map((producto, index) => ({
-      'Posición': index + 1,
-      'ID Producto': producto.idProducto,
-      'Producto': producto.nombre,
-      'Categoría': producto.categoria,
-      'Unidades': producto.cantidad,
-      'Ingresos': producto.ingresos,
-      'Rendimiento %': Number(producto.porcentaje.toFixed(2))
-    }));
-
-    const hojaProductos = XLSX.utils.json_to_sheet(productos.length > 0 ? productos : [{ 'Sin datos': 'No existen productos vendidos para el filtro seleccionado' }]);
-    hojaProductos['!cols'] = [
-      { wch: 10 }, { wch: 13 }, { wch: 34 }, { wch: 22 },
-      { wch: 12 }, { wch: 14 }, { wch: 16 }
-    ];
-    if (productos.length > 0) {
-      hojaProductos['!autofilter'] = { ref: hojaProductos['!ref'] ?? 'A1:G1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaProductos, 5, productos.length + 1);
-      this.aplicarFormatoColumnaPorcentajeExcel(hojaProductos, 6, productos.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaProductos, 'Productos');
-
-    const mediosPago = this.mediosPago.map(medio => ({
-      'Medio de pago': medio.nombre,
-      'Ventas': medio.cantidad,
-      'Total': medio.total,
-      'Participación %': Number(medio.porcentaje.toFixed(2))
-    }));
-
-    const hojaMediosPago = XLSX.utils.json_to_sheet(mediosPago.length > 0 ? mediosPago : [{ 'Sin datos': 'No existen medios de pago para el filtro seleccionado' }]);
-    hojaMediosPago['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 16 }, { wch: 18 }];
-    if (mediosPago.length > 0) {
-      hojaMediosPago['!autofilter'] = { ref: hojaMediosPago['!ref'] ?? 'A1:D1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaMediosPago, 2, mediosPago.length + 1);
-      this.aplicarFormatoColumnaPorcentajeExcel(hojaMediosPago, 3, mediosPago.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaMediosPago, 'Medios de Pago');
-
-    const categorias = this.categorias.map(categoria => ({
-      'Categoría': categoria.nombre,
-      'Unidades': categoria.cantidad,
-      'Ingresos': categoria.ingresos,
-      'Rendimiento %': Number(categoria.porcentaje.toFixed(2))
-    }));
-
-    const hojaCategorias = XLSX.utils.json_to_sheet(categorias.length > 0 ? categorias : [{ 'Sin datos': 'No existen categorías para el filtro seleccionado' }]);
-    hojaCategorias['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 18 }];
-    if (categorias.length > 0) {
-      hojaCategorias['!autofilter'] = { ref: hojaCategorias['!ref'] ?? 'A1:D1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaCategorias, 2, categorias.length + 1);
-      this.aplicarFormatoColumnaPorcentajeExcel(hojaCategorias, 3, categorias.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaCategorias, 'Categorías');
-
-    const canales = this.canales.map(item => ({
-      'Canal': item.nombre,
-      'Ventas': item.cantidad,
-      'Total': item.total,
-      'Participación %': Number(item.porcentaje.toFixed(2))
-    }));
-
-    const hojaCanales = XLSX.utils.json_to_sheet(canales.length > 0 ? canales : [{ 'Sin datos': 'No existen canales para el filtro seleccionado' }]);
-    hojaCanales['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 18 }];
-    if (canales.length > 0) {
-      hojaCanales['!autofilter'] = { ref: hojaCanales['!ref'] ?? 'A1:D1' };
-      this.aplicarFormatoColumnaMonedaExcel(hojaCanales, 2, canales.length + 1);
-      this.aplicarFormatoColumnaPorcentajeExcel(hojaCanales, 3, canales.length + 1);
-    }
-    XLSX.utils.book_append_sheet(libro, hojaCanales, 'Canales');
-
-    const inventario = [
-      ['INDICADOR', 'VALOR'],
-      ['Stock total', this.stockTotal],
-      ['Stock bajo', this.stockBajo],
-      ['Sin stock', this.sinStock],
-      ['Productos activos', this.productosActivos]
-    ];
-    const hojaInventario = XLSX.utils.aoa_to_sheet(inventario);
-    hojaInventario['!cols'] = [{ wch: 24 }, { wch: 18 }];
-    XLSX.utils.book_append_sheet(libro, hojaInventario, 'Inventario');
-
-    const usuarios = [
-      ['INDICADOR', 'VALOR'],
-      ['Clientes online', this.totalClientes],
-      ['Usuarios totales', this.totalUsuarios],
-      ['Cuentas activas', this.usuariosActivos]
-    ];
-    const hojaUsuarios = XLSX.utils.aoa_to_sheet(usuarios);
-    hojaUsuarios['!cols'] = [{ wch: 24 }, { wch: 18 }];
-    XLSX.utils.book_append_sheet(libro, hojaUsuarios, 'Usuarios');
-
-    const periodoArchivo = this.periodo.toLowerCase().replace(/_/g, '-');
-    const canalArchivo = 'ecommerce';
-    const fechaArchivo = this.obtenerFechaArchivo();
-
-    XLSX.writeFile(
-      libro,
-      `reporte-general-${periodoArchivo}-${canalArchivo}-${fechaArchivo}.xlsx`,
-      { compression: true }
-    );
-  }
-
-  private formatearFechaExcel(fecha: string): string {
-    const valor = new Date(fecha);
-    if (Number.isNaN(valor.getTime())) return fecha ?? '';
-
-    return valor.toLocaleString('es-PE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  private aplicarFormatoMonedaExcel(hoja: XLSX.WorkSheet, celdas: string[]): void {
-    celdas.forEach(referencia => {
-      const celda = hoja[referencia];
-      if (celda && typeof celda.v === 'number') {
-        celda.t = 'n';
-        celda.z = '"S/ "#,##0.00';
-      }
-    });
-  }
-
-  private aplicarFormatoColumnaMonedaExcel(hoja: XLSX.WorkSheet, columna: number, filaFinal: number): void {
-    for (let fila = 2; fila <= filaFinal; fila++) {
-      const referencia = XLSX.utils.encode_cell({ r: fila - 1, c: columna });
-      const celda = hoja[referencia];
-      if (celda && typeof celda.v === 'number') {
-        celda.t = 'n';
-        celda.z = '"S/ "#,##0.00';
-      }
-    }
-  }
-
-  private aplicarFormatoColumnaPorcentajeExcel(hoja: XLSX.WorkSheet, columna: number, filaFinal: number): void {
-    for (let fila = 2; fila <= filaFinal; fila++) {
-      const referencia = XLSX.utils.encode_cell({ r: fila - 1, c: columna });
-      const celda = hoja[referencia];
-      if (celda && typeof celda.v === 'number') celda.z = '0.00"%"';
+    if (this.cargando || this.cargandoCsv || this.error || this.stockIncompleto) return;
+    this.errorPdf = '';
+    try {
+      const contexto = {
+        periodo: this.periodo, referencia: new Date(this.referenciaFiltro),
+        consultadoEn: new Date(this.consultadoEn), generadoEn: new Date()
+      };
+      const pdf = this.pdf.crear({
+        ventas: this.ventas, detalles: this.detalles, productos: this.productos,
+        inventario: this.inventario, usuarios: this.usuarios
+      }, contexto, this.nombreTienda);
+      pdf.save('reporte-general-' + this.periodo.toLowerCase().replaceAll('_','-') + '-' + fechaLima(contexto.generadoEn).slice(0,10) + '.pdf');
+    } catch (e) {
+      this.errorPdf = e instanceof Error ? e.message : 'No se pudo preparar el PDF.';
     }
   }
 }

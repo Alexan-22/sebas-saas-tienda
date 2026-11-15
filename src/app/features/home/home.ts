@@ -62,8 +62,9 @@ export class Home implements OnInit, OnDestroy {
   ngOnDestroy(): void { this.detenerCarrusel(); }
 
   private aplicarDiseno(diseno: ContenidoEditor | null): void {
-    this.diseno.set(diseno);
-    this.disenoCargado.set(true);
+  this.diseno.set(diseno);
+  this.tiendaService.aplicarTema(diseno?.tema ?? null);
+  this.disenoCargado.set(true);
     const portada = diseno?.portada;
     if (!portada) {
       this.cargarBanners();
@@ -155,13 +156,6 @@ export class Home implements OnInit, OnDestroy {
 
   private esGenero(producto: Producto, genero: string): boolean {
     return (producto.genero?.nombreGenero ?? '').trim().toLocaleLowerCase('es').includes(genero);
-  }
-
-  get coleccionMujer(): HomeColeccion | null {
-    return this.colecciones.find(c => (c.titulo ?? '').toLocaleLowerCase('es').includes('mujer') && !!c.imagen) ?? null;
-  }
-  get coleccionHombre(): HomeColeccion | null {
-    return this.colecciones.find(c => (c.titulo ?? '').toLocaleLowerCase('es').includes('hombre') && !!c.imagen) ?? null;
   }
 
   imagenUrl(imagen: string | null | undefined): string | null {

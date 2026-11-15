@@ -261,7 +261,7 @@ export class Checkout {
     });
   }
 
-  private registrarCompra(): void {
+  private async registrarCompra(): Promise<void> {
     const itemsActuales = this.carritoService.items();
     if (itemsActuales.length === 0) {
       this.procesando = false;
@@ -285,11 +285,11 @@ export class Checkout {
       }
     };
 
-    if (request.medioPago === 'YAPE') {
-      request.claveIdempotencia = claveYape(request);
-    }
+    try {
+      if (request.medioPago === 'YAPE') request.claveIdempotencia = await claveYape(request);
 
-    if(request.medioPago==='TRANSFERENCIA') {request.cuentaBancariaId=this.cuentaBancariaId!;request.claveIdempotencia=claveTransferencia(request);}
+    if(request.medioPago==='TRANSFERENCIA') {request.cuentaBancariaId=this.cuentaBancariaId!;request.claveIdempotencia=await claveTransferencia(request);}
+    } catch { this.procesando=false;this.error='No se pudo preparar un reintento seguro. Usa HTTPS y habilita el almacenamiento de sesion.';this.cdr.markForCheck();return; }
     this.ventaService.comprar(request).subscribe({
       next: (response: CompraResponse) => {
         this.procesando = false;
