@@ -1,19 +1,16 @@
 
 <div class="demo">
 
-  <!-- AVISO PRINCIPAL -->
   <div class="aviso">
-    VISTA DE DEMOSTRACIÓN · PRODUCTOS Y PRECIOS FICTICIOS · COMPRAS DESHABILITADAS
+    VISTA DE DEMOSTRACIÓN · COMPRAS DESHABILITADAS
   </div>
 
-  <!-- ESTADO DE LA CONEXIÓN CON SUPABASE -->
   @if (conexion() === 'conectado') {
     <div class="aviso">
       Boutique conectada a Supabase Staging
     </div>
   }
 
-  <!-- CABECERA -->
   <header class="cabecera">
     <a class="marca" href="#inicio">
       {{ nombreTienda() }}
@@ -27,10 +24,8 @@
     <span class="etiqueta">SaaS V2 · Demo</span>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <main id="inicio">
 
-    <!-- HERO -->
     <section class="hero">
 
       <div class="hero-texto">
@@ -62,7 +57,6 @@
 
     </section>
 
-    <!-- COLECCIÓN -->
     <section id="coleccion" class="coleccion">
 
       <div class="seccion-cabeza">
@@ -75,48 +69,79 @@
         </div>
 
         <span class="nota">
-          Catálogo ilustrativo
+          Productos de prueba · Supabase Staging
         </span>
       </div>
 
-      <!-- PRODUCTOS -->
-      <div class="productos">
+      @if (estadoCatalogo() === 'cargando') {
 
-        @for (producto of productos; track producto.nombre) {
+        <p role="status" aria-live="polite">
+          Cargando productos...
+        </p>
 
-          <article class="producto">
+      } @else if (estadoCatalogo() === 'error') {
 
-            <div class="foto">
-              <img
-                [src]="producto.imagen"
-                [alt]="producto.nombre"
-                loading="lazy"
-              >
+        <p role="alert">
+          No se pudo cargar el catálogo.
+          Intenta actualizar la página.
+        </p>
 
-              <span>DEMO</span>
-            </div>
+      } @else if (productos().length === 0) {
 
-            <p class="tipo">
-              {{ producto.tipo }}
-            </p>
+        <p>
+          Esta boutique todavía no tiene productos disponibles.
+        </p>
 
-            <h3>
-              {{ producto.nombre }}
-            </h3>
+      } @else {
 
-            <p class="precio">
-              {{ producto.precio }}
-            </p>
+        <div class="productos">
 
-          </article>
+          @for (producto of productos(); track producto.id) {
 
-        }
+            <article class="producto">
 
-      </div>
+              <div class="foto">
+
+                @if (producto.imagen) {
+                  <img
+                    [src]="producto.imagen"
+                    [alt]="producto.nombre"
+                    loading="lazy"
+                  >
+                } @else {
+                  <div
+                    class="sin-imagen"
+                    style="height: 100%; display: grid; place-items: center;">
+                    Imagen no disponible
+                  </div>
+                }
+
+                <span>DEMO</span>
+
+              </div>
+
+              <p class="tipo">
+                {{ producto.tipo }}
+              </p>
+
+              <h3>
+                {{ producto.nombre }}
+              </h3>
+
+              <p class="precio">
+                {{ producto.precio }}
+              </p>
+
+            </article>
+
+          }
+
+        </div>
+
+      }
 
     </section>
 
-    <!-- NOSOTROS -->
     <section id="nosotros" class="nosotros">
 
       <span class="sobre">
@@ -129,20 +154,19 @@
       </h2>
 
       <p>
-        Presentación visual del sistema SaaS multiempresa.
-        El catálogo, los precios y las imágenes de esta
-        vista son de ejemplo.
+        Presentación del sistema SaaS multiempresa.
+        Esta boutique utiliza datos de prueba
+        almacenados en Supabase Staging.
       </p>
 
       <strong>
-        Próximamente: catálogo conectado y compras online.
+        Demostración sin compras ni pagos habilitados.
       </strong>
 
     </section>
 
   </main>
 
-  <!-- PIE DE PÁGINA -->
   <footer>
 
     <span>
@@ -150,9 +174,10 @@
     </span>
 
     <span>
-      Demostración visual · Sin ventas ni pagos
+      Catálogo de prueba · Sin ventas ni pagos
     </span>
 
   </footer>
 
 </div>
+
