@@ -1,4 +1,4 @@
 ﻿export const environment = {
   production: true,
-  apiUrl: ''
+  apiUrl: 'https://sebas-saas-api-dev.azurewebsites.net'
 };
