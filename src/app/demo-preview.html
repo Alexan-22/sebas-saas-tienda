@@ -1,0 +1,60 @@
+<div class="demo">
+  <div class="aviso">VISTA DE DEMOSTRACIÓN · PRODUCTOS Y PRECIOS FICTICIOS · COMPRAS DESHABILITADAS</div>
+
+  <header class="cabecera">
+    <a class="marca" href="#inicio">SEBAS <span>COLLECTION</span></a>
+    <nav aria-label="Navegación de demostración">
+      <a href="#coleccion">Colección</a>
+      <a href="#nosotros">Nosotros</a>
+    </nav>
+    <span class="etiqueta">SaaS V2 · Demo</span>
+  </header>
+
+  <main id="inicio">
+    <section class="hero">
+      <div class="hero-texto">
+        <span class="sobre">ESTILO PARA CADA MOMENTO</span>
+        <h1>Tu estilo.<br><em>Tu esencia.</em></h1>
+        <p>Descubre una nueva forma de vivir la moda. Una boutique moderna, creada para destacar cada colección.</p>
+        <a href="#coleccion" class="boton">Explorar colección</a>
+      </div>
+      <div class="hero-foto" role="img" aria-label="Colección de moda de demostración"></div>
+    </section>
+
+    <section id="coleccion" class="coleccion">
+      <div class="seccion-cabeza">
+        <div>
+          <span class="sobre">DESCUBRE LA TEMPORADA</span>
+          <h2>Selección destacada</h2>
+        </div>
+        <span class="nota">Catálogo ilustrativo</span>
+      </div>
+
+      <div class="productos">
+        @for (producto of productos; track producto.nombre) {
+          <article class="producto">
+            <div class="foto">
+              <img [src]="producto.imagen" [alt]="producto.nombre" loading="lazy">
+              <span>DEMO</span>
+            </div>
+            <p class="tipo">{{ producto.tipo }}</p>
+            <h3>{{ producto.nombre }}</h3>
+            <p class="precio">{{ producto.precio }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="nosotros" class="nosotros">
+      <span class="sobre">SEBAS COLLECTION</span>
+      <h2>Una experiencia de compra pensada para tu boutique.</h2>
+      <p>Presentación visual del sistema SaaS multiempresa. El catálogo, los precios y las imágenes de esta vista son de ejemplo.</p>
+      <strong>Próximamente: catálogo conectado y compras online.</strong>
+    </section>
+  </main>
+
+  <footer>
+    <span>SEBAS COLLECTION · SaaS V2</span>
+    <span>Demostración visual · Sin ventas ni pagos</span>
+  </footer>
+</div>

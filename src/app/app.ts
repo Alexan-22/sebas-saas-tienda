@@ -1,3 +1,5 @@
+import { environment } from '../environments/environment';
+import { DemoPreview } from './demo-preview';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { catchError, of, switchMap } from 'rxjs';
 import { EditorTiendaService } from './core/services/editor-tienda.service';
@@ -7,9 +9,11 @@ import { TiendaService } from './core/services/tienda.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, DemoPreview],
   template: `
-    @if (estado() === 'lista') {
+    @if (modoDemo) {
+      <app-demo-preview />
+    } @else if (estado() === 'lista') {
       <router-outlet></router-outlet>
     } @else if (estado() === 'error') {
       <main class="tenant-error" role="alert">
@@ -32,7 +36,8 @@ export class AppComponent implements OnInit {
   private readonly tiendaService = inject(TiendaService);
   private readonly editor = inject(EditorTiendaService);
   readonly estado = signal<'cargando' | 'lista' | 'error'>('cargando');
-  ngOnInit(): void { this.reintentar(); }
+  readonly modoDemo = environment.production && typeof window !== 'undefined' && window.location.hostname === 'gentle-water-0f7b5471e.4.azurestaticapps.net';
+  ngOnInit(): void { if (!this.modoDemo) this.reintentar(); }
   reintentar(): void {
     this.estado.set('cargando');
     this.tiendaService.cargarConfiguracion().pipe(
