@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { TiendaService } from './core/services/tienda.service';
 
 @Component({
   selector: 'app-demo-preview',
@@ -6,7 +7,25 @@ import { Component } from '@angular/core';
   templateUrl: './demo-preview.html',
   styleUrl: './demo-preview.css'
 })
-export class DemoPreview {
+export class DemoPreview implements OnInit {
+  private readonly tiendaService = inject(TiendaService);
+
+  readonly nombreTienda = signal('SEBAS COLLECTION');
+  readonly conexion = signal<'cargando' | 'conectado' | 'error'>('cargando');
+
+  ngOnInit(): void {
+    this.tiendaService.cargarConfiguracion().subscribe({
+      next: tienda => {
+        this.nombreTienda.set(tienda.nombre);
+        this.conexion.set('conectado');
+      },
+      error: error => {
+        console.error('Error de conexión con la boutique:', error);
+        this.conexion.set('error');
+      }
+    });
+  }
+
   readonly productos = [
     {
       nombre: 'Casaca urbana',
