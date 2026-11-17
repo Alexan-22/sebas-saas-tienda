@@ -5,7 +5,7 @@ import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { Footer } from '../../shared/components/footer/footer';
 
-import { SeguimientoPedido } from '../detalle-compra/seguimiento-pedido';
+import { SeguimientoPedido } from '../detalle-compra/seguimiento-pedido/seguimiento-pedido';
 
 @Component({
   selector: 'app-seguimiento-page',

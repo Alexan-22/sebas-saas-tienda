@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { EditorTiendaService, PortadaEditor } from '../../../core/services/editor-tienda.service';
+import { EditorTiendaService, PortadaEditor } from '../../../../core/services/editor-tienda.service';
 
 @Component({
   imports: [FormsModule, RouterLink],

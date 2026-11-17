@@ -8,7 +8,7 @@ import { ProductDetail } from './features/product-detail/product-detail';
 import { Cart } from './features/cart/cart';
 import { Login } from './features/login/login';
 import { Registro } from './features/registro/registro';
-import { Checkout } from './features/checkout/checkout';
+import { Checkout } from './features/checkout/pages/checkout/checkout';
 import { CompraExitosa } from './features/compra-exitosa/compra-exitosa';
 import { MisCompras } from './features/mis-compras/mis-compras';
 import { DetalleCompra } from './features/detalle-compra/detalle-compra';
@@ -30,7 +30,7 @@ import { ProductoForm } from './features/admin/producto-form/producto-form';
 import { Stock } from './features/admin/stock/stock';
 import { Ventas } from './features/admin/ventas/ventas';
 import { Usuarios } from './features/admin/usuarios/usuarios';
-import { Reportes } from './features/admin/reportes/reportes';
+import { Reportes } from './features/admin/reportes/pages/reportes/reportes';
 import { HomeAdmin } from './features/admin/home-admin/home-admin';
 
 export const routes: Routes = [
@@ -47,7 +47,7 @@ export const routes: Routes = [
   {
     path: 'vista-previa-tienda',
     canActivate: [adminGuard],
-    loadComponent: () => import('./features/admin/editor-tienda/vista-previa')
+    loadComponent: () => import('./features/admin/editor-tienda/vista-previa-tienda/vista-previa')
       .then(m => m.VistaPreviaTienda)
   },
   {
@@ -244,7 +244,7 @@ export const routes: Routes = [
       // -------------------------------------------------
       {
         path: 'editor-tienda/portada',
-        loadComponent: () => import('./features/admin/editor-tienda/editor-portada')
+        loadComponent: () => import('./features/admin/editor-tienda/editor-portada/editor-portada')
           .then(m => m.EditorPortada)
       },
       {

@@ -1,32 +1,32 @@
-import { ReportesPdfService } from './reportes-pdf.service';
+import { ReportesPdfService } from '../../services/reportes-pdf.service';
 import { ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize, timeout } from 'rxjs';
-import { CsvExportService } from '../../../shared/export/csv-export.service';
-import { SeparadorCsv } from '../../../shared/export/csv-export';
-import { enPeriodo, fechaHoraLima, fechaLima } from '../../../shared/export/fecha-lima';
-import { crearReporteCsv, GRUPOS_REPORTES_CSV, requierePagos, TipoReporteCsv, ventaContabilizable } from './reportes-csv';
-import { YapePagosService } from '../../../core/services/yape-pagos.service';
-import { TransferenciasService } from '../../../core/services/transferencias.service';
-import { ContraEntregaService } from '../../../core/services/contraentrega';
+import { CsvExportService } from '../../../../../shared/export/csv-export.service';
+import { SeparadorCsv } from '../../../../../shared/export/csv-export';
+import { enPeriodo, fechaHoraLima, fechaLima } from '../../../../../shared/export/fecha-lima';
+import { crearReporteCsv, GRUPOS_REPORTES_CSV, requierePagos, TipoReporteCsv, ventaContabilizable } from '../../services/reportes-csv';
+import { YapePagosService } from '../../../../../core/services/yape-pagos.service';
+import { TransferenciasService } from '../../../../../core/services/transferencias.service';
+import { ContraEntregaService } from '../../../../../core/services/contraentrega';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TiendaService } from '../../../core/services/tienda.service';
+import { TiendaService } from '../../../../../core/services/tienda.service';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
-import { Venta, DetalleVenta } from '../../../core/models/venta-detalle';
-import { Producto } from '../../../core/models/producto';
-import { ProductoTalla } from '../../../core/models/producto-talla';
-import { UsuarioAdmin } from '../../../core/models/usuario-admin';
+import { Venta, DetalleVenta } from '../../../../../core/models/venta-detalle';
+import { Producto } from '../../../../../core/models/producto';
+import { ProductoTalla } from '../../../../../core/models/producto-talla';
+import { UsuarioAdmin } from '../../../../../core/models/usuario-admin';
 
-import { VentaService } from '../../../core/services/venta';
-import { ProductoService } from '../../../core/services/producto';
-import { ProductoTallaService } from '../../../core/services/producto-talla';
-import { UsuarioService } from '../../../core/services/usuario';
+import { VentaService } from '../../../../../core/services/venta';
+import { ProductoService } from '../../../../../core/services/producto';
+import { ProductoTallaService } from '../../../../../core/services/producto-talla';
+import { UsuarioService } from '../../../../../core/services/usuario';
 
 export type PestanaReporte = 'ventas' | 'inventario' | 'canales' | 'clientes';
 
@@ -217,7 +217,7 @@ export class Reportes implements OnInit {
     const tipo=this.reporteCsv,separador=this.separadorCsv;
     const datos={ventas:[...this.ventas],detalles:[...this.detalles],productos:[...this.productos],inventario:[...this.inventario],usuarios:[...this.usuarios]};
     const contexto={periodo:this.periodo,referencia:new Date(this.referenciaFiltro),consultadoEn:new Date(this.consultadoEn),generadoEn:new Date()};
-    const preparar=(pagos?:{yape:import('../../../core/services/yape-pagos.service').PagoYapeManual[];transferencias:import('../../../core/services/transferencias.service').PagoTransferencia[];contraentrega:import('../../../core/services/contraentrega').CobroContraEntrega[]})=>{
+    const preparar=(pagos?:{yape:import('../../../../../core/services/yape-pagos.service').PagoYapeManual[];transferencias:import('../../../../../core/services/transferencias.service').PagoTransferencia[];contraentrega:import('../../../../../core/services/contraentrega').CobroContraEntrega[]})=>{
       try {
         if(pagos)contexto.consultadoEn=new Date();
         const tabla=crearReporteCsv(tipo,{...datos,...pagos},contexto);

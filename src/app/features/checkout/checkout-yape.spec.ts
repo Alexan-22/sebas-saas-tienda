@@ -1,4 +1,4 @@
-import { Checkout } from './checkout';
+import { Checkout } from './pages/checkout/checkout';
 describe('Checkout Yape safety',()=>{
  it('blocks disabled Yape even if the buyer checked payment confirmation',()=>{
   const page=Object.create(Checkout.prototype) as Checkout;

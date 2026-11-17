@@ -1,6 +1,6 @@
 import { crearReporteCsv, REPORTES_CSV } from './reportes-csv';
-import { construirCsv } from '../../../shared/export/csv-export';
-import { contextoFicticio, datosFicticios } from './testing/reportes.fixture';
+import { construirCsv } from '../../../../shared/export/csv-export';
+import { contextoFicticio, datosFicticios } from '../testing/reportes.fixture';
 describe('Proyecciones CSV administrativas por tienda', () => {
   it('ventas respeta período Lima, excluye canceladas y conserva importes individuales', () => {
     const t = crearReporteCsv('ventas', datosFicticios(), contextoFicticio());

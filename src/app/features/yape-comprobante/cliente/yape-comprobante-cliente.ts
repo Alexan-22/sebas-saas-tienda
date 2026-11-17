@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import {
   YapeComprobantesService, YapeComprobanteInfo
-} from '../../core/services/yape-comprobantes.service';
+} from '../../../core/services/yape-comprobantes.service';
 
 @Component({
   selector: 'app-yape-comprobante-cliente',

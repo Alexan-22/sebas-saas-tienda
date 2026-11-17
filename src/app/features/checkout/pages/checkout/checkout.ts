@@ -1,5 +1,5 @@
-import { TransferenciasService, CuentaBancaria } from '../../core/services/transferencias.service';
-import { claveTransferencia, completarIntentoTransferencia } from './idempotencia/transferencia/transferencia-idempotencia';
+import { TransferenciasService, CuentaBancaria } from '../../../../core/services/transferencias.service';
+import { claveTransferencia, completarIntentoTransferencia } from '../../idempotencia/transferencia/transferencia-idempotencia';
 
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
@@ -8,17 +8,17 @@ import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { CarritoService } from '../../core/services/carrito';
-import { VentaService } from '../../core/services/venta';
-import { ProductoTallaService } from '../../core/services/producto-talla';
-import { CompraRequest, CompraResponse } from '../../core/models/venta';
-import { DatosCheckout, MetodoPago } from '../../core/models/checkout';
-import { YapeService } from '../../core/services/yape.service';
-import { ProductoTalla } from '../../core/models/producto-talla';
-import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
-import { Navbar } from '../../shared/components/navbar/navbar';
-import { Footer } from '../../shared/components/footer/footer';
-import { claveYape, completarIntentoYape } from './idempotencia/yape/yape-idempotencia';
+import { CarritoService } from '../../../../core/services/carrito';
+import { VentaService } from '../../../../core/services/venta';
+import { ProductoTallaService } from '../../../../core/services/producto-talla';
+import { CompraRequest, CompraResponse } from '../../../../core/models/venta';
+import { DatosCheckout, MetodoPago } from '../../../../core/models/checkout';
+import { YapeService } from '../../../../core/services/yape.service';
+import { ProductoTalla } from '../../../../core/models/producto-talla';
+import { PromoBar } from '../../../../shared/components/promo-bar/promo-bar';
+import { Navbar } from '../../../../shared/components/navbar/navbar';
+import { Footer } from '../../../../shared/components/footer/footer';
+import { claveYape, completarIntentoYape } from '../../idempotencia/yape/yape-idempotencia';
 
 @Component({
   selector: 'app-checkout',

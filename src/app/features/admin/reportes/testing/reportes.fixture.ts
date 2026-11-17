@@ -1,4 +1,4 @@
-import type { DatosCsvTienda, ContextoCsv } from '../reportes-csv';
+import type { DatosCsvTienda, ContextoCsv } from '../services/reportes-csv';
 export function contextoFicticio(periodo = 'HOY'): ContextoCsv {
   return {
     periodo,

@@ -1,5 +1,5 @@
 import { crearReportePdf } from './reportes-pdf';
-import { contextoFicticio, datosFicticios } from './testing/reportes.fixture';
+import { contextoFicticio, datosFicticios } from '../testing/reportes.fixture';
 
 describe('PDF de Reportes: documento real con datos ficticios', () => {
   it('genera un PDF multipagina valido, con Lima y ventas registradas sin atribuir cobros', () => {

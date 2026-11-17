@@ -6,7 +6,7 @@ import {
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { YapeComprobanteAdminComponent } from '../../yape-comprobante/yape-comprobante-admin';
+import { YapeComprobanteAdminComponent } from '../../yape-comprobante/admin/yape-comprobante-admin';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import {

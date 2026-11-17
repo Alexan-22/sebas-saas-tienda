@@ -5,13 +5,13 @@ import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angul
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Reportes } from './reportes';
-import { CsvExportService } from '../../../shared/export/csv-export.service';
-import { authInterceptor } from '../../../core/interceptors/auth-interceptor';
-import { AuthService } from '../../../core/services/auth';
-import { construirCsv } from '../../../shared/export/csv-export';
-import { datosFicticios } from './testing/reportes.fixture';
-import { crearReportePdf } from './reportes-pdf';
-import { ReportesPdfService } from './reportes-pdf.service';
+import { CsvExportService } from '../../../../../shared/export/csv-export.service';
+import { authInterceptor } from '../../../../../core/interceptors/auth-interceptor';
+import { AuthService } from '../../../../../core/services/auth';
+import { construirCsv } from '../../../../../shared/export/csv-export';
+import { datosFicticios } from '../../testing/reportes.fixture';
+import { crearReportePdf } from '../../services/reportes-pdf';
+import { ReportesPdfService } from '../../services/reportes-pdf.service';
 
 describe('Reportes CSV: integración Angular, HTTP, filtros y permisos', () => {
   let fixture: ComponentFixture<Reportes>, page: Reportes, http: HttpTestingController;

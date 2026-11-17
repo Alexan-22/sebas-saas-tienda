@@ -1,18 +1,18 @@
-import { Venta, DetalleVenta } from '../../../core/models/venta-detalle';
-import { Producto } from '../../../core/models/producto';
-import { ProductoTalla } from '../../../core/models/producto-talla';
-import { UsuarioAdmin } from '../../../core/models/usuario-admin';
-import { PagoYapeManual } from '../../../core/services/yape-pagos.service';
-import { PagoTransferencia } from '../../../core/services/transferencias.service';
-import { CobroContraEntrega } from '../../../core/services/contraentrega';
-import { CeldaCsv } from '../../../shared/export/csv-export';
+import { Venta, DetalleVenta } from '../../../../core/models/venta-detalle';
+import { Producto } from '../../../../core/models/producto';
+import { ProductoTalla } from '../../../../core/models/producto-talla';
+import { UsuarioAdmin } from '../../../../core/models/usuario-admin';
+import { PagoYapeManual } from '../../../../core/services/yape-pagos.service';
+import { PagoTransferencia } from '../../../../core/services/transferencias.service';
+import { CobroContraEntrega } from '../../../../core/services/contraentrega';
+import { CeldaCsv } from '../../../../shared/export/csv-export';
 import {
   enPeriodo,
   fechaHoraLima,
   fechaLima,
   ZONA_REPORTE,
   PERIODOS_REPORTE,
-} from '../../../shared/export/fecha-lima';
+} from '../../../../shared/export/fecha-lima';
 export const REPORTES_CSV = [
   ['ventas', 'Ventas registradas'],
   ['resumen_ventas', 'Totales de ventas por moneda'],

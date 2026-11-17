@@ -1,0 +1,275 @@
+
+<main class="editor-portada mx-auto max-w-4xl space-y-5 p-5">
+
+  <!-- NAVEGACIÓN -->
+
+  <nav>
+    <a
+      routerLink="/admin/editor-tienda"
+      class="text-sm font-medium text-violet-700 underline">
+      Volver al Editor de tienda
+    </a>
+  </nav>
+
+  <!-- ENCABEZADO -->
+
+  <header>
+    <h1 class="text-3xl font-semibold text-slate-900">
+      Portada de la tienda
+    </h1>
+
+    <p class="mt-3 text-sm leading-6 text-slate-600">
+      Prepara las imágenes desde
+
+      <a
+        routerLink="/admin/home"
+        class="font-medium text-violet-700 underline">
+        Banners y colecciones
+      </a>
+
+      y elige cuáles aparecerán en el borrador.
+    </p>
+  </header>
+
+  <!-- MENSAJES -->
+
+  @if (error()) {
+    <p
+      role="alert"
+      class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+      {{ error() }}
+    </p>
+  }
+
+  @if (mensaje()) {
+    <p
+      role="status"
+      class="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+      {{ mensaje() }}
+    </p>
+  }
+
+  @if (portada(); as datos) {
+
+    <!-- BANNERS -->
+
+    <fieldset
+      class="space-y-4"
+      [disabled]="ocupado()">
+
+      <legend class="text-xl font-semibold">
+        Banners
+      </legend>
+
+      @for (banner of datos.banners; track banner.id) {
+
+        <article class="rounded-xl border border-slate-200 bg-white p-4">
+
+          <div class="grid gap-4">
+
+            <!-- VISIBILIDAD -->
+
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                [(ngModel)]="banner.visible"
+              />
+
+              <span class="font-medium">
+                {{ banner.titulo || ('Banner ' + banner.id) }}
+              </span>
+            </label>
+
+            <!-- ORDEN -->
+
+            <label class="block text-sm">
+              Orden
+
+              <input
+                class="mt-1 block w-24 rounded-lg border border-slate-300 p-2"
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="banner.orden"
+              />
+            </label>
+
+            <!-- ESCRITORIO -->
+
+            <label class="block text-sm">
+              Subir imagen de escritorio
+
+              <input
+                class="mt-2 block w-full text-sm"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                [disabled]="!revision"
+                (change)="subir($event, 'ESCRITORIO', banner.id)"
+              />
+            </label>
+
+            <!-- MÓVIL -->
+
+            <label class="block text-sm">
+              Subir imagen móvil
+
+              <input
+                class="mt-2 block w-full text-sm"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                [disabled]="!revision"
+                (change)="subir($event, 'MOVIL', banner.id)"
+              />
+            </label>
+
+            <!-- SELECCIONAR IMAGEN MÓVIL -->
+
+            <label class="block text-sm">
+              Imagen móvil
+
+              <select
+                class="mt-1 block w-full rounded-lg border border-slate-300 p-2"
+                [(ngModel)]="banner.movil">
+
+                <option [ngValue]="null">
+                  Usar imagen de escritorio
+                </option>
+
+                @if (banner.movil && !tieneImagen(banner.movil)) {
+                  <option [ngValue]="banner.movil">
+                    Imagen del borrador
+                  </option>
+                }
+
+                @for (imagen of imagenes; track imagen.id) {
+                  <option [ngValue]="imagen.escritorio">
+                    Imagen del banner {{ imagen.id }}
+                  </option>
+                }
+
+              </select>
+            </label>
+
+          </div>
+
+        </article>
+
+      } @empty {
+
+        <p class="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+          Añade un banner en Banners y colecciones
+          para incorporarlo.
+        </p>
+
+      }
+
+    </fieldset>
+
+    <!-- COLECCIONES -->
+
+    <fieldset
+      class="space-y-4"
+      [disabled]="ocupado()">
+
+      <legend class="text-xl font-semibold">
+        Colecciones
+      </legend>
+
+      @for (coleccion of datos.colecciones; track coleccion.id) {
+
+        <article class="rounded-xl border border-slate-200 bg-white p-4">
+
+          <div class="grid gap-4 sm:grid-cols-2">
+
+            <!-- VISIBILIDAD -->
+
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                [(ngModel)]="coleccion.visible"
+              />
+
+              Mostrar colección {{ coleccion.id }}
+            </label>
+
+            <!-- IMAGEN -->
+
+            <label class="block text-sm">
+              Subir imagen de colección
+
+              <input
+                class="mt-2 block w-full text-sm"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                [disabled]="!revision"
+                (change)="subir($event, 'COLECCION', coleccion.id)"
+              />
+            </label>
+
+            <!-- TÍTULO -->
+
+            <label class="block text-sm">
+              Título
+
+              <input
+                class="mt-1 block w-full rounded-lg border border-slate-300 p-2"
+                maxlength="100"
+                [(ngModel)]="coleccion.titulo"
+              />
+            </label>
+
+            <!-- ORDEN -->
+
+            <label class="block text-sm">
+              Orden
+
+              <input
+                class="mt-1 block w-24 rounded-lg border border-slate-300 p-2"
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="coleccion.orden"
+              />
+            </label>
+
+          </div>
+
+        </article>
+
+      } @empty {
+
+        <p class="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+          Añade una colección en Banners y colecciones
+          para incorporarla.
+        </p>
+
+      }
+
+    </fieldset>
+
+    <!-- GUARDAR -->
+
+    @if (!revision) {
+      <p class="text-sm text-amber-700">
+        Guarda la portada para habilitar
+        la carga de imágenes.
+      </p>
+    }
+
+    <button
+      type="button"
+      class="rounded-lg bg-slate-900 px-5 py-3 font-medium text-white disabled:opacity-50"
+      [disabled]="ocupado()"
+      (click)="guardar()">
+      {{ ocupado() ? 'Procesando...' : 'Guardar borrador' }}
+    </button>
+
+  } @else if (ocupado()) {
+
+    <p role="status" class="text-sm text-slate-600">
+      Cargando portada…
+    </p>
+
+  }
+
+</main>

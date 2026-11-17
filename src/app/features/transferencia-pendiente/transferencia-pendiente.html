@@ -1,0 +1,58 @@
+    <main class="min-h-screen bg-slate-50 px-5 py-12">
+      <section class="mx-auto max-w-2xl rounded-2xl border bg-white p-6 shadow-sm sm:p-10">
+        <h1 class="text-2xl font-bold">Transferencia bancaria</h1>
+        <p class="mt-2 text-slate-600">El pago se confirma únicamente cuando la tienda verifica el abono.</p>
+        @if (cargando) {<p class="mt-5">Consultando el pedido...</p>}
+        @if (error) {<p role="alert" class="mt-4 rounded bg-red-50 p-3 text-red-700">{{error}}</p>}
+        @if (pago; as p) {
+          <div class="mt-5 space-y-3 text-sm">
+            <div class="flex justify-between"><strong>Pedido</strong><span>#{{p.idVenta}}</span></div>
+            <div class="flex justify-between"><strong>Importe exacto</strong><span>S/ {{p.importe | number:'1.2-2'}}</span></div>
+            <div class="flex justify-between"><strong>Moneda {{p.moneda}} · Estado</strong><strong>{{p.estado}}</strong></div>
+            <div class="flex justify-between"><strong>Banco</strong><span>{{p.banco}}</span></div>
+            <div class="flex justify-between"><strong>Titular</strong><span>{{p.titular}}</span></div>
+            <div class="flex justify-between"><strong>Número de cuenta</strong><button class="underline" (click)="copiar(p.numeroCuenta)">Copiar cuenta</button><span class="select-all">{{p.numeroCuenta}}</span></div>
+            @if (p.cci) {
+              <div class="flex justify-between"><strong>CCI</strong><button class="underline" (click)="copiar(p.cci!)">Copiar CCI</button><span class="select-all">{{p.cci}}</span></div>
+            }
+          </div>
+          @if(infoEnviada){<button class="mt-4 rounded border p-3" (click)="verImagen()">Ver mi comprobante guardado</button>}
+          @if(imagenGuardada){<img [src]="imagenGuardada" alt="Comprobante privado guardado" class="mt-3 max-h-72 max-w-full"/>}
+          @if(mensaje){<p role="status">{{mensaje}}</p>}
+          @if (p.estado === 'PENDIENTE') {
+            <p class="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm">
+              Verifica los datos del destinatario antes de transferir. Esta pantalla no realiza ninguna transferencia.
+              No pagues dos veces ni compartas códigos de seguridad.
+            </p>
+            <section class="mt-5 rounded-xl border p-4">
+              <h2 class="font-bold">Enviar captura de la transferencia</h2>
+              @if (infoEnviada && !reemplazando) {
+                <p class="mt-2 text-green-700">Comprobante recibido por la tienda; pago pendiente de verificación.</p><button type="button" class="mt-2 underline" (click)="pedirReemplazo()">Reemplazar evidencia con motivo</button><p class="text-xs">Solo mientras está pendiente. La evidencia anterior se conserva y el cambio queda auditado.</p>
+              } @else {
+                <label for="capture-bank" class="mt-3 block text-sm">Selecciona PNG o JPG (máximo 5 MB)</label>
+                <input id="capture-bank" type="file" accept="image/png,image/jpeg" (change)="seleccionar($event)"
+                       class="mt-2 block w-full text-sm" />
+                @if (preview) {<img [src]="preview" alt="Vista previa local del comprobante" class="mt-3 max-h-72 rounded border"/>}
+                <button type="button" (click)="subir()" [disabled]="!archivo || subiendo"
+                  class="mt-3 rounded-lg bg-indigo-600 px-4 py-3 text-white disabled:opacity-40">
+                  {{subiendo?'Enviando...':'Enviar comprobante'}}
+                </button>
+              }
+            </section>
+            @if (whatsappUrl) {
+              <a class="mt-4 inline-block rounded-lg border border-green-700 px-4 py-3 text-green-700"
+                 [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">Avisar por WhatsApp</a>
+              <p class="mt-1 text-xs text-slate-500">En WhatsApp debes adjuntar manualmente la imagen.</p>
+            }
+          } @else if (p.estado === 'APROBADO') {
+            <p class="mt-4 rounded-lg bg-green-50 p-4 text-green-800">Transferencia verificada por la tienda.</p>
+          } @else {
+            <p class="mt-4 rounded-lg bg-red-50 p-4 text-red-800">Pago rechazado: {{p.motivoRechazo}}</p>
+          }
+        }
+        <div class="mt-6 flex gap-3">
+          <button type="button" (click)="recargar()" class="rounded bg-slate-900 px-4 py-3 text-white">Actualizar estado</button>
+          <a routerLink="/" class="rounded border px-4 py-3">Volver a la tienda</a>
+        </div>
+      </section>
+    </main>

@@ -1,0 +1,109 @@
+    <main class="mx-auto max-w-5xl space-y-6 p-5 md:p-8">
+      <header>
+        <h1 class="text-3xl font-semibold">Editor de tienda</h1>
+        <p class="mt-2 text-slate-600">Elige qué parte de tu tienda quieres editar.</p>
+      </header>
+
+      @if (error()) {
+        <p role="alert" class="text-red-800">{{ error() }}</p>
+      }
+      @if (mensaje()) {
+        <p role="status" class="text-green-800">{{ mensaje() }}</p>
+      }
+      <div class="flex flex-wrap gap-3">
+        <button type="button" class="rounded-lg border px-4 py-2" [disabled]="ocupado()" (click)="cargar()">
+          Recargar
+        </button>
+        <button type="button" class="rounded-lg bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
+          [disabled]="ocupado() || !borrador()?.revision || ordenPendiente()" (click)="publicar()">
+          Publicar borrador
+        </button>
+      </div>
+
+      <nav aria-label="Secciones del editor" class="grid gap-4 sm:grid-cols-2">
+        @for (seccion of secciones; track seccion.ruta) {
+          <a [routerLink]="seccion.ruta"
+            class="rounded-xl border border-slate-200 bg-white p-5 hover:border-violet-500
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600">
+            <h2 class="font-semibold">{{ seccion.titulo }}</h2>
+            <p class="mt-1 text-sm text-slate-600">{{ seccion.descripcion }}</p>
+          </a>
+        }
+      </nav>
+
+      @if (borrador()) {
+        <form class="flex flex-wrap items-end gap-4 rounded-lg border bg-white p-4" (ngSubmit)="guardarTema()">
+          <label class="grid gap-2">Color principal
+            <input type="color" name="primario" [(ngModel)]="tema.primario" [disabled]="ocupado()">
+          </label>
+          <label class="grid gap-2">Color secundario
+            <input type="color" name="secundario" [(ngModel)]="tema.secundario" [disabled]="ocupado()">
+          </label>
+          <label class="grid gap-2">Tipografía
+            <select class="rounded border p-2" name="tipografia" [(ngModel)]="tema.tipografia" [disabled]="ocupado()">
+              <option value="SANS">Sans serif</option>
+              <option value="SERIF">Serif</option>
+              <option value="MONO">Monoespaciada</option>
+            </select>
+          </label>
+          <button type="submit" class="rounded border px-3 py-2" [disabled]="ocupado()">Guardar tema en el borrador</button>
+        </form>
+        <section aria-labelledby="orden-home" class="space-y-3">
+          <h2 id="orden-home" class="text-xl font-semibold">Orden de la página de inicio</h2>
+          <ol class="space-y-2">
+            @for (seccion of orden(); track seccion; let i = $index) {
+              <li class="flex items-center justify-between gap-3 rounded-lg border bg-white p-3">
+                <span>{{ nombres[seccion] }}</span>
+                <div class="flex gap-2">
+                  <button type="button" class="rounded border px-2 disabled:opacity-40"
+                    [attr.aria-label]="'Subir ' + nombres[seccion]" [disabled]="ocupado() || i === 0"
+                    (click)="mover(i, -1)">↑</button>
+                  <button type="button" class="rounded border px-2 disabled:opacity-40"
+                    [attr.aria-label]="'Bajar ' + nombres[seccion]"
+                    [disabled]="ocupado() || i === orden().length - 1" (click)="mover(i, 1)">↓</button>
+                </div>
+              </li>
+            }
+          </ol>
+          <button type="button" class="rounded-lg border px-4 py-2" [disabled]="ocupado() || !ordenPendiente()"
+            (click)="guardarOrden()">Guardar orden en el borrador</button>
+        </section>
+      }
+
+      @if (borrador()?.revision) {
+        <section aria-labelledby="vista-previa-titulo" class="space-y-3">
+          <h2 id="vista-previa-titulo" class="text-xl font-semibold">Vista previa</h2>
+          <div class="flex flex-wrap gap-2">
+            @for (dispositivo of dispositivos; track dispositivo.ancho) {
+              <button type="button" class="rounded-lg border px-3 py-2 aria-pressed:bg-slate-100"
+                [attr.aria-pressed]="ancho() === dispositivo.ancho" (click)="ancho.set(dispositivo.ancho)">
+                {{ dispositivo.nombre }}
+              </button>
+            }
+          </div>
+          <div class="overflow-x-auto rounded-lg border">
+            @for (revision of [borrador()?.revision]; track revision) {
+              <iframe title="Vista previa de la tienda" src="/vista-previa-tienda" loading="lazy"
+                class="block h-[520px] max-w-none border-0" [style.width.px]="ancho()"></iframe>
+            }
+          </div>
+        </section>
+      }
+
+      <section aria-labelledby="historial-titulo" class="space-y-3">
+        <h2 id="historial-titulo" class="text-xl font-semibold">Historial</h2>
+        @if (borrador() && !versiones().length) {
+          <p class="text-slate-600">Aún no hay versiones publicadas.</p>
+        }
+        @for (version of versiones(); track version.version) {
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white p-3">
+            <p>{{ version.version === 0 ? 'Configuración inicial' : 'Versión ' + version.version }}
+              · {{ version.publicadoEn | date:'medium' }} · {{ version.autor }}</p>
+            <button type="button" class="rounded-lg border px-3 py-2" [disabled]="ocupado() || !borrador()"
+              (click)="restaurar(version.version)">
+              Restaurar como borrador
+            </button>
+          </div>
+        }
+      </section>
+    </main>

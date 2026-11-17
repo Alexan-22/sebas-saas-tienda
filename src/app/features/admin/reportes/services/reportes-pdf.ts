@@ -7,8 +7,8 @@ import {
   TablaCsv,
   TipoReporteCsv,
 } from './reportes-csv';
-import { fechaLima } from '../../../shared/export/fecha-lima';
-import { CeldaCsv } from '../../../shared/export/csv-export';
+import { fechaLima } from '../../../../shared/export/fecha-lima';
+import { CeldaCsv } from '../../../../shared/export/csv-export';
 
 /** Documento local: solo recibe el conjunto devuelto por las API autenticadas de tienda. */
 export function crearReportePdf(
