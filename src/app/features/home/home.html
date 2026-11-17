@@ -1,35 +1,61 @@
 
 @if (disenoCargado()) {
+
+  <!-- BARRA DE PROMOCIONES -->
   <app-promo-bar
     [vistaPrevia]="diseno()?.cabecera">
   </app-promo-bar>
 
+  <!-- NAVEGACIÓN -->
   <app-navbar
     [vistaPrevia]="diseno()?.cabecera">
   </app-navbar>
 
   <main>
-    @for (seccion of diseno()?.seccionesHome ?? seccionesPorDefecto; track seccion) {
+
+    @for (
+      seccion of diseno()?.seccionesHome ?? seccionesPorDefecto;
+      track seccion
+    ) {
+
       @switch (seccion) {
+
         @case ('BANNERS') {
-          <ng-container *ngTemplateOutlet="hero" />
+          <ng-container
+            *ngTemplateOutlet="hero">
+          </ng-container>
         }
+
         @case ('COLECCIONES') {
-          <ng-container *ngTemplateOutlet="coleccionesDestacadas" />
+          <ng-container
+            *ngTemplateOutlet="coleccionesDestacadas">
+          </ng-container>
         }
+
         @case ('PRODUCTOS') {
-          <ng-container *ngTemplateOutlet="productosDestacados" />
+          <ng-container
+            *ngTemplateOutlet="productosDestacados">
+          </ng-container>
         }
+
         @case ('CIERRE') {
-          <ng-container *ngTemplateOutlet="cierre" />
+          <ng-container
+            *ngTemplateOutlet="cierre">
+          </ng-container>
         }
+
         @case ('BENEFICIOS') {
-          <ng-container *ngTemplateOutlet="beneficios" />
+          <ng-container
+            *ngTemplateOutlet="beneficios">
+          </ng-container>
         }
+
       }
     }
 
+    <!-- WHATSAPP -->
     @if (tiendaService.telefonoWhatsApp(); as numero) {
+
       <a
         class="whatsapp"
         [href]="'https://wa.me/' + numero"
@@ -39,149 +65,404 @@
         WhatsApp
       </a>
     }
+
   </main>
 
+  <!-- FOOTER -->
   <app-footer
     [vistaPrevia]="diseno()?.footer">
   </app-footer>
+
 } @else {
+
   <p class="status" role="status">
-    Cargando tienda…
+    Cargando tienda...
   </p>
+
 }
 
 
+<!-- =====================================
+     BANNERS
+===================================== -->
+
 <ng-template #hero>
 
-<section class="hero" aria-label="Banners de la tienda">
+  <section
+    class="hero"
+    aria-label="Banners de la tienda">
 
-  @if (cargandoBanners) {
-    <div class="hero-empty">
-      <p>Cargando banners...</p>
-    </div>
-
-  } @else if (banners.length > 0) {
-
-    <div class="hero-slide">
+    @if (cargandoBanners) {
 
       <div
-        class="hero-track"
-        [style.transform]="'translateX(-' + (bannerActual * 100) + '%)'">
+        class="hero-empty"
+        role="status">
+        <p>Cargando banners...</p>
+      </div>
 
-        @for (banner of banners; track banner.idBanner) {
-          <div class="hero-item">
-            @if (imagenBannerUrl(banner); as src) {
-              <picture>
-                @if (imagenUrl(banner.imagenMovil); as movil) {
-                  <source media="(max-width: 767px)" [srcset]="movil">
-                }
-                <img class="hero-image" [src]="src" [alt]="banner.titulo || 'Banner de la tienda'">
-              </picture>
+    } @else if (banners.length > 0) {
+
+      <div class="hero-slide">
+
+        <div
+          class="hero-track"
+          [style.transform]="
+            'translateX(-' +
+            (bannerActual * 100) +
+            '%)'
+          ">
+
+          @for (
+            banner of banners;
+            track banner.idBanner;
+            let i = $index
+          ) {
+
+            <div class="hero-item">
+
+              @if (imagenBannerUrl(banner); as src) {
+
+                <picture>
+
+                  @if (
+                    imagenUrl(banner.imagenMovil);
+                    as movil
+                  ) {
+
+                    <source
+                      media="(max-width: 767px)"
+                      [srcset]="movil">
+                  }
+
+                  <img
+                    class="hero-image"
+                    [src]="src"
+                    [alt]="
+                      banner.titulo ||
+                      'Banner de la tienda'
+                    "
+                    [attr.loading]="
+                      i === 0 ? 'eager' : 'lazy'
+                    "
+                    [attr.fetchpriority]="
+                      i === 0 ? 'high' : 'low'
+                    "
+                    decoding="async">
+
+                </picture>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+        @if (banners.length > 1) {
+
+          <button
+            class="arrow prev"
+            type="button"
+            aria-label="Banner anterior"
+            (click)="bannerAnterior()">
+            ‹
+          </button>
+
+          <button
+            class="arrow next"
+            type="button"
+            aria-label="Siguiente banner"
+            (click)="siguienteBanner()">
+            ›
+          </button>
+
+          <div
+            class="dots"
+            aria-label="Seleccionar banner">
+
+            @for (
+              banner of banners;
+              track banner.idBanner;
+              let i = $index
+            ) {
+
+              <button
+                type="button"
+                [class.selected]="
+                  i === bannerActual
+                "
+                [attr.aria-label]="
+                  'Banner ' + (i + 1)
+                "
+                [attr.aria-current]="
+                  i === bannerActual
+                    ? 'true'
+                    : null
+                "
+                (click)="irABanner(i)">
+              </button>
+
             }
+
           </div>
+
         }
 
       </div>
 
-      @if (banners.length > 1) {
-        <button
-          class="arrow prev"
-          type="button"
-          aria-label="Anterior"
-          (click)="bannerAnterior()">
-          ‹
-        </button>
+    } @else {
 
-        <button
-          class="arrow next"
-          type="button"
-          aria-label="Siguiente"
-          (click)="siguienteBanner()">
-          ›
-        </button>
+      <div class="hero-empty">
+        <p>Pronto tendremos novedades.</p>
+      </div>
 
-        <div class="dots">
-          @for (banner of banners; track banner.idBanner; let i = $index) {
-            <button
-              type="button"
-              [class.selected]="i === bannerActual"
-              [attr.aria-label]="'Banner ' + (i + 1)"
-              (click)="irABanner(i)">
-            </button>
-          }
-        </div>
-      }
+    }
 
-    </div>
-
-  } @else {
-    <div class="hero-empty">
-      <p>Pronto tendremos novedades.</p>
-    </div>
-  }
-
-</section>
-
-  
+  </section>
 
 </ng-template>
 
 
+<!-- =====================================
+     COLECCIONES
+===================================== -->
 
 <ng-template #coleccionesDestacadas>
-  @if (!cargandoColecciones && colecciones.length > 0) {
-    <section class="section-wrap collection-section">
+
+  @if (
+    !cargandoColecciones &&
+    colecciones.length > 0
+  ) {
+
+    <section
+      class="section-wrap collection-section">
+
       <div class="section-heading centered">
-        <span class="eyebrow dark">Seleccionados para ti</span>
+        <span class="eyebrow dark">
+          Seleccionados para ti
+        </span>
+
         <h2>Colecciones destacadas</h2>
       </div>
-      <div class="collection-grid" [class.collection-grid-two]="colecciones.length === 2" [class.collection-grid-one]="colecciones.length === 1">
-        @for (coleccion of colecciones; track coleccion.idColeccion) {
-          <a class="collection-card" [href]="enlaceColeccion(coleccion)">
-            @if (imagenColeccionUrl(coleccion); as src) {
-              <img [src]="src" [alt]="coleccion.titulo || 'Colección'" loading="lazy" />
+
+      <div
+        class="collection-grid"
+        [class.collection-grid-two]="
+          colecciones.length === 2
+        "
+        [class.collection-grid-one]="
+          colecciones.length === 1
+        ">
+
+        @for (
+          coleccion of colecciones;
+          track coleccion.idColeccion
+        ) {
+
+          <a
+            class="collection-card"
+            [href]="enlaceColeccion(coleccion)">
+
+            @if (
+              imagenColeccionUrl(coleccion);
+              as src
+            ) {
+
+              <img
+                [src]="src"
+                [alt]="
+                  coleccion.titulo ||
+                  'Colección'
+                "
+                loading="lazy"
+                decoding="async">
+
             } @else {
-              <div class="collection-placeholder" aria-hidden="true">{{ tiendaService.tiendaActual()?.nombre || 'Colección' }}</div>
+
+              <div
+                class="collection-placeholder"
+                aria-hidden="true">
+
+                {{
+                  tiendaService.tiendaActual()?.nombre ||
+                  'Colección'
+                }}
+
+              </div>
+
             }
+
             <div class="collection-info">
-              @if (coleccion.etiqueta) { <small>{{ coleccion.etiqueta }}</small> }
-              <h3>{{ coleccion.titulo }}</h3>
-              <span>{{ coleccion.textoBoton || 'Ver colección' }} →</span>
+
+              @if (coleccion.etiqueta) {
+                <small>
+                  {{ coleccion.etiqueta }}
+                </small>
+              }
+
+              <h3>
+                {{ coleccion.titulo }}
+              </h3>
+
+              <span>
+                {{
+                  coleccion.textoBoton ||
+                  'Ver colección'
+                }}
+                →
+              </span>
+
             </div>
+
           </a>
+
         }
+
       </div>
+
     </section>
+
   }
 
 </ng-template>
 
+
+<!-- =====================================
+     PRODUCTOS DESTACADOS
+===================================== -->
+
 <ng-template #productosDestacados>
-  <section class="product-section section-wrap" id="productos">
+
+  <section
+    class="product-section section-wrap"
+    id="productos">
+
     <div class="section-heading heading-row">
-      <div><span class="eyebrow dark">Nuestra selección</span><h2>Novedades que inspiran</h2></div>
-      <a routerLink="/tienda" class="view-all">Ver toda la tienda →</a>
-    </div>
-    @if (cargando) {
-      <div class="status">Cargando productos...</div>
-    } @else if (errorCarga) {
-      <div class="status"><p>No pudimos cargar los productos.</p><button (click)="cargarProductos()" type="button">Reintentar</button></div>
-    } @else if (productos.length === 0) {
-      <div class="status"><h3>Estamos preparando el catálogo</h3><p>Pronto encontrarás nuestras prendas aquí.</p></div>
-    } @else {
-      <div class="product-grid">
-        @for (producto of productosPortada; track producto.idProducto) {
-          <app-product-card [producto]="producto"></app-product-card>
-        }
+
+      <div>
+        <span class="eyebrow dark">
+          Nuestra selección
+        </span>
+
+        <h2>Novedades que inspiran</h2>
       </div>
+
+      <a
+        routerLink="/tienda"
+        class="view-all">
+        Ver toda la tienda →
+      </a>
+
+    </div>
+
+    @if (cargando) {
+
+      <div class="status" role="status">
+        Cargando productos...
+      </div>
+
+    } @else if (errorCarga) {
+
+      <div class="status">
+
+        <p>
+          No pudimos cargar los productos.
+        </p>
+
+        <button
+          type="button"
+          (click)="cargarProductos()">
+          Reintentar
+        </button>
+
+      </div>
+
+    } @else if (productos.length === 0) {
+
+      <div class="status">
+
+        <h3>
+          Estamos preparando el catálogo
+        </h3>
+
+        <p>
+          Pronto encontrarás nuestras
+          prendas aquí.
+        </p>
+
+      </div>
+
+    } @else {
+
+      <div class="product-grid">
+
+
+@for (
+  producto of productosPortada;
+  track producto.idProducto;
+  let i = $index
+) {
+
+  <app-product-card
+    [producto]="producto"
+    [prioritaria]="i < 2">
+  </app-product-card>
+
+}
+
+
+      </div>
+
     }
+
   </section>
+
 </ng-template>
+
+
+<!-- =====================================
+     CIERRE
+===================================== -->
 
 <ng-template #cierre>
-  <section class="closing-banner"><span>Moda para tu día a día</span><h2>Viste lo que eres.</h2><a routerLink="/tienda">Descubrir el catálogo →</a></section>
+
+  <section class="closing-banner">
+
+    <span>
+      Moda para tu día a día
+    </span>
+
+    <h2>
+      Viste lo que eres.
+    </h2>
+
+    <a routerLink="/tienda">
+      Descubrir el catálogo →
+    </a>
+
+  </section>
+
 </ng-template>
 
+
+<!-- =====================================
+     BENEFICIOS
+===================================== -->
+
 <ng-template #beneficios>
-  <section class="benefits section-wrap" [style.border-color]="diseno()?.tema?.secundario" aria-label="Ventajas"><p>Estilo para cada ocasión</p><p>Encuentra tu talla</p><p>Novedades de temporada</p></section>
+
+  <section
+    class="benefits section-wrap"
+    [style.border-color]="
+      diseno()?.tema?.secundario
+    "
+    aria-label="Ventajas">
+
+    <p>Estilo para cada ocasión</p>
+    <p>Encuentra tu talla</p>
+    <p>Novedades de temporada</p>
+
+  </section>
+
 </ng-template>

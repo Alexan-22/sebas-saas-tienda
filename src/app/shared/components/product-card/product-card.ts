@@ -1,36 +1,127 @@
-import { Component, Input } from '@angular/core';
+
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
+
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+
 import { environment } from '../../../../environments/environment';
 import { Producto } from '../../../core/models/producto';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [DecimalPipe, RouterLink],
+  imports: [
+    DecimalPipe,
+    RouterLink
+  ],
   templateUrl: './product-card.html',
   styleUrl: './product-card.css'
 })
-export class ProductCard {
-  @Input({ required: true }) producto!: Producto;
+export class ProductCard implements OnChanges {
+
+  @Input({ required: true })
+  producto!: Producto;
+
+  // Permite priorizar imágenes visibles al abrir la página.
+  @Input()
+  prioritaria = false;
+
   imagenError = false;
-  private readonly uploadsUrl = `${environment.apiUrl}/uploads/`;
+
+  private readonly uploadsUrl =
+    `${environment.apiUrl}/uploads/`;
+
+  private urlImagen: string | null = null;
+
+  // Actualizar correctamente cuando cambia el producto.
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if (changes['producto']) {
+
+      this.imagenError = false;
+
+      this.urlImagen = this.resolverImagen(
+        this.producto?.imagen
+      );
+
+    }
+  }
 
   get imagenUrl(): string | null {
-    if (!this.producto?.imagen || this.imagenError) return null;
-    const ruta = this.producto.imagen.trim();
-    if (/^https?:\/\//i.test(ruta)) return ruta;
-    return this.uploadsUrl + ruta.replace(/^\/+/, '').replace(/^uploads\//, '').replace(/^productos\//, '');
+
+    if (this.imagenError) {
+      return null;
+    }
+
+    return this.urlImagen;
   }
-  onImagenError(): void { this.imagenError = true; }
+
+  private resolverImagen(
+    imagen: string | null | undefined
+  ): string | null {
+
+    if (!imagen?.trim()) {
+      return null;
+    }
+
+    const ruta = imagen.trim();
+
+    // URL externa o Supabase Storage.
+    if (/^https?:\/\//i.test(ruta)) {
+      return ruta;
+    }
+
+    const rutaLimpia = ruta
+      .replace(/^\/+/, '')
+      .replace(/^uploads\//, '')
+      .replace(/^productos\//, '');
+
+    return this.uploadsUrl + rutaLimpia;
+  }
+
+  onImagenError(): void {
+    this.imagenError = true;
+  }
 
   get tieneOferta(): boolean {
-    const oferta = Number(this.producto?.precioOferta);
-    const precio = Number(this.producto?.precio);
-    return Number.isFinite(oferta) && oferta > 0 && oferta < precio;
+
+    const oferta = Number(
+      this.producto?.precioOferta
+    );
+
+    const precio = Number(
+      this.producto?.precio
+    );
+
+    return (
+      Number.isFinite(oferta) &&
+      Number.isFinite(precio) &&
+      oferta > 0 &&
+      oferta < precio
+    );
   }
+
   get porcentajeDescuento(): number {
-    if (!this.tieneOferta) return 0;
-    return Math.round((1 - Number(this.producto.precioOferta) / Number(this.producto.precio)) * 100);
+
+    if (!this.tieneOferta) {
+      return 0;
+    }
+
+    const precio = Number(
+      this.producto.precio
+    );
+
+    const oferta = Number(
+      this.producto.precioOferta
+    );
+
+    return Math.round(
+      (1 - oferta / precio) * 100
+    );
   }
 }
