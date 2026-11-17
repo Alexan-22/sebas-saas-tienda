@@ -1,5 +1,5 @@
-import { TransferenciasService, CuentaBancaria } from '../../core/services/transferencias.service';
-import { claveTransferencia, completarIntentoTransferencia } from './idempotencia/transferencia/transferencia-idempotencia';
+import { TransferenciasService, CuentaBancaria } from '../../../../core/services/transferencias.service';
+import { claveTransferencia, completarIntentoTransferencia } from '../../idempotencia/transferencia/transferencia-idempotencia';
 
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
@@ -8,17 +8,17 @@ import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { CarritoService } from '../../core/services/carrito';
-import { VentaService } from '../../core/services/venta';
-import { ProductoTallaService } from '../../core/services/producto-talla';
-import { CompraRequest, CompraResponse } from '../../core/models/venta';
-import { DatosCheckout, MetodoPago } from '../../core/models/checkout';
-import { YapeService } from '../../core/services/yape.service';
-import { ProductoTalla } from '../../core/models/producto-talla';
-import { PromoBar } from '../../shared/components/promo-bar/promo-bar';
-import { Navbar } from '../../shared/components/navbar/navbar';
-import { Footer } from '../../shared/components/footer/footer';
-import { claveYape, completarIntentoYape } from './idempotencia/yape/yape-idempotencia';
+import { CarritoService } from '../../../../core/services/carrito';
+import { VentaService } from '../../../../core/services/venta';
+import { ProductoTallaService } from '../../../../core/services/producto-talla';
+import { CompraRequest, CompraResponse } from '../../../../core/models/venta';
+import { DatosCheckout, MetodoPago } from '../../../../core/models/checkout';
+import { YapeService } from '../../../../core/services/yape.service';
+import { ProductoTalla } from '../../../../core/models/producto-talla';
+import { PromoBar } from '../../../../shared/components/promo-bar/promo-bar';
+import { Navbar } from '../../../../shared/components/navbar/navbar';
+import { Footer } from '../../../../shared/components/footer/footer';
+import { claveYape, completarIntentoYape } from '../../idempotencia/yape/yape-idempotencia';
 
 @Component({
   selector: 'app-checkout',
@@ -261,7 +261,7 @@ export class Checkout {
     });
   }
 
-  private registrarCompra(): void {
+  private async registrarCompra(): Promise<void> {
     const itemsActuales = this.carritoService.items();
     if (itemsActuales.length === 0) {
       this.procesando = false;
@@ -285,11 +285,11 @@ export class Checkout {
       }
     };
 
-    if (request.medioPago === 'YAPE') {
-      request.claveIdempotencia = claveYape(request);
-    }
+    try {
+      if (request.medioPago === 'YAPE') request.claveIdempotencia = await claveYape(request);
 
-    if(request.medioPago==='TRANSFERENCIA') {request.cuentaBancariaId=this.cuentaBancariaId!;request.claveIdempotencia=claveTransferencia(request);}
+    if(request.medioPago==='TRANSFERENCIA') {request.cuentaBancariaId=this.cuentaBancariaId!;request.claveIdempotencia=await claveTransferencia(request);}
+    } catch { this.procesando=false;this.error='No se pudo preparar un reintento seguro. Usa HTTPS y habilita el almacenamiento de sesion.';this.cdr.markForCheck();return; }
     this.ventaService.comprar(request).subscribe({
       next: (response: CompraResponse) => {
         this.procesando = false;

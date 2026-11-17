@@ -1,4 +1,5 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { migrarDireccionesLegadas } from './features/checkout/idempotencia/clave-privada';
+import { ApplicationConfig, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -7,6 +8,7 @@ import { tenantInterceptor } from './core/interceptors/tenant.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAppInitializer(() => migrarDireccionesLegadas().catch(() => {})),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(

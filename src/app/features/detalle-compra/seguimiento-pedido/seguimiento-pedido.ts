@@ -4,7 +4,7 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, switchMap, map, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 export type EstadoSeguimiento = 'PENDIENTE' | 'PREPARANDO' | 'DESPACHADO' |
   'EN_TRANSITO' | 'DISPONIBLE_RETIRO' | 'ENTREGADO' | 'INCIDENCIA' | 'CANCELADO';

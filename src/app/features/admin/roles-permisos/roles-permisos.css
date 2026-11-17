@@ -1,0 +1,83 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+}
+
+.roles-permisos {
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+/* TARJETAS */
+
+.roles-permisos article {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.roles-permisos article:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+/* INPUTS */
+
+.roles-permisos input:not([type="checkbox"]),
+.roles-permisos textarea {
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.roles-permisos input:not([type="checkbox"]):focus,
+.roles-permisos textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.roles-permisos input[type="checkbox"] {
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+/* BOTONES */
+
+.roles-permisos button {
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.roles-permisos button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.roles-permisos button:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 640px) {
+  .roles-permisos article {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roles-permisos article,
+  .roles-permisos input,
+  .roles-permisos textarea,
+  .roles-permisos button {
+    transition: none;
+  }
+}

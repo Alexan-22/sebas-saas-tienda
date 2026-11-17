@@ -10,7 +10,7 @@
     <div class="filters">
       <div class="filter-control">
         <label>PERÍODO</label>
-        <select [(ngModel)]="periodo" (change)="aplicarPeriodo()">
+        <select [disabled]="cargando || cargandoCsv" [(ngModel)]="periodo" (change)="aplicarPeriodo()">
           <option value="HOY">Hoy</option>
           <option value="AYER">Ayer</option>
           <option value="7">Últimos 7 días</option>
@@ -24,27 +24,38 @@
       </div>
 
 
+      <div class="filter-control">
+        <label for="reporteCsv">TABLA CSV</label>
+        <select id="reporteCsv" [(ngModel)]="reporteCsv" [disabled]="cargando || cargandoCsv">
+          @for (grupo of gruposReportesCsv; track grupo.nombre) {
+            <optgroup [label]="grupo.nombre">
+              @for (reporte of grupo.reportes; track reporte[0]) { <option [value]="reporte[0]">{{ reporte[1] }}</option> }
+            </optgroup>
+          }
+        </select>
+      </div>
+      <div class="filter-control">
+        <label for="separadorCsv">SEPARADOR CSV</label>
+        <select id="separadorCsv" [(ngModel)]="separadorCsv" [disabled]="cargandoCsv">
+          <option value=";">Punto y coma (Excel Perú)</option><option value=",">Coma (CSV estándar)</option>
+        </select>
+      </div>
       <div class="export-control">
         <label>EXPORTAR</label>
         <div class="export-actions">
-          <button type="button" class="export-button export-pdf" (click)="exportarPDF()" [disabled]="cargando || !!error">
+          <button type="button" class="export-button export-csv" (click)="exportarCSV()" [disabled]="cargando || cargandoCsv || !!error || stockIncompleto">{{ cargandoCsv ? "CONSULTANDO..." : "Exportar CSV" }}</button>
+          <button type="button" class="export-button export-pdf" (click)="exportarPDF()" [disabled]="cargando || cargandoCsv || !!error || stockIncompleto">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
-            <span>PDF</span>
-          </button>
-
-          <button type="button" class="export-button export-excel" (click)="exportarExcel()" [disabled]="cargando || !!error">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-            <span>EXCEL</span>
+            <span>Exportar PDF</span>
           </button>
         </div>
       </div>
     </div>
   </header>
-
+  @if (errorCsv) { <p role="alert">{{ errorCsv }}</p> }
+  @if (mensajeCsv) { <p role="status">{{ mensajeCsv }}</p> }
   <!-- PESTAÑAS (TABS) DE NAVEGACIÓN -->
   <nav class="reportes-tabs">
     <button 
@@ -185,7 +196,7 @@
               <thead><tr><th>VENTA</th><th>FECHA</th><th>CANAL</th><th>MEDIO DE PAGO</th><th>MONTO</th></tr></thead>
               <tbody>
                 @for (venta of ventasRecientes; track venta.idVenta) {
-                  <tr><td>#{{ venta.idVenta }}</td><td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ venta.tipoVenta }}</td><td>{{ venta.medioPago }}</td><td>S/ {{ venta.total | number:'1.2-2' }}</td></tr>
+                  <tr><td>#{{ venta.idVenta }}</td><td>{{ fechaVisible(venta.fechaVenta) }}</td><td>{{ venta.tipoVenta }}</td><td>{{ venta.medioPago }}</td><td>S/ {{ venta.total | number:'1.2-2' }}</td></tr>
                 } @empty {
                   <tr><td colspan="5">Sin ventas en este período.</td></tr>
                 }

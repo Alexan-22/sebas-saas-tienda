@@ -45,8 +45,8 @@ export class Registro {
       return;
     }
 
-    if (this.password.length < 8) {
-      this.error = 'La contraseÃƒÂ±a debe tener al menos 8 caracteres.';
+    if (this.password.length < 12) {
+      this.error = 'La contraseÃƒÂ±a debe tener al menos 12 caracteres.';
       return;
     }
 
@@ -59,8 +59,8 @@ export class Registro {
       this.error = 'La contraseña debe contener un número.';
       return;
     }
-    if (this.password.length > 100) {
-      this.error = 'La contraseÃƒÂ±a no puede superar los 100 caracteres.';
+    if (new TextEncoder().encode(this.password).length > 72) {
+      this.error = 'La contraseÃƒÂ±a no puede superar los 72 bytes UTF-8.';
       return;
     }
 

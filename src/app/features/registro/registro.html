@@ -96,7 +96,7 @@
               [(ngModel)]="nombre"
               placeholder="Tu nombre"
               autocomplete="given-name"
-              maxlength="100"
+              maxlength="72"
               required
               [disabled]="cargando"
             />
@@ -110,7 +110,7 @@
               [(ngModel)]="apellido"
               placeholder="Tu apellido"
               autocomplete="family-name"
-              maxlength="100"
+              maxlength="72"
               required
               [disabled]="cargando"
             />
@@ -142,10 +142,10 @@
               name="password"
               [type]="mostrarPassword ? 'text' : 'password'"
               [(ngModel)]="password"
-              placeholder="MÃ­nimo 8 caracteres"
+              placeholder="MÃ­nimo 12 caracteres"
               autocomplete="new-password"
-              minlength="8"
-              maxlength="100"
+              minlength="12"
+              maxlength="72"
               required
               [disabled]="cargando"
             />
@@ -159,7 +159,7 @@
             </button>
           </div>
         <p class="registro-password-requisitos">
-          Usa entre 8 y 100 caracteres, al menos una
+          Usa entre 12 caracteres y 72 bytes UTF-8, al menos una
           letra mayúscula y un número.
         </p>
         </div>
@@ -176,8 +176,8 @@
             [(ngModel)]="confirmarPassword"
             placeholder="Repite tu contraseÃ±a"
             autocomplete="new-password"
-            minlength="8"
-            maxlength="100"
+            minlength="12"
+            maxlength="72"
             required
             [disabled]="cargando"
           />

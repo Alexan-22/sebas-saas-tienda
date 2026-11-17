@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { EditorTiendaService, ContenidoEditor } from '../../../core/services/editor-tienda.service';
-import { TiendaService } from '../../../core/services/tienda.service';
-import { Home } from '../../home/home';
+import { EditorTiendaService, ContenidoEditor } from '../../../../core/services/editor-tienda.service';
+import { TiendaService } from '../../../../core/services/tienda.service';
+import { Home } from '../../../home/home';
 
 @Component({
   imports: [Home],

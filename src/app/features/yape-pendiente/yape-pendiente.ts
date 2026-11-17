@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { YapeComprobanteClienteComponent } from '../yape-comprobante/yape-comprobante-cliente';
+import { YapeComprobanteClienteComponent } from '../yape-comprobante/cliente/yape-comprobante-cliente';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';

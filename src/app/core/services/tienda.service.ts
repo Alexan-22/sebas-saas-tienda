@@ -38,7 +38,9 @@ export class TiendaService {
   }
 
   private readonly tema = signal<TemaEditor | null | undefined>(undefined);
-  readonly colorPrimario = computed(() => this.tema()?.primario ?? this.tiendaActual()?.colorPrimario ?? '#171717');
+  readonly colorPrimario = computed(
+  () => this.tiendaActual()?.colorPrimario ?? this.tema()?.primario ?? '#171717'
+  );
 
   aplicarTema(tema?: TemaEditor | null): void {
     this.tema.set(tema);
@@ -48,10 +50,11 @@ export class TiendaService {
 
   private aplicarConfiguracion(config: TiendaConfig): void {
     this.tiendaActual.set(config);
-    const primario = this.tema()?.primario ?? config.colorPrimario;
+    const primario = config.colorPrimario ?? this.tema()?.primario ?? '#171717';
     const color = /^#[0-9a-fA-F]{6}$/.test(primario) ? primario : '#171717';
     document.documentElement.style.setProperty('--color-primario', color);
-    const valorSecundario = this.tema()?.secundario ?? config.colorSecundario ?? '';
+    const valorSecundario =
+  config.colorSecundario ?? this.tema()?.secundario ?? '#ffffff';
     const secundario = /^#[0-9a-fA-F]{6}$/.test(valorSecundario) ? valorSecundario : '#ffffff';
     document.documentElement.style.setProperty('--color-secundario', secundario);
     const fuentes = { SANS: 'Arial, Helvetica, sans-serif', SERIF: 'Georgia, serif', MONO: 'monospace' };

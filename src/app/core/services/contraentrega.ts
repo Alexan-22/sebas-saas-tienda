@@ -1,3 +1,4 @@
+import { leerPagosCompletos } from '../../shared/export/pagos-completos';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -17,6 +18,8 @@ export interface CobroContraEntrega {
 
 @Injectable({ providedIn: 'root' })
 export class ContraEntregaService {
+  listarParaReportes():Observable<CobroContraEntrega[]>{return leerPagosCompletos<CobroContraEntrega>(this.http,this.base+'/admin/contraentrega/reportes');}
+
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/ventas`;
 

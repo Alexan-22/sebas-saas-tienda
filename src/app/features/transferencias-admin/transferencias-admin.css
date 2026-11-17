@@ -1,0 +1,108 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+.transferencias-admin {
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+/* TARJETAS */
+
+article {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+article:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+/* FORMULARIOS */
+
+input:not([type="checkbox"]) {
+  width: 100%;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input:not([type="checkbox"]):focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #4f46e5;
+}
+
+/* BOTONES */
+
+button {
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 3px;
+}
+
+/* COMPROBANTES */
+
+img {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* TEXTOS LARGOS */
+
+article p {
+  overflow-wrap: anywhere;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 640px) {
+  .transferencias-admin {
+    padding: 16px;
+  }
+
+  article {
+    padding: 16px;
+  }
+
+  button {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article,
+  button,
+  input {
+    transition: none;
+  }
+}

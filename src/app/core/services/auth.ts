@@ -1,5 +1,5 @@
 import { environment } from '../../../environments/environment';
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, DestroyRef, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, RegistroRequest } from '../models/auth';
@@ -8,6 +8,7 @@ import { LoginRequest, LoginResponse, RegistroRequest } from '../models/auth';
   providedIn: 'root'
 })
 export class AuthService {
+  private expiracion:ReturnType<typeof setTimeout>|undefined;
   private readonly apiUrl = `${environment.apiUrl}/api/auth`;
   private readonly tokenKey = 'tienda-sebas-token';
 
@@ -27,7 +28,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient
-  ) {}
+  ) { inject(DestroyRef).onDestroy(()=>clearTimeout(this.expiracion)); }
 
   // ==========================================
   // LOGIN TRADICIONAL
@@ -61,8 +62,11 @@ export class AuthService {
   // GUARDAR SESIÓN
   // ==========================================
   private guardarSesion(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    try { localStorage.removeItem(this.tokenKey); } catch { /* JWT nunca se rehidrata. */ }
     this.tokenSignal.set(token);
+    clearTimeout(this.expiracion);
+    const exp=this.decodificarPayload(token)?.['exp'];
+    if(typeof exp==='number')this.expiracion=setTimeout(()=>this.logout(),Math.max(0,Math.min(exp*1000-Date.now(),2147483647)));
   }
 
   // ==========================================
@@ -82,8 +86,11 @@ export class AuthService {
   // LOGOUT
   // ==========================================
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    clearTimeout(this.expiracion);
+    const token=this.tokenSignal();
+    try { localStorage.removeItem(this.tokenKey); } catch { /* JWT nunca se rehidrata. */ }
     this.tokenSignal.set(null);
+    if(token&&!this.tokenExpirado(token)) this.http.post(this.apiUrl+'/logout',{}, {headers:{Authorization:'Bearer '+token}}).subscribe({error:()=>{}});
   }
 
   // ==========================================
@@ -159,7 +166,7 @@ export class AuthService {
 
     const ahora = Math.floor(Date.now() / 1000);
 
-    return expiracion <= ahora;
+    return expiracion * 1000 <= Date.now();
   }
 
   // ==========================================
@@ -233,18 +240,9 @@ export class AuthService {
   // CARGAR TOKEN AL INICIAR
   // ==========================================
   private cargarTokenInicial(): string | null {
-    const token = localStorage.getItem(this.tokenKey);
-
-    if (!token) {
-      return null;
-    }
-
-    if (this.tokenExpiradoInicial(token)) {
-      localStorage.removeItem(this.tokenKey);
-      return null;
-    }
-
-    return token;
+    // Nunca rehidratar JWT legados desde almacenamiento persistente.
+    try { localStorage.removeItem(this.tokenKey); } catch { /* JWT nunca se rehidrata. */ }
+    return null;
   }
 
   // ==========================================
@@ -265,6 +263,6 @@ export class AuthService {
 
     const ahora = Math.floor(Date.now() / 1000);
 
-    return expiracion <= ahora;
+    return expiracion * 1000 <= Date.now();
   }
 }
