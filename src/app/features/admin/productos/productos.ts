@@ -27,6 +27,7 @@ export class Productos implements OnInit {
 
   cargando = true;
   error = '';
+  mensaje = '';
 
   eliminandoId: number | null = null;
 
