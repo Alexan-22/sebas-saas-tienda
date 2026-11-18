@@ -1,3 +1,7 @@
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timeout, finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
@@ -19,6 +23,10 @@ import { ProductoService } from '../../../core/services/producto';
   styleUrl: './productos.css'
 })
 export class Productos implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private versionCarga = 0;
+
 
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
@@ -30,6 +38,7 @@ export class Productos implements OnInit {
   mensaje = '';
 
   eliminandoId: number | null = null;
+  eliminandoDefinitivoId: number | null = null;
 
   private readonly uploadsUrl =
     `${environment.apiUrl}/uploads/`;
@@ -177,5 +186,87 @@ export class Productos implements OnInit {
     return this.productos.filter(
       p => p.destacado
     ).length;
+  }
+
+  // ELIMINAR DEFINITIVAMENTE
+  eliminarDefinitivamente(producto: Producto): void {
+    if (this.eliminandoId !== null ||
+        this.eliminandoDefinitivoId !== null ||
+        this.cargando) return;
+
+    const id = producto.idProducto;
+
+    if (!Number.isInteger(id) || id <= 0) {
+      window.alert('Identificador de producto inválido.');
+      return;
+    }
+
+    const confirmar = window.confirm(
+      `¿ELIMINAR DEFINITIVAMENTE "${producto.nombre}"?\n\n` +
+      'El producto se borrará de la base de datos y del panel.\n' +
+      'Esta acción no se puede deshacer.\n\n' +
+      'Si tiene ventas o movimientos históricos, el servidor bloqueará el borrado.'
+    );
+
+    if (!confirmar) return;
+
+    this.eliminandoDefinitivoId = id;
+    this.mensaje = '';
+    this.cdr.markForCheck();
+
+    this.productoService.eliminarDefinitivamente(id)
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.eliminandoDefinitivoId = null;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: () => {
+          ++this.versionCarga;
+          this.productos = this.productos.filter(
+            p => p.idProducto !== id
+          );
+          this.aplicarFiltro();
+          this.mensaje = `Producto "${producto.nombre}" eliminado definitivamente.`;
+          this.cargarProductos();
+        },
+        error: error => {
+          console.error('Error eliminando producto:', error);
+
+          let mensajeError = 'No se pudo eliminar el producto.';
+
+          if (error instanceof HttpErrorResponse) {
+            switch (error.status) {
+              case 0:
+                mensajeError = 'No se pudo conectar con Spring Boot.';
+                break;
+              case 401:
+              case 403:
+                mensajeError = 'No tienes permisos para eliminar este producto.';
+                break;
+              case 404:
+                mensajeError = 'Producto no encontrado o no pertenece a esta tienda.';
+                break;
+              case 405:
+                mensajeError = 'El backend no tiene disponible la eliminación definitiva.';
+                break;
+              case 409:
+                mensajeError = 'Este producto tiene registros históricos o relacionados. Puedes desactivarlo.';
+                break;
+              case 500:
+                mensajeError = 'Error interno del backend. Revisa los registros de Spring Boot.';
+                break;
+            }
+          } else if (error instanceof Error && error.name === 'TimeoutError') {
+            mensajeError = 'La operación tardó demasiado. Actualiza la lista antes de reintentar.';
+          }
+
+          window.alert(mensajeError);
+          this.cdr.markForCheck();
+        }
+      });
   }
 }
