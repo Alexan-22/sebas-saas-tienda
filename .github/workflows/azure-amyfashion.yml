@@ -1,0 +1,25 @@
+name: Azure Amy Fashion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_amyfashion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v4
+
+      - name: Publicar Amy Fashion
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMYFASHION }}
+          action: upload
+          app_location: /
+          api_location: ""
+          output_location: dist/tienda-sebas-polvos-frontend/browser
+          production_branch: main
