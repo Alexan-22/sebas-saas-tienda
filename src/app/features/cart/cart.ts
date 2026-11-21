@@ -132,16 +132,6 @@ export class Cart implements OnInit {
       return;
     }
 
-    if (!this.authService.autenticado()) {
-      this.router.navigate(['/login'], {
-        queryParams: {
-          returnUrl: '/checkout'
-        }
-      });
-
-      return;
-    }
-
     this.router.navigate(['/checkout']);
   }
 

@@ -28,6 +28,10 @@ function tokenExpirado(token: string): boolean {
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   if (!esApiPropia(request.url)) return next(request);
   const ruta = new URL(request.url,window.location.origin).pathname;
+  // Checkout invitado: nunca enviar JWT ni redirigir a login por expiracion de sesion.
+  if (ruta === '/api/ventas/invitado' || /^\/api\/ventas\/invitado\/\d+$/.test(ruta)) {
+    return next(request.clone({ headers: request.headers.delete('Authorization') }));
+  }
   if(['/api/auth/login','/api/auth/registro','/api/auth/google','/api/auth/password/forgot','/api/auth/password/reset'].includes(ruta))return next(request.clone({headers:request.headers.delete('Authorization')}));
   const auth = inject(AuthService);
   const router = inject(Router);

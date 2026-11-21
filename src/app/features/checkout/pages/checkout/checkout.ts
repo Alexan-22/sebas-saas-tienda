@@ -10,6 +10,8 @@ import { catchError } from 'rxjs/operators';
 
 import { CarritoService } from '../../../../core/services/carrito';
 import { VentaService } from '../../../../core/services/venta';
+import { AuthService } from '../../../../core/services/auth';
+import { CheckoutInvitadoApiService, CompraInvitadoRequest } from '../../../../core/services/checkout-invitado-api.service';
 import { ProductoTallaService } from '../../../../core/services/producto-talla';
 import { CompraRequest, CompraResponse } from '../../../../core/models/venta';
 import { DatosCheckout, MetodoPago } from '../../../../core/models/checkout';
@@ -29,16 +31,21 @@ import { claveYape, completarIntentoYape } from '../../idempotencia/yape/yape-id
 })
 export class Checkout {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly auth = inject(AuthService);
+  private readonly invitadoApi = inject(CheckoutInvitadoApiService);
+  // No activar hasta validar RLS y pruebas HTTP reales del backend.
+  readonly habilitarEnvioInvitado = false;
+  get esInvitado(): boolean { return !this.auth.autenticado(); }
 
   readonly items;
   readonly subtotal;
 
   readonly departamentos = [
-    'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho',
-    'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco',
-    'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima',
+    'Amazonas', 'Ãncash', 'ApurÃ­mac', 'Arequipa', 'Ayacucho',
+    'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'HuÃ¡nuco',
+    'Ica', 'JunÃ­n', 'La Libertad', 'Lambayeque', 'Lima',
     'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura',
-    'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali'
+    'Puno', 'San MartÃ­n', 'Tacna', 'Tumbes', 'Ucayali'
   ];
 
 
@@ -53,6 +60,7 @@ export class Checkout {
   datos: DatosCheckout = {
     nombres: '',
     apellidos: '',
+    correo: '',
     telefono: '',
     departamento: 'Lima',
     provincia: 'Lima',
@@ -81,7 +89,7 @@ export class Checkout {
         this.yapeDisponible =
           !!config.habilitado && !!config.numeroYape && !!config.qrUrl;
 
-        console.info('Configuración pública Yape:', {
+        console.info('ConfiguraciÃ³n pÃºblica Yape:', {
           habilitado: !!config.habilitado,
           tieneNumero: !!config.numeroYape,
           tieneQr: !!config.qrUrl
@@ -89,7 +97,7 @@ export class Checkout {
         this.cdr.markForCheck();
       },
       error: err => {
-        console.warn('No se pudo cargar la configuración Yape. HTTP:', err.status);
+        console.warn('No se pudo cargar la configuraciÃ³n Yape. HTTP:', err.status);
         this.yapeDisponible = false;
         this.cdr.markForCheck();
       }
@@ -124,7 +132,7 @@ export class Checkout {
 
   seleccionarPago(metodo: MetodoPago): void {
     if (metodo === 'YAPE' && !this.yapeDisponible) {
-      this.error = 'Yape no está habilitado para esta tienda.';
+      this.error = 'Yape no estÃ¡ habilitado para esta tienda.';
       return;
     }
     if(metodo==='TRANSFERENCIA' && !this.cuentas.length){this.error='No hay cuentas bancarias habilitadas.';return;}
@@ -138,7 +146,7 @@ export class Checkout {
     if (this.procesando) return;
 
     if (this.datos.metodoPago === 'YAPE' && !this.yapeDisponible) {
-      this.error = 'Yape no está habilitado para esta tienda. No realices un depósito.';
+      this.error = 'Yape no estÃ¡ habilitado para esta tienda. No realices un depÃ³sito.';
       return;
     }
     if(this.datos.metodoPago==='TRANSFERENCIA' && !this.cuentas.some(c=>c.id===this.cuentaBancariaId)){this.error='Selecciona una cuenta bancaria habilitada.';return;}
@@ -157,23 +165,28 @@ export class Checkout {
       return;
     }
 
+    if (this.esInvitado && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.datos.correo.trim())) {
+      this.error = 'Ingresa un correo vÃƒÂ¡lido para recibir informaciÃƒÂ³n de tu pedido.';
+      return;
+    }
+
     if (!/^9\d{8}$/.test(this.datos.telefono.trim())) {
-      this.error = 'Ingresa un celular peruano válido de 9 dígitos.';
+      this.error = 'Ingresa un celular peruano vÃ¡lido de 9 dÃ­gitos.';
       return;
     }
 
 
     if (!this.aceptaTerminos) {
-      this.error = 'Debes aceptar los términos y condiciones para continuar.';
+      this.error = 'Debes aceptar los tÃ©rminos y condiciones para continuar.';
       return;
     }
     if (this.items().length === 0) {
-      this.error = 'El carrito está vacío.';
+      this.error = 'El carrito estÃ¡ vacÃ­o.';
       return;
     }
 
     // Los reintentos Yape llegan al servidor con la misma clave idempotente,
-    // incluso si el primer intento ya reservó la última unidad.
+    // incluso si el primer intento ya reservÃ³ la Ãºltima unidad.
     if (this.datos.metodoPago === 'YAPE' || this.datos.metodoPago === 'TRANSFERENCIA') {
       this.procesando = true;
       this.registrarCompra();
@@ -185,7 +198,7 @@ export class Checkout {
   private validarStockAntesDeComprar(): void {
     const itemsActuales = this.carritoService.items();
     if (itemsActuales.length === 0) {
-      this.error = 'El carrito está vacío.';
+      this.error = 'El carrito estÃ¡ vacÃ­o.';
       return;
     }
 
@@ -240,13 +253,13 @@ export class Checkout {
 
         if (productoNoDisponible) {
           this.procesando = false;
-          this.error = 'Uno o más productos no tienen stock. Revisa el carrito antes de continuar.';
+          this.error = 'Uno o mÃ¡s productos no tienen stock. Revisa el carrito antes de continuar.';
           this.cdr.markForCheck();
           return;
         }
         if (stockModificado) {
           this.procesando = false;
-          this.error = 'El stock del carrito cambió. Revisa las cantidades antes de continuar.';
+          this.error = 'El stock del carrito cambiÃ³. Revisa las cantidades antes de continuar.';
           this.cdr.markForCheck();
           return;
         }
@@ -265,7 +278,7 @@ export class Checkout {
     const itemsActuales = this.carritoService.items();
     if (itemsActuales.length === 0) {
       this.procesando = false;
-      this.error = 'El carrito está vacío.';
+      this.error = 'El carrito estÃ¡ vacÃ­o.';
       this.cdr.markForCheck();
       return;
     }
@@ -284,6 +297,11 @@ export class Checkout {
         referencia: this.datos.referencia.trim()
       }
     };
+
+    if (this.esInvitado) {
+      this.registrarInvitado(request);
+      return;
+    }
 
     try {
       if (request.medioPago === 'YAPE') request.claveIdempotencia = await claveYape(request);
@@ -313,9 +331,9 @@ export class Checkout {
         this.procesando = false;
 
         if (error.status === 401) {
-          this.error = 'Tu sesión ha expirado. Inicia sesión nuevamente.';
+          this.error = 'Tu sesiÃ³n ha expirado. Inicia sesiÃ³n nuevamente.';
         } else if (error.status === 403) {
-          this.error = 'No tienes autorización para realizar esta operación.';
+          this.error = 'No tienes autorizaciÃ³n para realizar esta operaciÃ³n.';
         } else if (error.status === 409) {
           this.error = error?.error?.message ??
             'El stock o los datos de la compra cambiaron. Revisa tu pedido.';
@@ -324,6 +342,56 @@ export class Checkout {
             ? error.error
             : error?.error?.message ?? 'No se pudo registrar la compra.';
         }
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private registrarInvitado(base: CompraRequest): void {
+    if (!this.habilitarEnvioInvitado) {
+      this.procesando = false;
+      this.error = 'La compra como invitado estÃƒÂ¡ en preparaciÃƒÂ³n. No realices pagos todavÃƒÂ­a.';
+      this.cdr.markForCheck();
+      return;
+    }
+    const request: CompraInvitadoRequest = {
+      ...base,
+      cliente: {
+        nombres: this.datos.nombres.trim(),
+        apellidos: this.datos.apellidos.trim(),
+        correo: this.datos.correo.trim().toLowerCase(),
+        telefono: this.datos.telefono.trim()
+      },
+      cuentaBancariaId: base.medioPago === 'TRANSFERENCIA' ? (this.cuentaBancariaId ?? undefined) : undefined
+    };
+    try {
+      // Reutilizar clave solo si los datos exactos del pedido siguen iguales.
+      const fingerprint = JSON.stringify(request);
+      const key = `checkout-invitado:${window.location.hostname}`;
+      const previous = JSON.parse(sessionStorage.getItem(key) || 'null') as { fingerprint: string; uuid: string } | null;
+      const uuid = previous?.fingerprint === fingerprint ? previous.uuid : crypto.randomUUID();
+      request.claveIdempotencia = uuid;
+      sessionStorage.setItem(key, JSON.stringify({ fingerprint, uuid }));
+    } catch {
+      this.procesando = false;
+      this.error = 'No se pudo preparar el pedido seguro. Habilita el almacenamiento de sesiÃƒÂ³n.';
+      this.cdr.markForCheck();
+      return;
+    }
+    this.invitadoApi.comprar(request).subscribe({
+      next: response => {
+        this.procesando = false;
+        sessionStorage.removeItem(`checkout-invitado:${window.location.hostname}`);
+        this.carritoService.vaciar();
+        void this.router.navigate(['/pedido-invitado'], {
+          state: { respuestaInvitada: response }
+        });
+      },
+      error: err => {
+        this.procesando = false;
+        this.error = err.status === 409
+          ? 'El pedido puede haber sido registrado. No vuelvas a pagar ni cambies los datos sin verificarlo con la tienda.'
+          : `No se pudo registrar la compra (HTTP ${err.status}). No realices pagos hasta recibir confirmaciÃƒÂ³n.`;
         this.cdr.markForCheck();
       }
     });
