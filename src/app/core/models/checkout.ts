@@ -9,6 +9,8 @@ export interface DatosCheckout {
 
   apellidos: string;
 
+  correo: string;
+
   telefono: string;
 
   departamento: string;

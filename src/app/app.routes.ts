@@ -76,10 +76,8 @@ export const routes: Routes = [
   // =====================================================
   { path: 'transferencia/pendiente/:idVenta', canActivate: [authGuard], loadComponent: () => import('./features/transferencia-pendiente/transferencia-pendiente').then(m=>m.TransferenciaPendiente) },
   { path: 'yape/pendiente/:idVenta', canActivate: [authGuard], loadComponent: () => import('./features/yape-pendiente/yape-pendiente').then(m => m.YapePendiente) },
-  { path: 'checkout',
-    component: Checkout,
-    canActivate: [authGuard]
-  },
+  { path: 'checkout', component: Checkout },
+  { path: 'pedido-invitado', loadComponent: () => import('./features/checkout/pages/checkout/pedido-invitado').then(m => m.PedidoInvitado) },
   {
     path: 'compra-exitosa',
     component: CompraExitosa,

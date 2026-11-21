@@ -18,6 +18,12 @@
           <h2 class="text-xl font-black uppercase text-slate-900 mt-1">Datos de Entrega</h2>
 
           <div class="mt-6 grid gap-5 sm:grid-cols-2">
+            @if (esInvitado) {
+              <div class="sm:col-span-2">
+                <label class="checkout-label" for="correo-invitado">Correo electrÃ³nico *</label>
+                <input id="correo-invitado" type="email" [(ngModel)]="datos.correo" class="checkout-input" autocomplete="email" placeholder="tu@correo.com" required maxlength="150">
+              </div>
+            }
             <div>
               <label class="checkout-label">Nombres *</label>
               <input type="text" [(ngModel)]="datos.nombres" class="checkout-input" placeholder="Tus nombres">
@@ -140,7 +146,10 @@
             <strong class="text-xl font-black text-indigo-600">S/ {{ totalEstimado | number:'1.2-2' }}</strong>
           </div>
 
-          <button type="button" (click)="continuarPago()" [disabled]="procesando" class="checkout-submit mt-6">
+          @if (esInvitado && !habilitarEnvioInvitado) {
+            <p role="status" class="mt-4 text-xs font-semibold text-amber-700">Checkout invitado en pruebas. No se aceptan pedidos ni pagos de invitados todavÃ­a.</p>
+          }
+          <button type="button" (click)="continuarPago()" [disabled]="procesando || (esInvitado && !habilitarEnvioInvitado)" class="checkout-submit mt-6">
             @if (procesando) { <span>Procesando pedido...</span> } @else { <span>Confirmar pedido</span> }
           </button>
 
