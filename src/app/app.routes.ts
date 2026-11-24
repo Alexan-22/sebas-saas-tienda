@@ -198,12 +198,6 @@ export const routes: Routes = [
       // -------------------------------------------------
       // B.2.1 - ADMINISTRACION DE PAGOS SANDBOX
       // -------------------------------------------------
-      {
-        path: 'pagos',
-        loadComponent: () =>
-          import('./features/admin/pagos/pagos')
-            .then(m => m.PagosAdmin)
-      },
 
       // -------------------------------------------------
       // B.2.2 - CONFIGURACION YAPE POR TIENDA

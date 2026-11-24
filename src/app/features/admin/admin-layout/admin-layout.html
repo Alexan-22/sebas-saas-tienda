@@ -91,7 +91,6 @@
         </button>
         @if (grupoAbierto('pagos')) {
           <div class="section-content">
-            <a routerLink="/admin/pagos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" (click)="cerrarMenu()"><span class="nav-icon"><svg><use href="#ad-wallet"/></svg></span><span>Resumen de pagos</span></a>
             <a routerLink="/admin/transferencias" routerLinkActive="active" class="nav-link" (click)="cerrarMenu()"><span class="nav-icon"><svg><use href="#ad-clock"/></svg></span><span>Transferencias pendientes</span></a>
             <a routerLink="/admin/pagos-yape" routerLinkActive="active" class="nav-link" (click)="cerrarMenu()"><span class="nav-icon"><svg><use href="#ad-phone"/></svg></span><span>Pagos Yape pendientes</span></a>
             <a routerLink="/admin/cuentas-bancarias" routerLinkActive="active" class="nav-link" (click)="cerrarMenu()"><span class="nav-icon"><svg><use href="#ad-bank"/></svg></span><span>Cuentas bancarias</span></a>
