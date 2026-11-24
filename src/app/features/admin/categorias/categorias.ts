@@ -1,7 +1,9 @@
 
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { finalize, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Categoria } from '../../../core/models/producto';
 import { CategoriaGestionService } from '../../../core/services/categoria-gestion';
@@ -16,6 +18,8 @@ import { CategoriaGestionService } from '../../../core/services/categoria-gestio
 export class CategoriasAdmin implements OnInit {
 
   private readonly categoriasApi = inject(CategoriaGestionService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   categorias: Categoria[] = [];
 
@@ -38,7 +42,14 @@ export class CategoriasAdmin implements OnInit {
     this.cargando = true;
     this.error = '';
 
-    this.categoriasApi.listar().subscribe({
+    this.categoriasApi.listar().pipe(timeout(30000)).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (!this.destroyRef.destroyed) {
+          this.cdr.detectChanges();
+        }
+      })
+    ).subscribe({
       next: data => {
         this.categorias = data ?? [];
         this.cargando = false;
@@ -65,7 +76,14 @@ export class CategoriasAdmin implements OnInit {
     this.categoriasApi.crear({
       nombreCategoria: nombre,
       estado: true
-    }).subscribe({
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (!this.destroyRef.destroyed) {
+          this.cdr.detectChanges();
+        }
+      })
+    ).subscribe({
       next: () => {
         this.nuevaCategoria = '';
         this.guardando = false;
@@ -134,6 +152,13 @@ export class CategoriasAdmin implements OnInit {
     this.categoriasApi.actualizar(
       categoria.idCategoria,
       { nombreCategoria: nombre, estado }
+    ).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (!this.destroyRef.destroyed) {
+          this.cdr.detectChanges();
+        }
+      })
     ).subscribe({
       next: () => {
         this.guardando = false;
@@ -175,7 +200,14 @@ export class CategoriasAdmin implements OnInit {
     this.eliminandoId = categoria.idCategoria;
 
     this.categoriasApi.eliminar(categoria.idCategoria)
-      .subscribe({
+      .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (!this.destroyRef.destroyed) {
+          this.cdr.detectChanges();
+        }
+      })
+    ).subscribe({
         next: () => {
           this.categorias = this.categorias.filter(
             c => c.idCategoria !== categoria.idCategoria
