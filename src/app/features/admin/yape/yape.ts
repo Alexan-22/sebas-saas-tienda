@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, Subscription, switchMap, TimeoutError, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { YapeConfiguracion, YapeService } from '../../../core/services/yape.service';
 
 @Component({
@@ -12,6 +13,10 @@ import { YapeConfiguracion, YapeService } from '../../../core/services/yape.serv
 })
 export class YapeAdmin implements OnInit, OnDestroy {
   private readonly api = inject(YapeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private cargaConfig: Subscription | null = null;
+  private cargaQr: Subscription | null = null;
+  private versionCarga = 0;
   private readonly maxBytes = 2 * 1024 * 1024;
   private archivoSeleccionado: File | null = null;
   private urlTemporal: string | null = null;
@@ -85,49 +90,100 @@ export class YapeAdmin implements OnInit, OnDestroy {
 
   cargar(): void {
     if (this.guardando()) return;
+
+    const version = ++this.versionCarga;
+    this.cargaConfig?.unsubscribe();
+    this.cargaQr?.unsubscribe();
+
     this.cargando.set(true);
     this.error.set('');
     this.mensaje.set('');
-    this.api.configuracionAdmin().subscribe({
-      next: configuracion => {
-        this.form = { ...configuracion };
-        this.habilitadoPersistido = configuracion.habilitado;
-        this.archivoSeleccionado = null;
-        this.archivoNombre.set('');
-        if (this.urlTemporal) URL.revokeObjectURL(this.urlTemporal);
-        this.urlTemporal = null;
-        this.qrGuardado.set(configuracion.qrUrl === '/api/yape/qr');
-        if (this.qrGuardado()) {
-          this.cargarImagenServidor();
-        } else {
-          if (this.urlServidor) URL.revokeObjectURL(this.urlServidor);
-          this.urlServidor = null;
-          this.vistaPrevia.set(null);
+
+    this.cargaConfig = this.api.configuracionAdmin()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: configuracion => {
+          if (version !== this.versionCarga) return;
+
+          this.form = { ...configuracion };
+          this.habilitadoPersistido = configuracion.habilitado;
+          this.archivoSeleccionado = null;
+          this.archivoNombre.set('');
+
+          if (this.urlTemporal) {
+            URL.revokeObjectURL(this.urlTemporal);
+            this.urlTemporal = null;
+          }
+
+          this.qrGuardado.set(
+            configuracion.qrUrl === '/api/yape/qr'
+          );
+
+          if (this.qrGuardado()) {
+            this.cargarImagenServidor(version);
+          } else {
+            if (this.urlServidor) {
+              URL.revokeObjectURL(this.urlServidor);
+            }
+            this.urlServidor = null;
+            this.vistaPrevia.set(null);
+            this.cargando.set(false);
+          }
+        },
+        error: (err: unknown) => {
+          if (version !== this.versionCarga) return;
+
           this.cargando.set(false);
+          this.error.set(
+            err instanceof TimeoutError
+              ? 'La configuracion Yape supero los 30 segundos.'
+              : err instanceof HttpErrorResponse
+                ? this.errorHttp(err)
+                : 'No se pudo cargar la configuracion Yape.'
+          );
         }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.cargando.set(false);
-        this.error.set(this.errorHttp(err));
-      }
-    });
+      });
   }
+  private cargarImagenServidor(
+    version: number = this.versionCarga
+  ): void {
+    this.cargaQr?.unsubscribe();
+    this.cargando.set(true);
 
-  private cargarImagenServidor(): void {
-    this.api.obtenerQrAdmin().subscribe({
-      next: imagen => {
-        if (this.urlServidor) URL.revokeObjectURL(this.urlServidor);
-        this.urlServidor = URL.createObjectURL(imagen);
-        this.vistaPrevia.set(this.urlServidor);
-        this.cargando.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.cargando.set(false);
-        this.error.set(this.errorHttp(err));
-      }
-    });
+    this.cargaQr = this.api.obtenerQrAdmin()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: imagen => {
+          if (version !== this.versionCarga) return;
+
+          if (this.urlServidor) {
+            URL.revokeObjectURL(this.urlServidor);
+          }
+
+          this.urlServidor = URL.createObjectURL(imagen);
+          this.vistaPrevia.set(this.urlServidor);
+          this.cargando.set(false);
+        },
+        error: (err: unknown) => {
+          if (version !== this.versionCarga) return;
+
+          this.cargando.set(false);
+          this.error.set(
+            err instanceof TimeoutError
+              ? 'La imagen QR supero los 30 segundos.'
+              : err instanceof HttpErrorResponse
+                ? this.errorHttp(err)
+                : 'No se pudo cargar la imagen QR.'
+          );
+        }
+      });
   }
-
   guardar(): void {
     if (this.guardando() || this.cargando()) return;
     this.error.set('');
