@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TimeoutError, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import {
   CabeceraConfig, CabeceraTiendaService, MenuCabecera, intervaloPromo, duracionDesplazamiento, textoContraste
@@ -13,6 +15,7 @@ import { TiendaService } from '../../../core/services/tienda.service';
 })
 export class PersonalizacionCabecera implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   readonly service = inject(CabeceraTiendaService);
   readonly tienda = inject(TiendaService);
   private readonly editor = inject(EditorTiendaService);
@@ -26,16 +29,27 @@ export class PersonalizacionCabecera implements OnInit {
   indiceVista = 0;
 
   ngOnInit(): void {
-    this.editor.obtener().subscribe({
-      next: borrador => {
-        this.revision = borrador.revision;
-        this.guardado = borrador.contenido.cabecera;
-        this.formulario = structuredClone(this.guardado);
-        this.cargando = false;
-        this.cdr.markForCheck();
-      },
-      error: e => { this.cargando = false; this.error = `No se pudo consultar la cabecera (HTTP ${e.status}).`; this.cdr.markForCheck(); }
-    });
+    this.editor.obtener()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: borrador => {
+          this.revision = borrador.revision;
+          this.guardado = borrador.contenido.cabecera;
+          this.formulario = structuredClone(this.guardado);
+          this.cargando = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: unknown) => {
+          this.cargando = false;
+          this.error = err instanceof TimeoutError
+            ? 'La consulta de cabecera superó los 30 segundos.'
+            : 'No se pudo consultar la configuración de cabecera.';
+          this.cdr.detectChanges();
+        }
+      });
   }
   get color(): string { return this.tienda.tiendaActual()?.colorPrimario || '#171717'; }
   get contraste(): string { return textoContraste(this.color); }
@@ -105,10 +119,12 @@ export class PersonalizacionCabecera implements OnInit {
         this.formulario = structuredClone(this.guardado);
         this.guardando = false;
         this.exito = 'Borrador guardado. Publícalo desde el Editor de tienda.';
+        this.cdr.detectChanges();
       },
       error: e => {
         this.guardando = false;
         this.error = e.status === 409 ? 'El borrador cambió. Recarga esta página.' : e.error?.message || `No se pudo guardar (HTTP ${e.status}).`;
+        this.cdr.detectChanges();
       }
     });
   }
