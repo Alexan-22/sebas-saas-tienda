@@ -2,7 +2,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { forkJoin, of } from 'rxjs';
+import { from, mergeMap, of, toArray } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { ProductoService } from '../../../core/services/producto';
@@ -215,6 +215,7 @@ export class Dashboard implements OnInit {
         const activos = (productos ?? []).filter(p => p.estado);
 
         this.totalProductos = activos.length;
+        this.actualizarVista();
 
         if (!activos.length) {
           this.totalStock = 0;
@@ -239,7 +240,10 @@ export class Dashboard implements OnInit {
             )
         );
 
-        forkJoin(consultas).subscribe({
+        from(consultas).pipe(
+          mergeMap(consulta => consulta, 6),
+          toArray()
+        ).subscribe({
           next: resultados => {
             if (resultados.some(resultado => resultado === null)) {
               this.errorInventario =
