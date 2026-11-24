@@ -31,6 +31,32 @@
         <label>Descripción <textarea [(ngModel)]="formulario.newsletterDescripcion" maxlength="200" rows="2"></textarea></label>
         <label>Texto legal <input [(ngModel)]="formulario.textoLegal" maxlength="180" /></label>
       </section>
+      <section class="sf-panel">
+        <h2>05 Â· Ayuda y pÃ¡ginas informativas</h2>
+        <p>Elige cuÃ¡les mostrar en tu tienda. Escribe tus propias condiciones y comprueba su contenido antes de publicar.</p>
+        @if (errorAyuda) { <div class="sf-notice sf-error" role="alert">{{errorAyuda}}</div> }
+        @if (exitoAyuda) { <div class="sf-notice sf-ok" role="status">{{exitoAyuda}}</div> }
+        @for (pagina of paginasAyuda; track pagina.clave) {
+          <div class="sf-ayuda-item">
+            <label class="sf-check"><input type="checkbox" [(ngModel)]="pagina.visible" /> Mostrar {{pagina.titulo}}</label>
+            <label>TÃ­tulo <input [(ngModel)]="pagina.titulo" maxlength="100" /></label>
+            <label>Contenido (texto plano, permite saltos de lÃ­nea)
+              <textarea rows="5" [(ngModel)]="pagina.contenido" maxlength="12000" placeholder="Escribe la informaciÃ³n correspondiente a tu tienda"></textarea>
+            </label>
+          </div>
+        }
+        <div class="sf-ayuda-item">
+          <strong>Vista previa de enlaces de Ayuda</strong>
+          @for (pagina of paginasAyuda; track pagina.clave) {
+            @if (pagina.visible) { <p>{{pagina.titulo}}</p> }
+          }
+        </div>
+        <p class="sf-hint">Revisa tus obligaciones comerciales y legales. El Libro de Reclamaciones requiere un sistema funcional independiente.</p>
+        <div class="sf-actions">
+          <button type="button" class="sf-secondary" (click)="restaurarAyuda()" [disabled]="guardandoAyuda">Descartar cambios de ayuda</button>
+          <button type="button" class="sf-primary" (click)="guardarAyuda()" [disabled]="guardandoAyuda || guardando">{{guardandoAyuda ? 'Guardando...' : 'Guardar ayuda como borrador'}}</button>
+        </div>
+      </section>
       <div class="sf-actions"><button type="button" class="sf-secondary" (click)="restaurar()" [disabled]="guardando">Descartar cambios</button><button type="button" class="sf-primary" [disabled]="guardando" (click)="guardar()">{{guardando ? 'Guardando...' : 'Guardar borrador'}}</button></div>
     </div>
     <aside class="sf-preview"><span>VISTA PREVIA</span><div class="sf-mini"><h2>{{nombre}}</h2><p>{{formulario.descripcion}}</p><h3>EXPLORA</h3><small>Toda la tienda · Mujer · Hombre · Novedades</small><h3>REDES SOCIALES</h3><div class="sf-chips">@if (formulario.facebookUrl) {<span>Facebook</span>} @if (formulario.instagramUrl) {<span>Instagram</span>} @if (formulario.tiktokUrl) {<span>TikTok</span>} @if (!formulario.facebookUrl && !formulario.instagramUrl && !formulario.tiktokUrl) {<small>Aún no configuradas</small>}</div><p>{{formulario.textoContacto}}</p></div><p>El color de la marca se conserva en botones y acentos. Publica el borrador desde el Editor de tienda.</p></aside>

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FooterConfig, FooterTiendaService } from '../../../core/services/footer-tienda.service';
-import { EditorTiendaService } from '../../../core/services/editor-tienda.service';
+import { EditorTiendaService, type PaginaAyuda, type ClavePaginaAyuda } from '../../../core/services/editor-tienda.service';
 import { TiendaService } from '../../../core/services/tienda.service';
 
 @Component({
@@ -14,6 +14,58 @@ export class PersonalizacionFooter implements OnInit {
   private readonly editor = inject(EditorTiendaService);
   private revision: number | null = null;
   private guardado?: FooterConfig;
+  private paginasGuardadas: PaginaAyuda[] = [];
+  readonly opciones: { clave: ClavePaginaAyuda; titulo: string }[] = [
+    { clave: 'CAMBIOS', titulo: 'Cambios y devoluciones' },
+    { clave: 'ENVIOS', titulo: 'EnvÃ­os y entregas' },
+    { clave: 'PREGUNTAS', titulo: 'Preguntas frecuentes' },
+    { clave: 'TERMINOS', titulo: 'TÃ©rminos y condiciones' },
+    { clave: 'PRIVACIDAD', titulo: 'PolÃ­tica de privacidad' }
+  ];
+  paginasAyuda: PaginaAyuda[] = [];
+  guardandoAyuda = false;
+  exitoAyuda = '';
+  errorAyuda = '';
+  obtenerPagina(clave: ClavePaginaAyuda): PaginaAyuda {
+    return this.paginasAyuda.find(p => p.clave === clave)!;
+  }
+  restaurarAyuda(): void {
+    this.paginasAyuda = structuredClone(this.paginasGuardadas);
+    this.exitoAyuda = '';
+    this.errorAyuda = '';
+  }
+  guardarAyuda(): void {
+    if (this.guardandoAyuda || this.guardando || this.cargando || this.revision === null) return;
+    this.errorAyuda = ''; this.exitoAyuda = '';
+    const paginas = this.paginasAyuda.map(p => ({ ...p, titulo:p.titulo.trim(), contenido:p.contenido.trim() }));
+    if (paginas.some(p => p.visible && (!p.titulo || !p.contenido))) {
+      this.errorAyuda = 'Las pÃ¡ginas visibles necesitan un tÃ­tulo y contenido.';
+      return;
+    }
+    this.guardandoAyuda = true;
+    this.editor.guardarPaginasAyuda(this.revision, paginas).subscribe({
+      next: borrador => {
+        this.revision = borrador.revision;
+        this.paginasGuardadas = structuredClone(borrador.contenido.paginasAyuda ?? []);
+        this.paginasAyuda = this.completarPaginas(this.paginasGuardadas);
+        this.guardandoAyuda = false;
+        this.exitoAyuda = 'PÃ¡ginas guardadas como borrador. PublÃ­calas desde Editor de tienda.';
+        this.cdr.markForCheck();
+      },
+      error: e => {
+        this.guardandoAyuda = false;
+        this.errorAyuda = e.status === 409 ? 'El borrador cambiÃ³. Recarga para evitar sobrescribirlo.' :
+          (e.error?.detail || `No se pudo guardar (HTTP ${e.status}).`);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+  private completarPaginas(paginas: PaginaAyuda[]): PaginaAyuda[] {
+    return this.opciones.map(op => {
+      const existente = paginas.find(p => p.clave === op.clave);
+      return existente ? { ...existente } : { clave: op.clave, titulo: op.titulo, contenido: '', visible: false };
+    });
+  }
   private readonly cdr = inject(ChangeDetectorRef);
   formulario: FooterConfig = structuredClone(this.service.configuracion());
   cargando = true;
@@ -28,6 +80,8 @@ export class PersonalizacionFooter implements OnInit {
         this.revision = borrador.revision;
         this.guardado = borrador.contenido.footer;
         this.formulario = structuredClone(this.guardado);
+        this.paginasGuardadas = structuredClone(borrador.contenido.paginasAyuda ?? []);
+        this.paginasAyuda = this.completarPaginas(this.paginasGuardadas);
         this.cargando = false;
         this.cdr.markForCheck();
       },

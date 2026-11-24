@@ -79,3 +79,7 @@
 @media(max-width:700px){.sf-editor{padding:24px 16px 65px}.sf-header{margin-bottom:22px}.sf-panel,.sf-preview{padding:22px;border-radius:18px}.sf-pair{grid-template-columns:1fr;gap:0}.sf-actions button{flex:1}.sf-mini{padding:28px 22px}}
 @media(max-width:400px){.sf-editor{padding:18px 11px 50px}.sf-panel,.sf-preview{padding:18px}.sf-actions{gap:8px}.sf-actions button{padding:12px}}
 @media(prefers-reduced-motion:reduce){.sf-panel,.sf-actions button,.sf-panel input,.sf-panel textarea{transition:none}}
+
+.sf-ayuda-item { margin:18px 0 23px; padding:18px; border:1px solid #e2e7ef; border-radius:14px; background:#fbfcff; }
+.sf-ayuda-item .sf-check { margin-top:0; }
+.sf-ayuda-item label:first-of-type { margin-top:0; }

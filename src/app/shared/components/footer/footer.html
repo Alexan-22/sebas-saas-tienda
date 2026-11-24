@@ -47,6 +47,13 @@
         <a routerLink="/login">Iniciar sesión</a><a routerLink="/registro">Crear una cuenta</a>
         <a routerLink="/mi-cuenta">Mi perfil</a><a routerLink="/mis-compras">Mis pedidos</a>
       </nav>
+      @if (paginasVisibles().length > 0) {
+        <nav class="sf-links" aria-label="Ayuda e informaciÃ³n"><h3>AYUDA E INFORMACIÃ“N</h3>
+          @for (pagina of paginasVisibles(); track pagina.clave) {
+            <a [routerLink]="['/informacion', pagina.clave.toLowerCase()]">{{pagina.titulo}}</a>
+          }
+        </nav>
+      }
       <div class="sf-links sf-contact"><h3>CONTACTO</h3><p>{{config().textoContacto}}</p>
         @if (tiendaService.telefonoWhatsApp(); as numero) {
           <a class="sf-whatsapp" [href]="'https://wa.me/' + numero" target="_blank" rel="noopener noreferrer">Conversar por WhatsApp ↗</a>
