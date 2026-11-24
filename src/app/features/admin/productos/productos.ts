@@ -52,28 +52,42 @@ export class Productos implements OnInit {
   }
 
   cargarProductos(): void {
+    const version = ++this.versionCarga;
 
     this.cargando = true;
     this.error = '';
+    this.cdr.markForCheck();
 
-    this.productoService.listarAdmin().subscribe({
+    this.productoService.listarAdmin()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: productos => {
+          if (version !== this.versionCarga) return;
 
-      next: productos => {
-        this.productos = productos ?? [];
-        this.aplicarFiltro();
-        this.cargando = false;
-      },
+          this.productos = Array.isArray(productos)
+            ? productos
+            : [];
 
-      error: error => {
-        console.error(error);
+          this.aplicarFiltro();
+          this.cargando = false;
+          this.error = '';
 
-        this.error =
-          'No se pudieron cargar los productos.';
+          this.cdr.markForCheck();
+        },
+        error: error => {
+          if (version !== this.versionCarga) return;
 
-        this.cargando = false;
-      }
+          console.error('Error cargando productos:', error);
 
-    });
+          this.error = 'No se pudieron cargar los productos.';
+          this.cargando = false;
+
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   aplicarFiltro(): void {
