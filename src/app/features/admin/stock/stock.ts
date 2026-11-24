@@ -1,8 +1,9 @@
 import { environment } from '../../../../environments/environment';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Producto } from '../../../core/models/producto';
 import { ProductoTalla, Talla } from '../../../core/models/producto-talla';
 import { ProductoService } from '../../../core/services/producto';
@@ -41,6 +42,8 @@ export class Stock implements OnInit {
   guardandoNuevaTalla = false;
 
   private readonly uploadsUrl = `${environment.apiUrl}/uploads/`;
+  private readonly destroyRef = inject(DestroyRef);
+  private versionCarga = 0;
 
   constructor(
     private productoService: ProductoService,
@@ -57,72 +60,81 @@ export class Stock implements OnInit {
   // CARGAR PRODUCTOS + TALLAS GENERALES
   // =========================================================
   cargarDatos(): void {
+    const version = ++this.versionCarga;
+
     this.cargando = true;
     this.error = '';
+    this.inventario = [];
+    this.inventarioFiltrado = [];
+    this.cdr.markForCheck();
 
     forkJoin({
-      productos: this.productoService.listar(),
-      tallas: this.tallaService.listar()
-    }).subscribe({
-      next: respuesta => {
-        this.productos = respuesta.productos ?? [];
-        this.tallasDisponibles = (respuesta.tallas ?? [])
-          .filter(talla => talla.estado !== false)
-          .sort((a, b) => this.ordenTalla(a.nombreTalla) - this.ordenTalla(b.nombreTalla));
+      productos: this.productoService.listarAdmin(),
+      tallas: this.tallaService.listar(),
+      inventario: this.productoTallaService.listarInventarioParaReportes()
+    })
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: respuesta => {
+          if (version !== this.versionCarga) return;
 
-        this.cargarInventarioProductos();
-      },
-      error: error => {
-        console.error('Error cargando productos o tallas:', error);
-        this.error = 'No se pudieron cargar los productos y tallas.';
-        this.cargando = false;
-        this.cdr.detectChanges();
-      }
-    });
+          this.productos = Array.isArray(respuesta.productos)
+            ? respuesta.productos
+            : [];
+
+          this.tallasDisponibles = (respuesta.tallas ?? [])
+            .filter(talla => talla.estado !== false)
+            .sort(
+              (a, b) =>
+                this.ordenTalla(a.nombreTalla) -
+                this.ordenTalla(b.nombreTalla)
+            );
+
+          const porProducto = new Map<number, ProductoTalla[]>();
+
+          for (const fila of respuesta.inventario ?? []) {
+            const id = fila?.producto?.idProducto;
+
+            if (typeof id !== 'number') continue;
+
+            const tallas = porProducto.get(id) ?? [];
+            tallas.push(fila);
+            porProducto.set(id, tallas);
+          }
+
+          this.inventario = this.productos.map(producto => ({
+            producto,
+            tallas: [...(porProducto.get(producto.idProducto) ?? [])]
+              .sort(
+                (a, b) =>
+                  this.ordenTalla(a.talla?.nombreTalla ?? 'SIN_TALLA') -
+                  this.ordenTalla(b.talla?.nombreTalla ?? 'SIN_TALLA')
+              )
+          }));
+
+          this.aplicarFiltro();
+          this.cargando = false;
+          this.error = '';
+          this.cdr.detectChanges();
+        },
+        error: error => {
+          if (version !== this.versionCarga) return;
+
+          console.error('Error cargando inventario:', error);
+
+          this.error = 'No se pudo cargar el inventario y las tallas.';
+          this.cargando = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
-  // =========================================================
-  // CARGAR INVENTARIO
-  // =========================================================
   cargarInventario(): void {
     this.cargarDatos();
   }
-
-  private cargarInventarioProductos(): void {
-    if (this.productos.length === 0) {
-      this.inventario = [];
-      this.inventarioFiltrado = [];
-      this.cargando = false;
-      this.cdr.detectChanges();
-      return;
-    }
-
-    const consultas = this.productos.map(producto =>
-      this.productoTallaService.listarPorProducto(producto.idProducto)
-    );
-
-    forkJoin(consultas).subscribe({
-      next: resultados => {
-        this.inventario = this.productos.map((producto, index) => ({
-          producto,
-          tallas: [...(resultados[index] ?? [])].sort(
-            (a, b) => this.ordenTalla(a.talla?.nombreTalla ?? 'SIN_TALLA') - this.ordenTalla(b.talla?.nombreTalla ?? 'SIN_TALLA')
-          )
-        }));
-
-        this.aplicarFiltro();
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: error => {
-        console.error('Error cargando tallas de productos:', error);
-        this.error = 'No se pudo cargar el inventario.';
-        this.cargando = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   // =========================================================
   // BUSCADOR
   // =========================================================
