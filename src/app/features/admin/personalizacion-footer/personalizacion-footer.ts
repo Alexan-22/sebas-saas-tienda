@@ -17,10 +17,7 @@ export class PersonalizacionFooter implements OnInit {
   private paginasGuardadas: PaginaAyuda[] = [];
   readonly opciones: { clave: ClavePaginaAyuda; titulo: string }[] = [
     { clave: 'CAMBIOS', titulo: 'Cambios y devoluciones' },
-    { clave: 'ENVIOS', titulo: 'EnvÃ­os y entregas' },
-    { clave: 'PREGUNTAS', titulo: 'Preguntas frecuentes' },
-    { clave: 'TERMINOS', titulo: 'TÃ©rminos y condiciones' },
-    { clave: 'PRIVACIDAD', titulo: 'PolÃ­tica de privacidad' }
+    { clave: 'TERMINOS', titulo: 'TÃ©rminos y condiciones' }
   ];
   paginasAyuda: PaginaAyuda[] = [];
   guardandoAyuda = false;
@@ -37,7 +34,13 @@ export class PersonalizacionFooter implements OnInit {
   guardarAyuda(): void {
     if (this.guardandoAyuda || this.guardando || this.cargando || this.revision === null) return;
     this.errorAyuda = ''; this.exitoAyuda = '';
-    const paginas = this.paginasAyuda.map(p => ({ ...p, titulo:p.titulo.trim(), contenido:p.contenido.trim() }));
+    // Conservar paginas anteriores que ya no aparecen en este editor simplificado.
+    // No las eliminamos del borrador ni de las versiones de la tienda.
+    const clavesEditables = new Set(this.opciones.map(op => op.clave));
+    const paginas = [
+      ...this.paginasGuardadas.filter(p => !clavesEditables.has(p.clave)),
+      ...this.paginasAyuda
+    ].map(p => ({ ...p, titulo: p.titulo.trim(), contenido: p.contenido.trim() }));
     if (paginas.some(p => p.visible && (!p.titulo || !p.contenido))) {
       this.errorAyuda = 'Las pÃ¡ginas visibles necesitan un tÃ­tulo y contenido.';
       return;

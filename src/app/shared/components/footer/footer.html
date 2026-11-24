@@ -48,7 +48,7 @@
         <a routerLink="/mi-cuenta">Mi perfil</a><a routerLink="/mis-compras">Mis pedidos</a>
       </nav>
       @if (paginasVisibles().length > 0) {
-        <nav class="sf-links" aria-label="Ayuda e informaciÃ³n"><h3>AYUDA E INFORMACIÃ“N</h3>
+        <nav class="sf-links" aria-label="Ayuda e informaciÃ³n"><h3>AYUDA</h3>
           @for (pagina of paginasVisibles(); track pagina.clave) {
             <a [routerLink]="['/informacion', pagina.clave.toLowerCase()]">{{pagina.titulo}}</a>
           }

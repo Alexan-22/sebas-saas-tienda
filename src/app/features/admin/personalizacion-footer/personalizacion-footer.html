@@ -32,8 +32,8 @@
         <label>Texto legal <input [(ngModel)]="formulario.textoLegal" maxlength="180" /></label>
       </section>
       <section class="sf-panel">
-        <h2>05 Â· Ayuda y pÃ¡ginas informativas</h2>
-        <p>Elige cuÃ¡les mostrar en tu tienda. Escribe tus propias condiciones y comprueba su contenido antes de publicar.</p>
+        <h2>05 Â· Ayuda</h2>
+        <p>Configura los enlaces de Cambios y devoluciones y TÃ©rminos y condiciones. Los demÃ¡s apartados del footer permanecen iguales.</p>
         @if (errorAyuda) { <div class="sf-notice sf-error" role="alert">{{errorAyuda}}</div> }
         @if (exitoAyuda) { <div class="sf-notice sf-ok" role="status">{{exitoAyuda}}</div> }
         @for (pagina of paginasAyuda; track pagina.clave) {
@@ -51,7 +51,11 @@
             @if (pagina.visible) { <p>{{pagina.titulo}}</p> }
           }
         </div>
-        <p class="sf-hint">Revisa tus obligaciones comerciales y legales. El Libro de Reclamaciones requiere un sistema funcional independiente.</p>
+        <div class="sf-ayuda-item">
+          <strong>Libro de Reclamaciones</strong>
+          <p class="sf-hint">Tercer enlace previsto para AYUDA. No se mostrarÃ¡ al comprador hasta conectar un mecanismo real de recepciÃ³n y registro de reclamaciones. No se habilita una pÃ¡gina vacÃ­a.</p>
+        </div>
+        <p class="sf-hint">Las polÃ­ticas y avisos exigidos por ley deben permanecer accesibles. Los otros contenidos previamente guardados se conservan aunque no aparezcan en esta secciÃ³n.</p>
         <div class="sf-actions">
           <button type="button" class="sf-secondary" (click)="restaurarAyuda()" [disabled]="guardandoAyuda">Descartar cambios de ayuda</button>
           <button type="button" class="sf-primary" (click)="guardarAyuda()" [disabled]="guardandoAyuda || guardando">{{guardandoAyuda ? 'Guardando...' : 'Guardar ayuda como borrador'}}</button>

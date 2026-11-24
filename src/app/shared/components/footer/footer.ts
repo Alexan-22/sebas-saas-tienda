@@ -13,7 +13,11 @@ export class Footer implements OnInit {
   readonly tiendaService = inject(TiendaService);
   readonly footerService = inject(FooterTiendaService);
   readonly ayuda = inject(PaginasAyudaService);
-  readonly paginasVisibles = computed(() => this.ayuda.paginas());
+  // La seccion AYUDA solo muestra los enlaces elegidos para este diseno.
+  // RECLAMACIONES se excluye desde la API hasta disponer de un mecanismo funcional.
+  readonly paginasVisibles = computed(() => this.ayuda.paginas().filter(
+    p => p.clave === 'CAMBIOS' || p.clave === 'TERMINOS'
+  ));
   readonly vistaPrevia = input<FooterConfig>();
   readonly config = computed(() => this.vistaPrevia() ?? this.footerService.configuracion());
   readonly color = this.tiendaService.colorPrimario;
