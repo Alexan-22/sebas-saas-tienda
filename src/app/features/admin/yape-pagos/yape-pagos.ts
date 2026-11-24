@@ -2,12 +2,15 @@
 import {
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   OnInit,
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { YapeComprobanteAdminComponent } from '../../yape-comprobante/admin/yape-comprobante-admin';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription, TimeoutError, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
   EventoYape,
@@ -25,6 +28,12 @@ export class YapePagosAdmin implements OnInit {
 
   private readonly service = inject(YapePagosService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private cargaActual: Subscription | null = null;
+  private auditoriaActual: Subscription | null = null;
+  private versionCarga = 0;
+  private versionAuditoria = 0;
 
   pagos: PagoYapeManual[] = [];
   cargando = false;
@@ -41,73 +50,105 @@ export class YapePagosAdmin implements OnInit {
   }
 
   cargar(): void {
-    if (this.cargando) return;
+    const version = ++this.versionCarga;
+
+    this.cargaActual?.unsubscribe();
 
     this.cargando = true;
     this.error = '';
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
-    this.service.listarAdmin().subscribe({
-      next: lista => {
+    const consulta = this.service.listarAdmin()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: lista => {
+          if (version !== this.versionCarga) return;
 
-        if (Array.isArray(lista)) {
-          this.pagos = lista;
-        } else {
-          this.pagos = [];
-          this.error = 'La API devolvió un formato de pagos incorrecto.';
+          if (Array.isArray(lista)) {
+            this.pagos = lista;
+          } else {
+            this.pagos = [];
+            this.error = 'La API devolvió un formato de pagos incorrecto.';
+          }
+
+          this.cargando = false;
+          this.cdr.detectChanges();
+        },
+
+        error: (err: unknown) => {
+          if (version !== this.versionCarga) return;
+
+          this.cargando = false;
+
+          if (err instanceof TimeoutError) {
+            this.error = 'La consulta de pagos Yape superó los 30 segundos.';
+          } else if (err instanceof HttpErrorResponse && err.status === 401) {
+            this.error = 'Tu sesión ha expirado. Vuelve a iniciar sesión.';
+          } else if (err instanceof HttpErrorResponse && err.status === 403) {
+            this.error = 'Tu usuario no tiene permiso para consultar los pagos.';
+          } else if (err instanceof HttpErrorResponse && (err.status === 502 || err.status === 503)) {
+            this.error = 'No se puede conectar con Spring Boot.';
+          } else if (err instanceof HttpErrorResponse && err.status === 0) {
+            this.error = 'No se pudo establecer conexión con la API.';
+          } else {
+            this.error = `No se pudieron cargar los pagos Yape (HTTP ${err instanceof HttpErrorResponse ? err.status : "desconocido"}).`;
+          }
+
+          this.cdr.detectChanges();
         }
+      });
 
-        this.cargando = false;
-        this.cdr.markForCheck();
-      },
-
-      error: (err: HttpErrorResponse) => {
-        console.error('Error consultando pagos Yape:', err.status);
-
-        this.cargando = false;
-
-        if (err.status === 401) {
-          this.error = 'Tu sesión ha expirado. Vuelve a iniciar sesión.';
-        } else if (err.status === 403) {
-          this.error = 'Tu usuario no tiene permiso para consultar los pagos.';
-        } else if (err.status === 502 || err.status === 503) {
-          this.error = 'No se puede conectar con Spring Boot. Revisa la sesión aislada.';
-        } else if (err.status === 0) {
-          this.error = 'No se pudo establecer conexión con la API.';
-        } else {
-          this.error = `No se pudieron cargar los pagos Yape (HTTP ${err.status}).`;
-        }
-
-        this.cdr.markForCheck();
-      }
-    });
+    this.cargaActual = consulta;
   }
-
   verAuditoria(idVenta: number): void {
+    const version = ++this.versionAuditoria;
+
+    this.auditoriaActual?.unsubscribe();
+
     if (this.auditoriaVenta === idVenta) {
       this.auditoriaVenta = null;
       this.eventos = [];
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
       return;
     }
 
     this.auditoriaVenta = idVenta;
     this.eventos = [];
     this.error = '';
+    this.cdr.detectChanges();
 
-    this.service.auditoria(idVenta).subscribe({
-      next: eventos => {
-        this.eventos = eventos;
-        this.cdr.markForCheck();
-      },
+    const consulta = this.service.auditoria(idVenta)
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: eventos => {
+          if (
+            version !== this.versionAuditoria ||
+            this.auditoriaVenta !== idVenta
+          ) return;
 
-      error: () => {
-        this.error = 'No se pudo cargar la auditoría del pago.';
-        this.cdr.markForCheck();
-      }
-    });
+          this.eventos = eventos ?? [];
+          this.cdr.detectChanges();
+        },
+
+        error: () => {
+          if (
+            version !== this.versionAuditoria ||
+            this.auditoriaVenta !== idVenta
+          ) return;
+
+          this.error = 'No se pudo cargar la auditoría del pago.';
+          this.cdr.detectChanges();
+        }
+      });
+
+    this.auditoriaActual = consulta;
   }
-
   aprobar(p: PagoYapeManual): void {
     if (p.estado !== 'PENDIENTE' || this.operando !== null) {
       return;
