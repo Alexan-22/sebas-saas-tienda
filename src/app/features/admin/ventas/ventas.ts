@@ -1,7 +1,5 @@
 import {
-  ChangeDetectorRef,
-  Component,
-  OnInit
+  ChangeDetectorRef, Component, DestroyRef, OnInit, inject
 } from '@angular/core';
 
 import {
@@ -22,6 +20,8 @@ import {
   VentaService
 } from '../../../core/services/venta';
 import { ProductoImagenService } from '../../../core/services/producto-imagen';
+import { timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -37,6 +37,8 @@ import { ProductoImagenService } from '../../../core/services/producto-imagen';
   styleUrl: './ventas.css'
 })
 export class Ventas implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private versionDetalle = 0;
 
   // =========================================================
   // VENTAS
@@ -44,7 +46,9 @@ export class Ventas implements OnInit {
 
   // Catalogo de colores del tenant. Solo lectura; no cambia inventario.
   cargarColores(): void {
-    this.productoImagenService.listarColores().subscribe({
+    this.productoImagenService.listarColores()
+      .pipe(timeout(30000), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (colores) => {
         this.coloresPorId = Object.fromEntries(
           (colores ?? []).map(c => [c.idColor, c.nombre])
@@ -133,6 +137,7 @@ export class Ventas implements OnInit {
 
     this.ventaService
       .listarTodas()
+      .pipe(timeout(30000), takeUntilDestroyed(this.destroyRef))
       .subscribe({
 
         next: (
@@ -291,6 +296,7 @@ export class Ventas implements OnInit {
   verDetalle(
     venta: Venta
   ): void {
+    const version = ++this.versionDetalle;
 
     this.ventaSeleccionada =
       venta;
@@ -307,15 +313,14 @@ export class Ventas implements OnInit {
     this.cdr.detectChanges();
 
     this.ventaService
-      .detalleVentaAdmin(
-        venta.idVenta
-      )
+      .detalleVentaAdmin(venta.idVenta)
+      .pipe(timeout(30000), takeUntilDestroyed(this.destroyRef))
       .subscribe({
 
         next: (
-          respuesta:
-            DetalleCompraResponse
+          respuesta: DetalleCompraResponse
         ) => {
+          if (version !== this.versionDetalle) return;
 
           this.detalleSeleccionado =
             respuesta;
@@ -333,6 +338,7 @@ export class Ventas implements OnInit {
         error: (
           error: unknown
         ) => {
+          if (version !== this.versionDetalle) return;
 
           console.error(
             'Error cargando detalle:',
@@ -351,15 +357,6 @@ export class Ventas implements OnInit {
             false;
 
           this.cdr.detectChanges();
-        },
-
-
-        complete: () => {
-
-          this.cargandoDetalle =
-            false;
-
-          this.cdr.detectChanges();
         }
 
       });
@@ -367,6 +364,7 @@ export class Ventas implements OnInit {
 
 
   cerrarDetalle(): void {
+    ++this.versionDetalle;
 
     this.ventaSeleccionada =
       null;

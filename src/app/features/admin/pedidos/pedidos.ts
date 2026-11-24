@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { VentaService } from '../../../core/services/venta';
 import {
@@ -15,6 +17,10 @@ import {
   styleUrl: './pedidos.css'
 })
 export class Pedidos implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private versionPedidos = 0;
+  private versionDetalle = 0;
   pedidos: Venta[] = [];
   pedidosFiltrados: Venta[] = [];
 
@@ -36,26 +42,40 @@ export class Pedidos implements OnInit {
   }
 
   cargarPedidos(): void {
+    const version = ++this.versionPedidos;
+
     this.cargando = true;
     this.error = '';
+    this.cdr.markForCheck();
 
-    this.ventaService.listarTodas().subscribe({
-      next: respuesta => {
-        this.pedidos = [...(respuesta ?? [])].sort(
-          (a, b) =>
-            new Date(b.fechaVenta).getTime() -
-            new Date(a.fechaVenta).getTime()
-        );
+    this.ventaService.listarTodas()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: respuesta => {
+          if (version !== this.versionPedidos) return;
 
-        this.aplicarFiltros();
-        this.cargando = false;
-      },
-      error: error => {
-        console.error('Error consultando pedidos:', error);
-        this.error = 'No se pudieron cargar los pedidos.';
-        this.cargando = false;
-      }
-    });
+          this.pedidos = [...(respuesta ?? [])].sort(
+            (a, b) =>
+              new Date(b.fechaVenta).getTime() -
+              new Date(a.fechaVenta).getTime()
+          );
+
+          this.aplicarFiltros();
+          this.cargando = false;
+          this.cdr.detectChanges();
+        },
+        error: error => {
+          if (version !== this.versionPedidos) return;
+
+          console.error('Error consultando pedidos:', error);
+          this.error = 'No se pudieron cargar los pedidos.';
+          this.cargando = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   aplicarFiltros(): void {
@@ -126,28 +146,45 @@ export class Pedidos implements OnInit {
   }
 
   abrirDetalle(pedido: Venta): void {
+    const version = ++this.versionDetalle;
+
     this.pedidoSeleccionado = pedido;
     this.detalle = null;
     this.errorDetalle = '';
     this.cargandoDetalle = true;
+    this.cdr.detectChanges();
 
-    this.ventaService.detalleVentaAdmin(pedido.idVenta).subscribe({
-      next: respuesta => {
-        this.detalle = respuesta;
-        this.cargandoDetalle = false;
-      },
-      error: error => {
-        console.error('Error cargando detalle del pedido:', error);
-        this.errorDetalle = 'No se pudo consultar el detalle.';
-        this.cargandoDetalle = false;
-      }
-    });
+    this.ventaService.detalleVentaAdmin(pedido.idVenta)
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: respuesta => {
+          if (version !== this.versionDetalle) return;
+
+          this.detalle = respuesta;
+          this.cargandoDetalle = false;
+          this.cdr.detectChanges();
+        },
+        error: error => {
+          if (version !== this.versionDetalle) return;
+
+          console.error('Error cargando detalle del pedido:', error);
+          this.errorDetalle = 'No se pudo consultar el detalle.';
+          this.cargandoDetalle = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   cerrarDetalle(): void {
+    ++this.versionDetalle;
+
     this.pedidoSeleccionado = null;
     this.detalle = null;
     this.errorDetalle = '';
     this.cargandoDetalle = false;
+    this.cdr.detectChanges();
   }
 }
