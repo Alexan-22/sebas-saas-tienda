@@ -10,7 +10,7 @@ describe('Checkout Yape safety',()=>{
 describe('Yape checkout submission',()=>{
  it('lets the server handle reserved stock on retry and blocks double clicks',()=>{
   const page=Object.create(Checkout.prototype) as Checkout;
-  page.datos={metodoPago:'YAPE',nombres:'Prueba',apellidos:'Local',telefono:'900000001',departamento:'Lima',provincia:'Lima',distrito:'Lima',direccion:'Fixture',referencia:''};
+  page.datos={metodoPago:'YAPE',correo:'prueba@example.invalid',nombres:'Prueba',apellidos:'Local',telefono:'900000001',departamento:'Lima',provincia:'Lima',distrito:'Lima',direccion:'Fixture',referencia:''};
   page.yapeDisponible=true;page.aceptaTerminos=true;page.procesando=false;
   const submit=vi.fn(),preflight=vi.fn();
   Object.defineProperty(page,'items',{value:()=>[{}]});
