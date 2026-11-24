@@ -71,6 +71,12 @@ export const routes: Routes = [
     component: Tienda
   },
 
+  // Paginas publicas del footer; el backend entrega solo las publicadas y visibles.
+  {
+    path: 'informacion/:clave',
+    loadComponent: () => import('./features/pagina-ayuda/pagina-ayuda').then(m => m.PaginaAyudaPublica)
+  },
+
   // =====================================================
   // CLIENTE AUTENTICADO
   // =====================================================

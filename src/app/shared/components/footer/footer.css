@@ -125,3 +125,12 @@
   .sf-socials a{width:43px;height:43px}
 }
 @media (prefers-reduced-motion:reduce){.sf-links a,.sf-socials a,.sf-contact .sf-whatsapp{transition:none}}
+
+/* Columna opcional de ayuda: se adapta a 4 o 5 bloques sin desbordar. */
+.sf-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr)); }
+.sf-about { min-width:0; }
+@media (max-width:760px) {
+  .sf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sf-about { grid-column:1/-1; }
+  .sf-contact { grid-column:1/-1; }
+}

@@ -38,7 +38,17 @@ export interface TemaEditor {
   tipografia: 'SANS' | 'SERIF' | 'MONO';
 }
 
+export type ClavePaginaAyuda = 'CAMBIOS' | 'ENVIOS' | 'PREGUNTAS' | 'TERMINOS' | 'PRIVACIDAD' | 'RECLAMACIONES';
+
+export interface PaginaAyuda {
+  clave: ClavePaginaAyuda;
+  titulo: string;
+  contenido: string;
+  visible: boolean;
+}
+
 export interface ContenidoEditor {
+  paginasAyuda?: PaginaAyuda[];
   tema?: TemaEditor | null;
   portada?: PortadaEditor | null;
   seccionesHome: SeccionHome[];
@@ -68,6 +78,10 @@ export class EditorTiendaService {
 
   guardar<K extends keyof ContenidoEditor>(bloque: K, revision: number, datos: ContenidoEditor[K]) {
     return this.http.put<BorradorTienda>(`${this.url}/borrador/${bloque}`, datos, { params: { revision } });
+  }
+
+  guardarPaginasAyuda(revision: number, paginas: PaginaAyuda[]) {
+    return this.http.put<BorradorTienda>(`${this.url}/borrador/paginas-ayuda`, paginas, { params: { revision } });
   }
 
   recursosHome() {
