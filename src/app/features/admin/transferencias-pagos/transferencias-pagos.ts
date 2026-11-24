@@ -1,6 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
 import { EventoTransferencia, PagoTransferencia, TransferenciasService } from '../../../core/services/transferencias.service';
 
 @Component({
@@ -14,6 +14,8 @@ export class TransferenciasPagos implements OnInit, OnDestroy {
   private readonly api = inject(TransferenciasService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly subs = new Subscription();
+  private cargaActual: Subscription | null = null;
+  private versionCarga = 0;
   pagos: PagoTransferencia[] = [];
   imagenes: Record<number, string> = {};
   eventos: EventoTransferencia[] = [];
@@ -30,11 +32,39 @@ export class TransferenciasPagos implements OnInit, OnDestroy {
   ngOnInit(): void { this.cargarPagos(); }
   cambiarFiltro(f: 'TODOS' | 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'): void { this.filtro = f; }
   cargarPagos(): void {
-    this.cargando = true; this.error = '';
-    this.subs.add(this.api.pagosAdmin().subscribe({
-      next: lista => { this.pagos = Array.isArray(lista) ? lista : []; this.cargando = false; this.cdr.markForCheck(); },
-      error: e => { this.error = `No se pudieron cargar transferencias (HTTP ${e.status}).`; this.cargando = false; this.cdr.markForCheck(); }
-    }));
+    const version = ++this.versionCarga;
+
+    // Cancelar la consulta anterior del listado.
+    this.cargaActual?.unsubscribe();
+
+    this.cargando = true;
+    this.error = '';
+    this.cdr.detectChanges();
+
+    const consulta = this.api.pagosAdmin()
+      .pipe(timeout(30000))
+      .subscribe({
+        next: lista => {
+          if (version !== this.versionCarga) return;
+
+          this.pagos = Array.isArray(lista) ? lista : [];
+          this.cargando = false;
+          this.cdr.detectChanges();
+        },
+        error: e => {
+          if (version !== this.versionCarga) return;
+
+          this.cargando = false;
+          this.error = e.name === 'TimeoutError'
+            ? 'La consulta de transferencias superó los 30 segundos.'
+            : `No se pudieron cargar transferencias (HTTP ${e.status ?? '?'}).`;
+
+          this.cdr.detectChanges();
+        }
+      });
+
+    this.cargaActual = consulta;
+    this.subs.add(consulta);
   }
   verComprobante(id: number): void {
     if (this.imagenes[id]) { URL.revokeObjectURL(this.imagenes[id]); delete this.imagenes[id]; this.cdr.markForCheck(); return; }
