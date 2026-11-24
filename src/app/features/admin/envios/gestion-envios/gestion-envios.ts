@@ -1,8 +1,10 @@
 import { CobrosContraEntrega } from '../cobros-contraentrega/cobros-contraentrega';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnviosService, Envio, EstadoEnvio, GuardarEnvio, VentaLogistica } from '../../../../core/services/envios';
 
 @Component({
@@ -15,6 +17,11 @@ import { EnviosService, Envio, EstadoEnvio, GuardarEnvio, VentaLogistica } from 
 export class GestionEnvios implements OnInit {
   private readonly api = inject(EnviosService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private versionCarga = 0;
+  private versionRefresco = 0;
+  private versionSeleccion = 0;
 
   ventas: VentaLogistica[] = [];
   envios: Envio[] = [];
@@ -42,59 +49,145 @@ export class GestionEnvios implements OnInit {
   ngOnInit(): void { this.cargar(); }
 
   cargar(): void {
+    if (this.guardando) return;
+
+    const version = ++this.versionCarga;
+    ++this.versionRefresco;
+
     this.cargando = true;
     this.error = '';
-    this.api.ventas().subscribe({
-      next: ventas => {
-        this.ventas = ventas || [];
-        if (this.ventaId !== null && !this.ventas.some(v => v.idVenta === this.ventaId)) {
-          this.ventaId = null;
-          this.actual = null;
+    this.cdr.markForCheck();
+
+    forkJoin({
+      ventas: this.api.ventas(),
+      envios: this.api.listar()
+    })
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: ({ ventas, envios }) => {
+          if (version !== this.versionCarga) return;
+
+          this.ventas = ventas ?? [];
+          this.envios = envios ?? [];
+
+          if (
+            this.ventaId !== null &&
+            !this.ventas.some(v => v.idVenta === this.ventaId)
+          ) {
+            ++this.versionSeleccion;
+            this.ventaId = null;
+            this.actual = null;
+          }
+
+          this.cargando = false;
+          this.error = '';
+          this.cdr.detectChanges();
+        },
+        error: (e: HttpErrorResponse) => {
+          if (version !== this.versionCarga) return;
+
+          this.error = this.mensajeError(
+            e,
+            'No se pudieron cargar los pedidos y envios'
+          );
+
+          this.cargando = false;
+          this.cdr.detectChanges();
         }
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: (e: HttpErrorResponse) => {
-        this.error = this.mensajeError(e, 'No se pudieron consultar las ventas online');
-        this.cargando = false;
-        this.cdr.detectChanges();
-      }
-    });
-    this.refrescarEnvios();
+      });
   }
-
   refrescarEnvios(): void {
-    this.api.listar().subscribe({
-      next: envios => { this.envios = envios || []; this.cdr.detectChanges(); },
-      error: (e: HttpErrorResponse) => {
-        this.error = this.mensajeError(e, 'No se pudo consultar el seguimiento de envios');
-        this.cdr.detectChanges();
-      }
-    });
-  }
+    const version = ++this.versionRefresco;
 
+    this.api.listar()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: envios => {
+          if (version !== this.versionRefresco) return;
+
+          this.envios = envios ?? [];
+          this.cdr.detectChanges();
+        },
+        error: (e: HttpErrorResponse) => {
+          if (version !== this.versionRefresco) return;
+
+          this.error = this.mensajeError(
+            e,
+            'No se pudo consultar el seguimiento de envios'
+          );
+
+          this.cdr.detectChanges();
+        }
+      });
+  }
   seleccionar(): void {
+    const version = ++this.versionSeleccion;
+    const id = this.ventaId;
+
     this.actual = null;
     this.mensaje = '';
     this.error = '';
-    this.formulario = { operador: 'SHALOM', modalidad: 'AGENCIA', numeroGuia: '', codigoRastreo: '', observaciones: '' };
-    if (!this.ventaId) return;
-    this.api.obtener(this.ventaId).subscribe({
-      next: envio => { this.mostrar(envio); this.cdr.detectChanges(); },
-      error: (e: HttpErrorResponse) => {
-        if (e.status !== 404) this.error = this.mensajeError(e, 'No se pudo leer la guia');
-        this.cdr.detectChanges();
-      }
-    });
-  }
 
+    this.formulario = {
+      operador: 'SHALOM',
+      modalidad: 'AGENCIA',
+      numeroGuia: '',
+      codigoRastreo: '',
+      observaciones: ''
+    };
+
+    if (id === null) {
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.api.obtener(id)
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: envio => {
+          if (
+            version !== this.versionSeleccion ||
+            this.ventaId !== id
+          ) return;
+
+          this.mostrar(envio);
+          this.cdr.detectChanges();
+        },
+        error: (e: HttpErrorResponse) => {
+          if (
+            version !== this.versionSeleccion ||
+            this.ventaId !== id
+          ) return;
+
+          if (e.status !== 404) {
+            this.error = this.mensajeError(
+              e,
+              'No se pudo leer la guia'
+            );
+          }
+
+          this.cdr.detectChanges();
+        }
+      });
+  }
   seleccionarEnvio(envio: Envio): void {
+    ++this.versionSeleccion;
+
     this.ventaId = envio.idVenta;
     this.mostrar(envio);
     this.error = '';
     this.mensaje = '';
+    this.cdr.markForCheck();
   }
-
   private mostrar(envio: Envio): void {
     this.actual = envio;
     this.formulario = {

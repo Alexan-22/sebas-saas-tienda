@@ -78,7 +78,9 @@
 
     <div class="logistica-bloque">
       <h3>Últimos envíos registrados</h3>
-      @if (!envios.length) {
+      @if (cargando) {
+        <p class="aviso">Cargando envios...</p>
+      } @else if (!envios.length) {
         <p class="aviso">Todavía no hay guías en esta tienda.</p>
       } @else {
         <div class="envios-lista">
