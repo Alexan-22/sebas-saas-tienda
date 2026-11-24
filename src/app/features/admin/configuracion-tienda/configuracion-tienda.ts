@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, TimeoutError, timeout } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
   TiendaService,
@@ -25,6 +26,8 @@ interface ColorMarca {
 export class ConfiguracionTienda implements OnInit {
 
   readonly tiendaService = inject(TiendaService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly paletas: ColorMarca[] = [
     {
@@ -79,18 +82,27 @@ export class ConfiguracionTienda implements OnInit {
       return;
     }
 
-    this.tiendaService.cargarConfiguracion().subscribe({
-      next: tienda => {
-        this.establecer(tienda);
-        this.cargando = false;
-      },
-      error: () => {
-        this.error = 'No se pudo cargar la configuración.';
-        this.cargando = false;
-      }
-    });
-  }
+    this.tiendaService.cargarConfiguracion()
+      .pipe(
+        timeout(30000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: tienda => {
+          this.establecer(tienda);
+          this.cargando = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: unknown) => {
+          this.error = err instanceof TimeoutError
+            ? 'La configuración de tu tienda superó los 30 segundos.'
+            : 'No se pudo cargar la configuración.';
 
+          this.cargando = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
   private establecer(t: TiendaConfig): void {
     this.datos = {
       nombre: t.nombre || '',
