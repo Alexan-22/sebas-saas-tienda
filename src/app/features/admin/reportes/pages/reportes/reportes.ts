@@ -154,7 +154,7 @@ export class Reportes implements OnInit {
       ventas: this.ventaService.listarTodas(),
       productos: this.productoService.listarAdmin(),
       usuarios: this.usuarioService.listarTodos()
-    }).subscribe({
+    }).pipe(timeout(30000), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: respuesta => {
         this.ventas = respuesta.ventas ?? [];
         this.productos = respuesta.productos ?? [];
@@ -165,7 +165,7 @@ export class Reportes implements OnInit {
         console.error('Error cargando reportes:', error);
         this.error = 'No se pudo cargar la información de reportes.';
         this.cargando = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }
@@ -175,7 +175,7 @@ export class Reportes implements OnInit {
     forkJoin({
       detalles: this.ventaService.listarDetallesParaReportes(),
       inventario: this.productoTallaService.listarInventarioParaReportes()
-    }).subscribe({
+    }).pipe(timeout(30000), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: respuesta => {
         this.detalles = respuesta.detalles ?? [];
         this.inventario = respuesta.inventario ?? [];
@@ -183,13 +183,13 @@ export class Reportes implements OnInit {
         this.consultadoEn = new Date();
         this.aplicarFiltros();
         this.cargando = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: error => {
         console.error('Error cargando detalle o inventario de reportes:', error);
         this.error = 'No se pudieron cargar los detalles de ventas o el inventario de esta tienda.';
         this.cargando = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }
