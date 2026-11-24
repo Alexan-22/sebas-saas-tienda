@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, catchError, from, map, mergeMap, of, takeUntil, toArray } from 'rxjs';
@@ -27,6 +27,7 @@ export class Tienda implements OnInit, OnDestroy {
   private readonly tallasApi = inject(ProductoTallaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   productos: Producto[] = [];
@@ -37,6 +38,7 @@ export class Tienda implements OnInit, OnDestroy {
   inventario: Record<number, ProductoTalla[]> = {};
 
   cargando = true;
+  cargandoInventario = false;
   errorCarga = false;
   errorCategorias = false;
   inventarioParcial = false;
@@ -77,9 +79,9 @@ export class Tienda implements OnInit, OnDestroy {
         this.categorias = (Array.isArray(categorias) ? categorias : [])
           .filter(c => c?.estado !== false)
           .sort((a, b) => a.nombreCategoria.localeCompare(b.nombreCategoria, 'es'));
-        this.errorCategorias = false;
+        this.errorCategorias = false; this.cdr.markForCheck();
       },
-      error: err => { console.error('Error cargando categorías:', err); this.errorCategorias = true; }
+      error: err => { console.error('Error cargando categorías:', err); this.errorCategorias = true; this.cdr.markForCheck(); }
     });
   }
 
@@ -96,6 +98,9 @@ export class Tienda implements OnInit, OnDestroy {
         }
         this.generos = [...generos.values()].sort((a, b) => a.nombreGenero.localeCompare(b.nombreGenero, 'es'));
         this.aplicarFiltros();
+        this.cdr.markForCheck();
+        this.cargando = false;
+        this.cdr.markForCheck();
         this.cargarInventario();
       },
       error: err => {
@@ -107,15 +112,19 @@ export class Tienda implements OnInit, OnDestroy {
         this.errorCarga = true;
         this.cargando = false;
         this.aplicarFiltros();
+        this.cdr.markForCheck();
       }
     });
   }
 
   private cargarInventario(): void {
+    this.cargandoInventario = true;
+    this.cdr.markForCheck();
     if (!this.productos.length) {
       this.inventario = {};
       this.tallas = [];
-      this.cargando = false;
+      this.cargandoInventario = false;
+      this.cdr.markForCheck();
       return;
     }
     // Limitar a seis consultas simultáneas para no saturar Spring Boot.
@@ -147,14 +156,14 @@ export class Tienda implements OnInit, OnDestroy {
           }
         }
         this.tallas = [...tallasMap.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { numeric: true }));
-        this.cargando = false;
-        this.aplicarFiltros();
+        this.cargandoInventario = false;
+        this.aplicarFiltros(); this.cdr.markForCheck();
       },
       error: err => {
         console.error('Error obteniendo inventario:', err);
         this.inventarioParcial = true;
-        this.cargando = false;
-        this.aplicarFiltros();
+        this.cargandoInventario = false;
+        this.aplicarFiltros(); this.cdr.markForCheck();
       }
     });
   }

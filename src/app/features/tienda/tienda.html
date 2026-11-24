@@ -49,7 +49,8 @@
         </div>
         <div class="grupo-filtro">
           <h4>Tallas disponibles</h4>
-          @if (!cargando && tallas.length === 0) { <p class="ayuda">No hay tallas disponibles para filtrar.</p> }
+          @if (cargandoInventario) { <p class="ayuda">Consultando tallas...</p> }
+          @if (!cargando && !cargandoInventario && tallas.length === 0) { <p class="ayuda">No hay tallas disponibles para filtrar.</p> }
           <div class="tallas">
             @for (talla of tallas; track talla.id) {
               <button type="button" [class.seleccionado]="tallaSeleccionada === talla.id" (click)="seleccionarTalla(talla.id)">{{ talla.nombre }}</button>
