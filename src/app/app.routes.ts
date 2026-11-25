@@ -246,6 +246,10 @@ export const routes: Routes = [
           .then(m => m.EditorPortada)
       },
       {
+        path: 'reclamaciones',
+        loadComponent: () => import('./features/admin/reclamaciones/reclamaciones').then(m => m.ReclamacionesAdmin)
+      },
+      {
         path: 'editor-tienda',
         loadComponent: () => import('./features/admin/editor-tienda/editor-tienda')
           .then(m => m.EditorTienda)
@@ -276,6 +280,10 @@ export const routes: Routes = [
   // =====================================================
   // RUTA NO ENCONTRADA
   // =====================================================
+  {
+    path: 'libro-reclamaciones',
+    loadComponent: () => import('./features/libro-reclamaciones/libro-reclamaciones').then(m => m.LibroReclamaciones)
+  },
   {
     path: '**',
     redirectTo: ''
