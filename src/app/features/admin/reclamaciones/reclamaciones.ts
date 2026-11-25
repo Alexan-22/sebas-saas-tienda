@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 
 interface Resumen {
@@ -23,7 +24,7 @@ interface Detalle { hoja: Hoja; eventos: Evento[]; }
 @Component({
   selector: 'app-admin-reclamaciones',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule],
   template: `
     <section class="libro-admin">
       <header><h1>Libro de Reclamaciones</h1><p>Consulta privada de reclamaciones de esta tienda.</p></header>
@@ -51,6 +52,13 @@ interface Detalle { hoja: Hoja; eventos: Evento[]; }
           @for (e of detalle()!.eventos; track $index) {
             <p class="evento"><strong>{{e.tipo}}</strong> — {{e.creadoEn | date:'dd/MM/yyyy HH:mm'}}: {{e.contenido}}</p>
           }
+          <section class="nota-interna">
+            <h3>Nota interna de seguimiento</h3>
+            <label for="nota-reclamo">Nota (no se envía al consumidor)</label>
+            <textarea id="nota-reclamo" [ngModel]="nota()" (ngModelChange)="nota.set($event)" maxlength="4000" rows="4"></textarea>
+            <button type="button" (click)="guardarNota()" [disabled]="guardandoNota() || !nota().trim()">{{ guardandoNota() ? 'Guardando…' : 'Guardar nota' }}</button>
+            @if (mensajeNota()) { <p role="status">{{ mensajeNota() }}</p> }
+          </section>
           <p class="nota">Las notas internas no sustituyen una respuesta formal comunicada al consumidor.</p>
         </article>
       }
@@ -65,6 +73,7 @@ interface Detalle { hoja: Hoja; eventos: Evento[]; }
     .cabecera{display:flex;align-items:center;justify-content:space-between;gap:10px}.cabecera h2{margin:0}
     dl{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:11px;margin:25px 0}dt{font-weight:bold}dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
     .evento{padding:9px;border-bottom:1px solid #eee}.nota{font-size:13px;color:#666}
+    .nota-interna{border-top:1px solid #ddd;padding-top:12px}.nota-interna textarea{display:block;width:100%;box-sizing:border-box;margin:8px 0 12px;padding:10px;max-width:100%;border:1px solid #aaa;border-radius:6px}
     @media(max-width:600px){dl{grid-template-columns:1fr;gap:4px}dd{margin-bottom:12px}}
   `]
 })
@@ -75,6 +84,9 @@ export class ReclamacionesAdmin implements OnInit {
   readonly detalle = signal<Detalle | null>(null);
   readonly cargando = signal(false);
   readonly error = signal('');
+  readonly nota = signal('');
+  readonly guardandoNota = signal(false);
+  readonly mensajeNota = signal('');
   ngOnInit(): void { this.cargar(); }
   cargar(): void {
     this.cargando.set(true); this.error.set('');
@@ -85,9 +97,25 @@ export class ReclamacionesAdmin implements OnInit {
   }
   ver(numeroHoja: number): void {
     this.detalle.set(null);
+    this.nota.set(''); this.mensajeNota.set('');
     this.http.get<Detalle>(`${this.base}/${numeroHoja}`).subscribe({
       next: d => this.detalle.set(d),
       error: () => this.error.set('No se pudo consultar la hoja solicitada.')
     });
   }
+  guardarNota(): void {
+    const hoja = this.detalle()?.hoja.numeroHoja;
+    const texto = this.nota().trim();
+    if (!hoja || !texto || texto.length > 4000 || this.guardandoNota()) return;
+    this.guardandoNota.set(true); this.mensajeNota.set('');
+    this.http.post<void>(`${this.base}/${hoja}/notas`, {texto}).subscribe({
+      next: () => {
+        this.guardandoNota.set(false); this.nota.set('');
+        this.mensajeNota.set('Nota guardada, sin notificación al consumidor.');
+        this.ver(hoja);
+      },
+      error: () => { this.guardandoNota.set(false); this.mensajeNota.set('No se pudo guardar la nota.'); }
+    });
+  }
+
 }
