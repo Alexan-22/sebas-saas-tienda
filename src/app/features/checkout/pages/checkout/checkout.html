@@ -105,10 +105,7 @@
  <select id="cuenta-banco" [(ngModel)]="cuentaBancariaId" class="checkout-input"><option [ngValue]="null">Selecciona una cuenta</option>@for(c of cuentas;track c.id){<option [ngValue]="c.id">{{c.banco}} · {{c.titular}} · {{c.numeroCuenta}} · {{c.moneda}}</option>}</select>
  <p>El pago quedará pendiente hasta que el administrador verifique la transferencia.</p></div>
  }
- <label class="terms-check mt-6">
-            <input type="checkbox" [(ngModel)]="aceptaTerminos">
-            <span>He leído y acepto los términos y condiciones de compra de Tienda Sebas.</span>
-          </label>
+ <p class="mt-6 text-xs text-slate-600">Revisa las condiciones de compra y la política de privacidad de esta tienda en los enlaces informativos del sitio.</p>
         </section>
 
         @if (error) {

@@ -55,7 +55,6 @@ export class Checkout {
   procesando = false;
   error = '';
   pagoYapeConfirmado = false;
-  aceptaTerminos = false;
 
   datos: DatosCheckout = {
     nombres: '',
@@ -176,10 +175,6 @@ export class Checkout {
     }
 
 
-    if (!this.aceptaTerminos) {
-      this.error = 'Debes aceptar los tÃ©rminos y condiciones para continuar.';
-      return;
-    }
     if (this.items().length === 0) {
       this.error = 'El carrito estÃ¡ vacÃ­o.';
       return;
