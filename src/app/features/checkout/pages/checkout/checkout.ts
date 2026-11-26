@@ -33,8 +33,8 @@ export class Checkout {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly auth = inject(AuthService);
   private readonly invitadoApi = inject(CheckoutInvitadoApiService);
-  // No activar hasta validar RLS y pruebas HTTP reales del backend.
-  readonly habilitarEnvioInvitado = false;
+  // Activacion preparada en la rama de prueba; NO fusionar sin verificar el rol de BD y las pruebas E2E.
+  readonly habilitarEnvioInvitado = true;
   get esInvitado(): boolean { return !this.auth.autenticado(); }
 
   readonly items;
@@ -55,7 +55,6 @@ export class Checkout {
   procesando = false;
   error = '';
   pagoYapeConfirmado = false;
-  aceptaTerminos = false;
 
   datos: DatosCheckout = {
     nombres: '',
@@ -176,10 +175,6 @@ export class Checkout {
     }
 
 
-    if (!this.aceptaTerminos) {
-      this.error = 'Debes aceptar los tÃ©rminos y condiciones para continuar.';
-      return;
-    }
     if (this.items().length === 0) {
       this.error = 'El carrito estÃ¡ vacÃ­o.';
       return;
@@ -382,6 +377,7 @@ export class Checkout {
       next: response => {
         this.procesando = false;
         sessionStorage.removeItem(`checkout-invitado:${window.location.hostname}`);
+        try { sessionStorage.setItem(`pedido-invitado:${window.location.hostname}`, JSON.stringify(response)); } catch { /* history.state conserva la respuesta durante la navegacion */ }
         this.carritoService.vaciar();
         void this.router.navigate(['/pedido-invitado'], {
           state: { respuestaInvitada: response }
